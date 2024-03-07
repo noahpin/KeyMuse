@@ -28,51 +28,16 @@
 	let highlightSvg = `M12.752,10.524c-1.198.085-2.143,1.03-2.228,2.228-.204,2.878-.532,8.399-.532,14.248v${(height - 4) * capQuarterUnitSize}c0,5.849.327,11.371.532,14.248.085,1.198,1.03,2.143,2.228,2.228,2.878.204,8.399.532,14.248.532h${(width - 4) * capQuarterUnitSize}c5.849,0,11.371-.327,14.248-.532,1.198-.085,2.143-1.03,2.228-2.228.204-2.878.532-8.399.532-14.248v${(height - 4) * capQuarterUnitSize * -1}c0-5.849-.327-11.371-.532-14.248-.085-1.198-1.03-2.143-2.228-2.228-2.878-.204-8.399-.532-14.248-.532h${(width - 4) * capQuarterUnitSize * -1}c-5.849,0-11.371.327-14.248.532`;
 	let secondaryHighlightSvg = `M12.752,10.524c-1.198.085-2.143,1.03-2.228,2.228-.204,2.878-.532,8.399-.532,14.248v${(secondaryHeight - 4) * capQuarterUnitSize}c0,5.849.327,11.371.532,14.248.085,1.198,1.03,2.143,2.228,2.228,2.878.204,8.399.532,14.248.532h${(secondaryWidth - 4) * capQuarterUnitSize}c5.849,0,11.371-.327,14.248-.532,1.198-.085,2.143-1.03,2.228-2.228.204-2.878.532-8.399.532-14.248v${(secondaryHeight - 4) * capQuarterUnitSize * -1}c0-5.849-.327-11.371-.532-14.248-.085-1.198-1.03-2.143-2.228-2.228-2.878-.204-8.399-.532-14.248-.532h${(secondaryWidth - 4) * capQuarterUnitSize * -1}c-5.849,0-11.371.327-14.248.532`;
 
-	let capBoxSvg = buildSVGPathFromKeycapData({
-		x: 0,
-		y: 0,
-		width: unitWidth,
-		height: unitHeight,
-	});
-	let secondaryCapBoxSvg = buildSVGPathFromKeycapData({
-		x: 0,
-		y: 0,
-		width: secondaryUnitWidth,
-		height: secondaryUnitHeight,
-	});
-
-	let totalHighlight = stepped ? highlightSvg : generateHighlightSvg(
-		highlightSvg,
-		secondaryHighlightSvg
-	);
-
-	let totalCapBox = generateHighlightSvg(capBoxSvg, secondaryCapBoxSvg);
-
 	let showPreviewStyles = true;
-	let svgWidth = width;
-	let svgHeight = height;
-	let capMaskPadding = 0.037;
+	let svgWidth = width * capQuarterUnitSize;
+	let svgHeight = height * capQuarterUnitSize;
+	let capMaskPadding = 3;
 	let capMaskWidth = svgWidth - capMaskPadding * 2;
 	let capMaskHeight = svgHeight - capMaskPadding * 2;
-
-	let capMaskSvg = buildSVGPathFromKeycapData({
-		x: capMaskPadding,
-		y: capMaskPadding,
-		width: unitWidth - capMaskPadding * 2,
-		height: unitHeight - capMaskPadding * 2,
-	});
-	let secondaryCapMaskSvg = buildSVGPathFromKeycapData({
-		x: capMaskPadding,
-		y: capMaskPadding,
-		width: secondaryUnitWidth - capMaskPadding * 2,
-		height: secondaryUnitHeight - capMaskPadding * 2,
-	});
-
-	let totalCapMask = roundCorners(
-		generateHighlightSvg(capMaskSvg, secondaryCapMaskSvg),
-		2,
-		2
-	).path;
+	let secondarySvgWidth = secondaryWidth * capQuarterUnitSize;
+	let secondarySvgHeight = secondaryHeight * capQuarterUnitSize;
+	let secondaryCapMaskWidth = secondarySvgWidth - capMaskPadding * 2;
+	let secondaryCapMaskHeight = secondarySvgHeight - capMaskPadding * 2;
 
 	let textAlignmentWidth = (width - 2) * capQuarterUnitSize;
 	let textAlignmentHeight = (height - 2) * capQuarterUnitSize;
@@ -102,74 +67,16 @@
 
 		secondaryWidth = secondaryUnitWidth * 4;
 		secondaryHeight = secondaryUnitHeight * 4;
+		secondarySvgWidth = secondaryWidth * capQuarterUnitSize;
+		secondarySvgHeight = secondaryHeight * capQuarterUnitSize;
+		secondaryCapMaskWidth = secondarySvgWidth - capMaskPadding * 2;
+		secondaryCapMaskHeight = secondarySvgHeight - capMaskPadding * 2;
 
 		highlightSvg = `M12.752,10.524c-1.198.085-2.143,1.03-2.228,2.228-.204,2.878-.532,8.399-.532,14.248v${(height - 4) * capQuarterUnitSize}c0,5.849.327,11.371.532,14.248.085,1.198,1.03,2.143,2.228,2.228,2.878.204,8.399.532,14.248.532h${(width - 4) * capQuarterUnitSize}c5.849,0,11.371-.327,14.248-.532,1.198-.085,2.143-1.03,2.228-2.228.204-2.878.532-8.399.532-14.248v${(height - 4) * capQuarterUnitSize * -1}c0-5.849-.327-11.371-.532-14.248-.085-1.198-1.03-2.143-2.228-2.228-2.878-.204-8.399-.532-14.248-.532h${(width - 4) * capQuarterUnitSize * -1}c-5.849,0-11.371.327-14.248.532`;
 		secondaryHighlightSvg = `M12.752,10.524c-1.198.085-2.143,1.03-2.228,2.228-.204,2.878-.532,8.399-.532,14.248v${(secondaryHeight - 4) * capQuarterUnitSize}c0,5.849.327,11.371.532,14.248.085,1.198,1.03,2.143,2.228,2.228,2.878.204,8.399.532,14.248.532h${(secondaryWidth - 4) * capQuarterUnitSize}c5.849,0,11.371-.327,14.248-.532,1.198-.085,2.143-1.03,2.228-2.228.204-2.878.532-8.399.532-14.248v${(secondaryHeight - 4) * capQuarterUnitSize * -1}c0-5.849-.327-11.371-.532-14.248-.085-1.198-1.03-2.143-2.228-2.228-2.878-.204-8.399-.532-14.248-.532h${(secondaryWidth - 4) * capQuarterUnitSize * -1}c-5.849,0-11.371.327-14.248.532`;
 
-		capBoxSvg = buildSVGPathFromKeycapData({
-			x: 0,
-			y: 0,
-			width: unitWidth,
-			height: unitHeight,
-		});
-		secondaryCapBoxSvg = buildSVGPathFromKeycapData({
-			x: 0,
-			y: 0,
-			width: secondaryUnitWidth,
-			height: secondaryUnitHeight,
-		});
-
-		totalHighlight = stepped ? highlightSvg : generateHighlightSvg(highlightSvg, secondaryHighlightSvg);
-
-		totalCapBox = generateHighlightSvg(capBoxSvg, secondaryCapBoxSvg);
 
 		showPreviewStyles = true;
-		svgWidth = width;
-		svgHeight = height;
-		capMaskWidth = svgWidth - capMaskPadding * 2;
-		capMaskHeight = svgHeight - capMaskPadding * 2;
-
-		capMaskSvg = buildSVGPathFromKeycapData({
-			x: capMaskPadding,
-			y: capMaskPadding,
-			width: unitWidth - capMaskPadding * 2,
-			height: unitHeight - capMaskPadding * 2,
-		});
-		secondaryCapMaskSvg = buildSVGPathFromKeycapData({
-			x: capMaskPadding,
-			y: capMaskPadding,
-			width: secondaryUnitWidth - capMaskPadding * 2,
-			height: secondaryUnitHeight - capMaskPadding * 2,
-		});
-
-		totalCapMask = roundCorners(
-			generateHighlightSvg(capMaskSvg, secondaryCapMaskSvg),
-			2,
-			2
-		).path;
-	}
-
-	function generateHighlightSvg(main: string, secondary: string) {
-		//translate the secondary string by the secondary x and y
-		const p = new paper.Project();
-
-		// Create layers to organize paths
-		const l = new paper.Layer();
-		const secondaryPath = new paper.Path(secondary);
-		l.addChild(secondaryPath);
-		secondaryPath.translate(
-			new paper.Point(
-				secondaryX * capQuarterUnitSize * 4,
-				secondaryY * capQuarterUnitSize * 4
-			)
-		);
-		secondary = secondaryPath.pathData;
-
-		l.remove();
-		p.remove();
-		secondaryPath.remove();
-
-		return svgPathUnion(main, secondary);
 	}
 
 	function selectItem(e: MouseEvent) {
@@ -184,6 +91,20 @@
 				console.log($selectedStore.length);
 			} else {
 				selectedStore.set([$selectedStore, capData]);
+			}
+		}else if(e.ctrlKey) {
+			//toggle the selected state of the capData
+			if (Array.isArray($selectedStore)) {
+				let arr = [...$selectedStore];
+				if (arr.includes(capData)) {
+					arr = arr.filter((item) => item !== capData);
+					selectedStore.set(arr);
+				} else {
+					arr.push(capData);
+					selectedStore.set(arr);
+				}
+			} else {
+				selectedStore.set(capData);
 			}
 		} else {
 			selectedStore.set(capData);
@@ -203,14 +124,105 @@
 >
 	<defs>
 		<mask id={"outline" + capId}>
-			<path
-				transform="translate(0, -0)"
-				d={totalCapMask}
+			<rect
+				x={capMaskPadding}
+				y={capMaskPadding}
+				width={capMaskWidth}
+				height={capMaskHeight}
 				fill="#fff"
-				stroke-width="0"
-			/>
+				rx="1"
+				ry="1"
+			></rect>
+			<rect
+				x={capMaskPadding + secondaryX * capQuarterUnitSize * 4}
+				y={capMaskPadding + secondaryY * capQuarterUnitSize * 4}
+				width={secondaryCapMaskWidth}
+				height={secondaryCapMaskHeight}
+				fill="#fff"
+				rx="1"
+				ry="1"
+			></rect>
 		</mask>
 	</defs>
+
+
+	{#if showPreviewStyles}
+		<g>
+			<rect
+				x={capMaskPadding}
+				y={capMaskPadding}
+				width={capMaskWidth}
+				height={capMaskHeight}
+				fill="#0000"
+				stroke={capColor}
+				stroke-width="2"
+				rx="1"
+				ry="1"
+			></rect>
+			<rect
+				x={capMaskPadding + secondaryX * capQuarterUnitSize * 4}
+				y={capMaskPadding + secondaryY * capQuarterUnitSize * 4}
+				width={secondaryCapMaskWidth}
+				height={secondaryCapMaskHeight}
+				fill="#0000"
+				stroke={capColor}
+				stroke-width="2"
+				rx="1"
+				ry="1"
+			></rect>
+		</g>
+		<g mix-blend-mode="overlay" opacity="0.19">
+			<rect
+				x={capMaskPadding}
+				y={capMaskPadding}
+				width={capMaskWidth}
+				height={capMaskHeight}
+				fill="#0000"
+				stroke="#000"
+				stroke-width="2"
+				rx="1"
+				ry="1"
+			></rect>
+			<rect
+				x={capMaskPadding + secondaryX * capQuarterUnitSize * 4}
+				y={capMaskPadding + secondaryY * capQuarterUnitSize * 4}
+				width={secondaryCapMaskWidth}
+				height={secondaryCapMaskHeight}
+				fill="#0000"
+				stroke="#000"
+				stroke-width="2"
+				rx="1"
+				ry="1"
+			></rect>
+		</g>
+	{/if}
+	
+	{#if selected}
+		<g>
+			<rect
+				x={capMaskPadding}
+				y={capMaskPadding}
+				width={capMaskWidth}
+				height={capMaskHeight}
+				fill="#0000"
+				stroke="red"
+				stroke-width="4"
+				rx="1"
+				ry="1"
+			></rect>
+			<rect
+				x={capMaskPadding + secondaryX * capQuarterUnitSize * 4}
+				y={capMaskPadding + secondaryY * capQuarterUnitSize * 4}
+				width={secondaryCapMaskWidth}
+				height={secondaryCapMaskHeight}
+				fill="#0000"
+				stroke="red"
+				stroke-width="4"
+				rx="1"
+				ry="1"
+			></rect>
+		</g>
+	{/if}
 	<g mask={showPreviewStyles ? `url(#outline${capId})` : ""}>
 		<rect
 			width={svgWidth}
@@ -218,30 +230,48 @@
 			fill={capColor}
 			stroke-width="0"
 		/>
-		<path transform="translate(0, -0)" d={totalCapBox} fill={capColor} />
+		<rect
+			x={secondaryX * capQuarterUnitSize * 4}
+			y={secondaryY * capQuarterUnitSize * 4}
+			width={secondarySvgWidth}
+			height={secondarySvgHeight}
+			fill={capColor}
+			stroke-width="0"
+		/>
 		{#if showPreviewStyles}
-			<path
-				transform="translate(0, -0)"
-				d={totalHighlight}
-				fill="#fff"
-				stroke="#000"
-				stroke-width="1.5"
-				mix-blend-mode="overlay"
-				opacity=".19"
-			/>
-			<g>
-				<g id="f" data-name="Outline" mix-blend-mode="overlay" opacity=".19"
-					><path
-						transform="translate(0, -0)"
-						d={totalCapBox}
-						fill="#0000"
-						stroke="#000"
-						stroke-width="7"
-					/>
-				</g>
+			<g mix-blend-mode="overlay" opacity=".19">
+				<path
+					transform="translate(0, -0)"
+					d={highlightSvg}
+					fill="#000"
+					stroke="#000"
+					stroke-width="2"
+				/>
+				<path
+					stroke="#000"
+					stroke-width="2"
+					d={secondaryHighlightSvg}
+					transform={`translate(${secondaryX * capQuarterUnitSize * 4}, ${
+						secondaryY * capQuarterUnitSize * 4
+					})`}
+					x={secondaryX * capQuarterUnitSize * 4}
+					y={secondaryY * capQuarterUnitSize * 4}
+					fill="#000"
+				/>
+				<path transform="translate(0, -0)" d={highlightSvg} fill="#fff" />
+				{#if !stepped} 
+				<path
+					d={secondaryHighlightSvg}
+					transform={`translate(${secondaryX * capQuarterUnitSize * 4}, ${
+						secondaryY * capQuarterUnitSize * 4
+					})`}
+					x={secondaryX * capQuarterUnitSize * 4}
+					y={secondaryY * capQuarterUnitSize * 4}
+					fill="#fff"
+				/>{/if}
 			</g>
 		{/if}
-		<rect
+		<!-- <rect
 			x={capQuarterUnitSize}
 			y={capQuarterUnitSize}
 			fill="transparent"
@@ -249,7 +279,7 @@
 			width={textAlignmentWidth}
 			height={textAlignmentHeight}
 		>
-		</rect>
+		</rect> -->
 		<text
 			x={textAlignmentWidth / 2 + capQuarterUnitSize}
 			y={textAlignmentHeight / 2 + capQuarterUnitSize}

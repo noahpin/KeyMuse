@@ -35,21 +35,64 @@
 		}
 	}
 	let middleMouseDown = false;
+	let selectBox = false;
+	let clickStartX = 0;
+	let clickStartY = 0;
+	let selectBoxStartX = 0;
+	let selectBoxStartY = 0;
+	let selectBoxEndX = 0;
+	let selectBoxEndY = 0;
+	let clicked = false;
 	function pointerDownHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = true;
+		clicked = true;
+		clickStartX = selectBoxStartX = selectBoxEndX = e.clientX - panX * zoom;
+		clickStartY = selectBoxStartY = selectBoxEndY = e.clientY - panY * zoom;
 	}
 	function pointerUpHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = false;
+		if (e.target.id == "background" && !selectBox) selectedStore.set(null);
+		selectBox = false;
+		clicked = false;
 	}
 	function pointerMoveHandler(e: PointerEvent) {
+		if (clicked) selectBox = true;
 		if (middleMouseDown) {
 			panX += e.movementX;
 			panY += e.movementY;
 		}
+		if (selectBox) {
+			selectBoxEndX = e.clientX - panX * zoom;
+			selectBoxEndY = e.clientY - panY * zoom;
+			//if the end is less than start, set start to end and end to start
+			if (selectBoxEndX < clickStartX) {
+				let temp = selectBoxEndX;
+				selectBoxEndX = clickStartX;
+				selectBoxStartX = temp;
+			}
+			if (selectBoxEndY < clickStartY) {
+				let temp = selectBoxEndY;
+				selectBoxEndY = clickStartY;
+				selectBoxStartY = temp;
+			}
+			//iterate through all the caps and check if they are in the box
+			let caught = [];
+			for (let i = 0; i < exampleJson.keydata.length; i++) {
+				let cap = exampleJson.keydata[i];
+				if (
+					cap.x * 4 * 13.5 > selectBoxStartX &&
+					cap.x * 4 * 13.5 < selectBoxEndX &&
+					cap.y * 4 * 13.5 > selectBoxStartY &&
+					cap.y * 4 * 13.5 < selectBoxEndY
+				) {
+					caught.push(cap);
+				}
+			}
+			selectedStore.set(caught);
+		}
 	}
 	function clickHandler(e: MouseEvent) {
-		if (e.target.id == "background") selectedStore.set(null);
-		console.log(exampleJson)
+		console.log(exampleJson);
 	}
 </script>
 
@@ -108,12 +151,30 @@
 			<rect x="26.5" y="53.5" width="1" height="1" fill="var(--grid-color)" />
 			<rect x="40" y="53.5" width="1" height="1" fill="var(--grid-color)" />
 		</pattern></defs
-	><rect id="background" width="100%" height="100%" transform="translate(0,0)" fill="url(#a)" />
+	><rect
+		id="background"
+		width="100%"
+		height="100%"
+		transform="translate(0,0)"
+		fill="url(#a)"
+	/>
 	<g transform={`translate(${panX},${panY}) scale(${zoom})`}>
 		{#each exampleJson.keydata as capData}
-			<CapSvg {capData} {selectedStore}/>
+			<CapSvg {capData} {selectedStore} />
 		{/each}
-			<SelectionRenderer {selectedStore}/>
+		{#if selectBox}
+			<rect
+				x={selectBoxStartX}
+				y={selectBoxStartY}
+				width={selectBoxEndX - selectBoxStartX}
+				height={selectBoxEndY - selectBoxStartY}
+				stroke="red"
+				fill="none"
+				stroke-width="2"
+				rx="3"
+				ry="3"
+			></rect>{/if}
+		<!-- <SelectionRenderer {selectedStore}/> -->
 	</g>
 </svg>
 

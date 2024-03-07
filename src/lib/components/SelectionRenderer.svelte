@@ -65,12 +65,4 @@
 </g>
 
 <style>
-	.animate-path-offset {
-		animation: dash 2s linear infinite;
-	}
-	@keyframes dash {
-		to {
-			stroke-dashoffset: -40;
-		}
-	}
 </style>
