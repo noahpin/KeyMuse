@@ -1,0 +1,245 @@
+{
+    "name": "ColorSpectrumGrid",
+    "keydata": [
+        {
+            "font-color": "#000","legends": "1",
+            "width": "1",
+            "color": "#FF0000",
+            "height": "1",
+            "x": 0,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "2",
+            "width": "1",
+            "color": "#FF7F00",
+            "height": "1",
+            "x": 1,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "3",
+            "width": "1",
+            "color": "#FFFF00",
+            "height": "1",
+            "x": 2,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "4",
+            "width": "1",
+            "color": "#7FFF00",
+            "height": "1",
+            "x": 3,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "5",
+            "width": "1",
+            "color": "#00FF00",
+            "height": "1",
+            "x": 4,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "6",
+            "width": "1",
+            "color": "#00FF7F",
+            "height": "1",
+            "x": 5,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "7",
+            "width": "1",
+            "color": "#00FFFF",
+            "height": "1",
+            "x": 6,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "8",
+            "width": "1",
+            "color": "#007FFF",
+            "height": "1",
+            "x": 7,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "9",
+            "width": "1",
+            "color": "#0000FF",
+            "height": "1",
+            "x": 8,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "0",
+            "width": "1",
+            "color": "#7F00FF",
+            "height": "1",
+            "x": 9,
+            "y": 0
+        },
+        {
+            "font-color": "#000","legends": "q",
+            "width": "1",
+            "color": "#FF00FF",
+            "height": "1",
+            "x": 0,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "w",
+            "width": "1",
+            "color": "#FF007F",
+            "height": "1",
+            "x": 1,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "e",
+            "width": "1",
+            "color": "#FFFFFF",
+            "height": "1",
+            "x": 2,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "r",
+            "width": "1",
+            "color": "#7F7F7F",
+            "height": "1",
+            "x": 3,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "t",
+            "width": "1",
+            "color": "#000000",
+            "height": "1",
+            "x": 4,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "y",
+            "width": "1",
+            "color": "#7F7F7F",
+            "height": "1",
+            "x": 5,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "u",
+            "width": "1",
+            "color": "#FFFFFF",
+            "height": "1",
+            "x": 6,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "i",
+            "width": "1",
+            "color": "#FF007F",
+            "height": "1",
+            "x": 7,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "o",
+            "width": "1",
+            "color": "#FF00FF",
+            "height": "1",
+            "x": 8,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "p",
+            "width": "1",
+            "color": "#7F00FF",
+            "height": "1",
+            "x": 9,
+            "y": 1
+        },
+        {
+            "font-color": "#000","legends": "a",
+            "width": "1",
+            "color": "#0000FF",
+            "height": "1",
+            "x": 0,
+            "y": 2
+        },
+        {
+            "font-color": "#000","legends": "s",
+            "width": "1",
+            "color": "#007FFF",
+            "height": "1",
+            "x": 1,
+            "y": 2
+        },
+        {
+            "font-color": "#000","legends": "d",
+            "width": "1",
+            "color": "#00FFFF",
+            "height": "1",
+            "x": 2,
+            "y": 2
+        },
+        {
+            "font-color": "#000","legends": "f",
+            "width": "1",
+            "color": "#00FF7F",
+            "height": "1",
+            "x": 3,
+            "y": 2
+        },
+        {
+            "font-color": "#000","legends": "g",
+            "width": "1",
+            "color": "#00FF00",
+            "height": "1",
+            "x": 4,
+            "y": 2
+        },
+        {
+            "font-color": "#000","legends": "h",
+            "width": "1",
+            "color": "#7FFF00",
+            "height": "1",
+            "x": 5,
+            "y": 2
+        },
+        {
+            "font-color": "#000","legends": "j",
+            "width": "1",
+            "color": "#FFFF00",
+            "height": "1",
+            "x": 6,
+            "y": 2
+        },
+        {
+            "font-color": "#000","legends": "k",
+            "width": "1",
+            "color": "#FF7F00",
+            "height": "1",
+            "x": 7,
+            "y": 2
+        },
+        {
+            "font-color": "#000","legends": "l",
+            "width": "1",
+            "color": "#FF0000",
+            "height": "1",
+            "x": 8,
+            "y": 2
+        },
+        {
+            "font-color": "#000","legends": ";",
+            "width": "1",
+            "color": "#7F0000",
+            "height": "1",
+            "x": 9,
+            "y": 2
+        }
+    ]
+}

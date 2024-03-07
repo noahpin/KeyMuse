@@ -1,0 +1,273 @@
+{
+    "name": "TestKBL",
+    "keydata": [
+        {
+            "legends" : "tilde",
+            "width" : 1,
+            "color" : "#FFFFFF",
+            "height" : 1,
+            "x": 0,
+            "y": 0
+
+        },
+        {
+            "legends" : 1,
+            "width" : 1,
+            "color" : "#F7F7F7",
+            "height" : 1,
+            "x": 1,
+            "y": 0
+
+        },
+        {
+            "legends" : "2",
+            "width" : 1,
+            "color" : "#EFEFEF",
+            "height" : 1,
+            "x": 2,
+            "y": 0
+
+        },
+        {
+            "legends" : "3",
+            "width" : 1,
+            "color" : "#E7E7E7",
+            "height" : 1,
+            "x": 3,
+            "y": 0
+
+        },
+        {
+            "legends" : "4",
+            "width" : 1,
+            "color" : "#DFDFDF",
+            "height" : 1,
+            "x": 4,
+            "y": 0
+
+        },
+        {
+            "legends" : "5",
+            "width" : 1,
+            "color" : "#D7D7D7",
+            "height" : 1,
+            "x": 5,
+            "y": 0
+
+        },
+        {
+            "legends" : "6",
+            "width" : 1,
+            "color" : "#CFCFCF",
+            "height" : 1,
+            "x": 6,
+            "y": 0
+
+        },
+        {
+            "legends" : "7",
+            "width" : 1,
+            "color" : "#C7C7C7",
+            "height" : 1,
+            "x": 7,
+            "y": 0
+
+        },
+        {
+            "legends" : "8",
+            "width" : 1,
+            "color" : "#BFBFBF",
+            "height" : 1,
+            "x": 8,
+            "y": 0
+
+        },
+        {
+            "legends" : "9",
+            "width" : 1,
+            "color" : "#B7B7B7",
+            "height" : 1,
+            "x": 9,
+            "y": 0
+
+        },
+        {
+            "legends" : "0",
+            "width" : 1,
+            "color" : "#AFAFAF",
+            "height" : 1,
+            "x": 10,
+            "y": 0
+
+        },
+        {
+            "legends" : "-",
+            "width" : 1,
+            "color" : "#A7A7A7",
+            "height" : 1,
+            "x": 11,
+            "y": 0
+
+        },
+        {
+            "legends" : "+",
+            "width" : 1,
+            "color" : "#9F9F9F",
+            "height" : 1,
+            "x": 12,
+            "y": 0
+
+        },
+        {
+            "legends" : "bksp",
+            "width" : 2,
+            "color" : "#979797",
+            "height" : 1,
+            "x": 13,
+            "y": 0
+
+        },
+        {
+            "legends" : "tilde",
+            "width" : 1.5,
+            "color" : "#8F8F8F",
+            "height" : 1,
+            "x": 0,
+            "y": 1
+
+        },
+        {
+            "legends" : "q",
+            "width" : 1,
+            "color" : "#878787",
+            "height" : 1,
+            "x": 1.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "w",
+            "width" : 1,
+            "color" : "#7F7F7F",
+            "height" : 1,
+            "x": 2.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "e",
+            "width" : 1,
+            "color" : "#777777",
+            "height" : 1,
+            "x": 3.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "r",
+            "width" : 1,
+            "color" : "#6F6F6F",
+            "height" : 1,
+            "x": 4.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "t",
+            "width" : 1,
+            "color" : "#676767",
+            "height" : 1,
+            "x": 5.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "y",
+            "width" : 1,
+            "color" : "#5F5F5F",
+            "height" : 1,
+            "x": 6.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "u",
+            "width" : 1,
+            "color" : "#575757",
+            "height" : 1,
+            "x": 7.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "i",
+            "width" : 1,
+            "color" : "#4F4F4F",
+            "height" : 1,
+            "x": 8.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "o",
+            "width" : 1,
+            "color" : "#474747",
+            "height" : 1,
+            "x": 9.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "p",
+            "width" : 1,
+            "color" : "#3F3F3F",
+            "height" : 1,
+            "x": 10.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "[",
+            "width" : 1,
+            "color" : "#373737",
+            "height" : 1,
+            "x": 11.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "]",
+            "width" : 1,
+            "color" : "#2F2F2F",
+            "height" : 1,
+            "x": 12.5,
+            "y": 1
+
+        },
+        {
+            "legends" : "|",
+            "width" : 1.25,
+            "color" : "blue",
+            "height" : 2,
+            "x": 13.75,
+            "y": 1,
+            "width2": 1.5,
+            "height2": 1,
+            "x2": -0.25,
+            "y2": 0,
+            "stepped": false
+
+        },
+        {
+            "legends": "caps",
+            "width": 1.25,
+            "height": 1,
+            "x":0,
+            "y":2,
+            "color": "#2F2F2F",
+            "width2": 1.75,
+            "height2":1,
+            "stepped":true
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+@import url('./fonts/fonts.css');
+:root {
+    --main-bg: rgb(255, 255, 255);
+    --ui-bg: #f6f7fcaf;
+    --grid-color: rgb(160, 160, 160);
+    --main-text: #120d27;
+}
+
+* {
+    font-family: 'UncutSans', sans-serif;
+    font-weight: 300;
+}
+
+body , html{
+    background: var(--main-bg);
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior-x: none;
+}
+.ui-floating-element {
+    background: var(--ui-bg);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    padding:12px;
+    border-radius: 8px;
+    position: absolute;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+}
+.ui-floating-element h1 {
+    font-size: 24px;
+    color: var(--main-text);
+    font-weight: bold;
+    margin: 0;
+    margin-bottom: 8px;
+}
+ svg * {
+    user-select: none;
+ }
