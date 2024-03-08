@@ -46,24 +46,24 @@
 	function pointerDownHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = true;
 		clicked = true;
-		clickStartX = selectBoxStartX = selectBoxEndX = e.clientX - panX * zoom;
-		clickStartY = selectBoxStartY = selectBoxEndY = e.clientY - panY * zoom;
+		clickStartX = selectBoxStartX = selectBoxEndX = (e.clientX - panX)/zoom;
+		clickStartY = selectBoxStartY = selectBoxEndY = (e.clientY - panY)/zoom;
 	}
 	function pointerUpHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = false;
-		if (e.target.id == "background" && !selectBox) selectedStore.set(null);
+		if (e.target.id == "background" && !selectBox) selectedStore.set([]);
 		selectBox = false;
 		clicked = false;
 	}
 	function pointerMoveHandler(e: PointerEvent) {
-		if (clicked) selectBox = true;
+		if (clicked && !middleMouseDown) selectBox = true;
 		if (middleMouseDown) {
 			panX += e.movementX;
 			panY += e.movementY;
 		}
 		if (selectBox) {
-			selectBoxEndX = e.clientX - panX * zoom;
-			selectBoxEndY = e.clientY - panY * zoom;
+			selectBoxEndX = (e.clientX - panX)/zoom;
+			selectBoxEndY = (e.clientY - panY)/zoom;
 			//if the end is less than start, set start to end and end to start
 			if (selectBoxEndX < clickStartX) {
 				let temp = selectBoxEndX;
@@ -88,26 +88,31 @@
 					caught.push(cap);
 				}
 			}
+			if(e.shiftKey) {
+				caught = [...$selectedStore, ...caught];
+			}else if (e.ctrlKey) {
+				//remove caught from the selected
+				caught = $selectedStore.filter((cap) => {
+					return !caught.includes(cap);
+				});
+			}
 			selectedStore.set(caught);
 		}
-	}
-	function clickHandler(e: MouseEvent) {
-		console.log(exampleJson);
 	}
 </script>
 
 <svelte:window
 	bind:innerWidth={windowInnerWidth}
 	bind:innerHeight={windowInnerHeight}
-	on:wheel|nonpassive={wheelHandler}
-	on:pointerdown={pointerDownHandler}
-	on:pointerup={pointerUpHandler}
-	on:pointermove={pointerMoveHandler}
 />
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<svg {viewBox} on:click={clickHandler}
+<svg {viewBox}
+on:wheel|nonpassive={wheelHandler}
+on:pointerdown={pointerDownHandler}
+on:pointerup={pointerUpHandler}
+on:pointermove={pointerMoveHandler}
 	><defs
 		><pattern
 			patternTransform={`translate(${panX},${panY}) scale(${zoom})`}

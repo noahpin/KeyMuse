@@ -56,9 +56,7 @@
 		capMaskHeight = svgHeight - capMaskPadding * 2;
 		textAlignmentWidth = (width - 2) * capQuarterUnitSize;
 		textAlignmentHeight = (height - 2) * capQuarterUnitSize;
-		selected = Array.isArray($selectedStore)
-			? $selectedStore.includes(capData)
-			: $selectedStore === capData;
+		selected = $selectedStore.includes(capData);
 		legends = capData.legends || "";
 		secondaryUnitWidth = capData.width2 || unitWidth;
 		secondaryUnitHeight = capData.height2 || unitHeight;
@@ -75,44 +73,34 @@
 		highlightSvg = `M12.752,10.524c-1.198.085-2.143,1.03-2.228,2.228-.204,2.878-.532,8.399-.532,14.248v${(height - 4) * capQuarterUnitSize}c0,5.849.327,11.371.532,14.248.085,1.198,1.03,2.143,2.228,2.228,2.878.204,8.399.532,14.248.532h${(width - 4) * capQuarterUnitSize}c5.849,0,11.371-.327,14.248-.532,1.198-.085,2.143-1.03,2.228-2.228.204-2.878.532-8.399.532-14.248v${(height - 4) * capQuarterUnitSize * -1}c0-5.849-.327-11.371-.532-14.248-.085-1.198-1.03-2.143-2.228-2.228-2.878-.204-8.399-.532-14.248-.532h${(width - 4) * capQuarterUnitSize * -1}c-5.849,0-11.371.327-14.248.532`;
 		secondaryHighlightSvg = `M12.752,10.524c-1.198.085-2.143,1.03-2.228,2.228-.204,2.878-.532,8.399-.532,14.248v${(secondaryHeight - 4) * capQuarterUnitSize}c0,5.849.327,11.371.532,14.248.085,1.198,1.03,2.143,2.228,2.228,2.878.204,8.399.532,14.248.532h${(secondaryWidth - 4) * capQuarterUnitSize}c5.849,0,11.371-.327,14.248-.532,1.198-.085,2.143-1.03,2.228-2.228.204-2.878.532-8.399.532-14.248v${(secondaryHeight - 4) * capQuarterUnitSize * -1}c0-5.849-.327-11.371-.532-14.248-.085-1.198-1.03-2.143-2.228-2.228-2.878-.204-8.399-.532-14.248-.532h${(secondaryWidth - 4) * capQuarterUnitSize * -1}c-5.849,0-11.371.327-14.248.532`;
 
-
 		showPreviewStyles = true;
 	}
 
 	function selectItem(e: MouseEvent) {
+		if ($selectedStore == null) selectedStore.set([]);
 		if (e.shiftKey) {
 			// if the type of selected store is an object  then make it an array. if its an array then push the capData to it
-			if (Array.isArray($selectedStore)) {
-				let arr = [...$selectedStore];
-				if (!arr.includes(capData)) {
-					arr.push(capData);
-					selectedStore.set(arr);
-				}
-				console.log($selectedStore.length);
-			} else {
-				selectedStore.set([$selectedStore, capData]);
+			let arr = [...$selectedStore];
+			if (!arr.includes(capData)) {
+				arr.push(capData);
+				selectedStore.set(arr);
 			}
-		}else if(e.ctrlKey) {
+			console.log($selectedStore.length);
+		} else if (e.ctrlKey) {
 			//toggle the selected state of the capData
-			if (Array.isArray($selectedStore)) {
-				let arr = [...$selectedStore];
-				if (arr.includes(capData)) {
-					arr = arr.filter((item) => item !== capData);
-					selectedStore.set(arr);
-				} else {
-					arr.push(capData);
-					selectedStore.set(arr);
-				}
+			let arr = [...$selectedStore];
+			if (arr.includes(capData)) {
+				arr = arr.filter((item) => item !== capData);
+				selectedStore.set(arr);
 			} else {
-				selectedStore.set(capData);
+				arr.push(capData);
+				selectedStore.set(arr);
 			}
 		} else {
-			selectedStore.set(capData);
+			selectedStore.set([capData]);
 		}
 	}
-	$: selected = Array.isArray($selectedStore)
-		? $selectedStore.includes(capData)
-		: $selectedStore === capData;
+	$: selected = $selectedStore.includes(capData);
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -144,7 +132,6 @@
 			></rect>
 		</mask>
 	</defs>
-
 
 	{#if showPreviewStyles}
 		<g>
@@ -196,7 +183,7 @@
 			></rect>
 		</g>
 	{/if}
-	
+
 	{#if selected}
 		<g>
 			<rect
@@ -259,16 +246,16 @@
 					fill="#000"
 				/>
 				<path transform="translate(0, -0)" d={highlightSvg} fill="#fff" />
-				{#if !stepped} 
-				<path
-					d={secondaryHighlightSvg}
-					transform={`translate(${secondaryX * capQuarterUnitSize * 4}, ${
-						secondaryY * capQuarterUnitSize * 4
-					})`}
-					x={secondaryX * capQuarterUnitSize * 4}
-					y={secondaryY * capQuarterUnitSize * 4}
-					fill="#fff"
-				/>{/if}
+				{#if !stepped}
+					<path
+						d={secondaryHighlightSvg}
+						transform={`translate(${secondaryX * capQuarterUnitSize * 4}, ${
+							secondaryY * capQuarterUnitSize * 4
+						})`}
+						x={secondaryX * capQuarterUnitSize * 4}
+						y={secondaryY * capQuarterUnitSize * 4}
+						fill="#fff"
+					/>{/if}
 			</g>
 		{/if}
 		<!-- <rect

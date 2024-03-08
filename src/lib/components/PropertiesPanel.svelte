@@ -1,85 +1,70 @@
 <script lang="ts">
 	export let selectedStore: any;
+	function updateProperty(property: string, value: any) {
+		let temp = [...$selectedStore]
+		temp.forEach((cap: any) => {
+			cap[property] = value;
+		});
+		selectedStore.set(temp);
+	}
 </script>
 
 <div id="properties-panel" class="ui-floating-element">
 	<h1>Properties</h1>
 	<div>
-		{#if $selectedStore !== null}
-			{#if Array.isArray($selectedStore)}
-				<p>Multiple Caps Selected</p>
-			{:else}
-				<p>Single Cap Selected</p>
-				<div>
-					<input
-						type="text"
-						value={$selectedStore.legends}
-						on:input={(e) => {
-							$selectedStore.legends = e.target.value;
-						}}
-					/>
-					<input
-						type="text"
-						value={$selectedStore.x}
-						on:input={(e) => {
-							$selectedStore.x = e.target.value;
-						}}
-					/>
-					<input
-						type="text"
-						value={$selectedStore.y}
-						on:input={(e) => {
-							$selectedStore.y = e.target.value;
-						}}
-					/>
-					<input
-						type="text"
-						value={$selectedStore.width}
-						on:input={(e) => {
-							$selectedStore.width = e.target.value;
-						}}
-					/>
-					<input
-						type="text"
-						value={$selectedStore.height}
-						on:input={(e) => {
-							$selectedStore.height = e.target.value;
-						}}
-					/>
-					<input
-						type="text"
-						value={$selectedStore.x2}
-						on:input={(e) => {
-							$selectedStore.x2 = e.target.value;
-						}}
-					/>
-					<input
-						type="text"
-						value={$selectedStore.y2}
-						on:input={(e) => {
-							$selectedStore.y2 = e.target.value;
-						}}
-					/>
-					<input
-						type="text"
-						value={$selectedStore.width2}
-						on:input={(e) => {
-							$selectedStore.width2 = e.target.value;
-						}}
-					/>
-					<input
-						type="text"
-						value={$selectedStore.height2}
-						on:input={(e) => {
-							$selectedStore.height2 = e.target.value;
-						}}
-					/>
-					<input type="color" value={$selectedStore.color} on:input={(e)=>{
-						$selectedStore.color = e.target.value;
-					
-					}}/>
-				</div>
-			{/if}
+		{#if $selectedStore.length != 0}
+			<div>
+				<input
+					type="text"
+					value={$selectedStore[$selectedStore.length - 1].legends}
+					on:input={(e) => updateProperty("legends", e.target.value)}
+				/>
+				<input
+					type="text"
+					value={$selectedStore[$selectedStore.length - 1].x}
+					on:input={(e) => updateProperty("x", e.target.value)}
+				/>
+				<input
+					type="text"
+					value={$selectedStore[$selectedStore.length - 1].y}
+					on:input={(e) => updateProperty("y", e.target.value)}
+				/>
+				<input
+					type="text"
+					value={$selectedStore[$selectedStore.length - 1].width}
+					on:input={(e) => updateProperty("width", e.target.value)}
+				/>
+				<input
+					type="text"
+					value={$selectedStore[$selectedStore.length - 1].height}
+					on:input={(e) => updateProperty("height", e.target.value)}
+				/>
+				<input
+					type="text"
+					value={$selectedStore[$selectedStore.length - 1].x2}
+					on:input={(e) => updateProperty("x2", e.target.value)}
+				/>
+				<input
+					type="text"
+					value={$selectedStore[$selectedStore.length - 1].y2}
+					on:input={(e) => updateProperty("y2", e.target.value)}
+				/>
+				<input
+					type="text"
+					value={$selectedStore[$selectedStore.length - 1].width2}
+					on:input={(e) => updateProperty("width2", e.target.value)}
+				/>
+				<input
+					type="text"
+					value={$selectedStore[$selectedStore.length - 1].height2}
+					on:input={(e) => updateProperty("height2", e.target.value)}
+				/>
+				<input
+					type="color"
+					value={$selectedStore[$selectedStore.length - 1].color}
+					on:input={(e) => updateProperty("color", e.target.value)}
+				/>
+			</div>
 			<pre>{JSON.stringify($selectedStore, null, 2)}</pre>
 		{:else}
 			<p>No Cap Is Selected</p>

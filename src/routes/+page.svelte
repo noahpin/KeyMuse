@@ -4,7 +4,8 @@
 	import "$lib/styles/app.css";
 	import { writable } from "svelte/store";
 
-	const selectedStore = writable(null);
+	const selectedStore = writable([]);
 </script>
-<Renderer {selectedStore}/>
+
+<Renderer {selectedStore} />
 <PropertiesPanel {selectedStore}></PropertiesPanel>
