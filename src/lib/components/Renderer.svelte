@@ -1,10 +1,11 @@
 <script lang="ts">
-	import exampleJson from "./testJson.json";
 	import CapSvg from "./CapSVG.svelte";
 	import SelectionRenderer from "./SelectionRenderer.svelte";
+	import { createEventDispatcher } from "svelte";
 	// export let data: any = null;
 	// set viewbox to the current window size
 	export let selectedStore: any;
+	export let layoutFile: any;
 
 	let windowInnerWidth = 0;
 	let windowInnerHeight = 0;
@@ -43,27 +44,75 @@
 	let selectBoxEndX = 0;
 	let selectBoxEndY = 0;
 	let clicked = false;
+	let capCreateStartX = 0;
+	let capCreateStartY = 0;
+	let capCreateEndX = 0;
+	let capCreateEndY = 0;
+	const dispatch = createEventDispatcher();
+	let shiftKeyWhenClicked = false;
 	function pointerDownHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = true;
 		clicked = true;
-		clickStartX = selectBoxStartX = selectBoxEndX = (e.clientX - panX)/zoom;
-		clickStartY = selectBoxStartY = selectBoxEndY = (e.clientY - panY)/zoom;
+		clickStartX = selectBoxStartX = selectBoxEndX = (e.clientX - panX) / zoom;
+		clickStartY = selectBoxStartY = selectBoxEndY = (e.clientY - panY) / zoom;
+		if (capPlacementTool) {
+			capCreateEndX = capCreateStartX =
+				Math.floor(((e.clientX - panX) / zoom / 54) * 4) / 4 - 0.5;
+			capCreateEndY = capCreateStartY =
+				Math.floor(((e.clientY - panY) / zoom / 54) * 4) / 4 - 0.5;
+		}
+		shiftKeyWhenClicked = e.shiftKey;
 	}
 	function pointerUpHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = false;
 		if (e.target.id == "background" && !selectBox) selectedStore.set([]);
+		if (shiftKeyWhenClicked && capPlacementTool && previousCapPlacementData) {
+			let amountX = Math.floor(
+				(capCreateEndX - previousCapPlacementData.x) /
+					previousCapPlacementData.width
+			);
+			let amountY = Math.floor(
+				(capCreateEndY - previousCapPlacementData.y) /
+					previousCapPlacementData.height
+			);
+			console.log(amountX, amountY);
+			for (let i = 1; i <= amountX; i++) {
+				let cap = {
+					...previousCapPlacementData,
+					x: previousCapPlacementData.x + previousCapPlacementData.width * i,
+				};
+				dispatch("createCap", cap);
+			}
+		}
+		if (clicked && capPlacementTool && !shiftKeyWhenClicked) {
+			let cap = {
+				legends: "",
+				x: capCreateStartX,
+				y: capCreateStartY,
+				width: Math.max(1, capCreateEndX - capCreateStartX + 1),
+				height: Math.max(1, capCreateEndY - capCreateStartY + 1),
+				x2: 0,
+				y2: 0,
+				width2: Math.max(1, capCreateEndX - capCreateStartX + 1),
+				height2: Math.max(1, capCreateEndY - capCreateStartY + 1),
+				color: "#e6e6e6",
+			};
+			//broadcast an event to create a new cap
+			dispatch("createCap", cap);
+			previousCapPlacementData = cap;
+		}
 		selectBox = false;
 		clicked = false;
 	}
 	function pointerMoveHandler(e: PointerEvent) {
-		if (clicked && !middleMouseDown) selectBox = true;
+		if (clicked && !middleMouseDown && !capPlacementTool) selectBox = true;
 		if (middleMouseDown) {
 			panX += e.movementX;
 			panY += e.movementY;
 		}
 		if (selectBox) {
-			selectBoxEndX = (e.clientX - panX)/zoom;
-			selectBoxEndY = (e.clientY - panY)/zoom;
+			selectBoxEndX = (e.clientX - panX) / zoom;
+			selectBoxEndY = (e.clientY - panY) / zoom;
 			//if the end is less than start, set start to end and end to start
 			if (selectBoxEndX < clickStartX) {
 				let temp = selectBoxEndX;
@@ -77,8 +126,8 @@
 			}
 			//iterate through all the caps and check if they are in the box
 			let caught = [];
-			for (let i = 0; i < exampleJson.keydata.length; i++) {
-				let cap = exampleJson.keydata[i];
+			for (let i = 0; i < $layoutFile.keydata.length; i++) {
+				let cap = $layoutFile.keydata[i];
 				if (
 					cap.x * 4 * 13.5 > selectBoxStartX &&
 					cap.x * 4 * 13.5 < selectBoxEndX &&
@@ -88,9 +137,9 @@
 					caught.push(cap);
 				}
 			}
-			if(e.shiftKey) {
+			if (e.shiftKey) {
 				caught = [...$selectedStore, ...caught];
-			}else if (e.ctrlKey) {
+			} else if (e.ctrlKey) {
 				//remove caught from the selected
 				caught = $selectedStore.filter((cap) => {
 					return !caught.includes(cap);
@@ -98,21 +147,82 @@
 			}
 			selectedStore.set(caught);
 		}
+
+		if (capPlacementTool && !clicked) {
+			capPlacementToolCapData.color = "#0ef2";
+			capPlacementToolCapData.x =
+				Math.floor(((e.clientX - panX) / zoom / 54) * 4) / 4 - 0.5;
+			capPlacementToolCapData.y =
+				Math.floor(((e.clientY - panY) / zoom / 54) * 4) / 4 - 0.5;
+			capPlacementToolCapData.width = 1;
+			capPlacementToolCapData.height = 1;
+		}
+		if (clicked && capPlacementTool) {
+			capPlacementToolCapData.color = "#ececec";
+			capPlacementToolCapData.x = capCreateStartX;
+			capPlacementToolCapData.y = capCreateStartY;
+			capCreateEndX =
+				Math.floor(((e.clientX - panX) / zoom / 54) * 4) / 4 - 0.5;
+			capCreateEndY =
+				Math.floor(((e.clientY - panY) / zoom / 54) * 4) / 4 - 0.5;
+			capPlacementToolCapData.width = Math.max(
+				1,
+				capCreateEndX - capCreateStartX + 1
+			);
+			capPlacementToolCapData.height = Math.max(
+				1,
+				capCreateEndY - capCreateStartY + 1
+			);
+		}
 	}
+	let previousCapPlacementData = {};
+
+	let capPlacementTool = true;
+	let capPlacementToolCapData = {
+		legends: "",
+		x: 0,
+		y: 0,
+		width: 1,
+		height: 1,
+		x2: 0,
+		y2: 0,
+		width2: 0,
+		height2: 0,
+		color: "#0007",
+	};
 </script>
 
 <svelte:window
 	bind:innerWidth={windowInnerWidth}
 	bind:innerHeight={windowInnerHeight}
 />
+<svelte:document
+	on:keyup={(e) => {
+		if (e.target != document.body) return;
+		if (e.key == "Escape") {
+			capPlacementTool = false;
+		}
+		if (e.key == "c") {
+			capPlacementTool = true;
+		}
+		if (e.key == "Delete") {
+			let temp = [...$layoutFile.keydata];
+			temp = temp.filter((cap) => {
+				return !$selectedStore.includes(cap);
+			});
+			layoutFile.set({ keydata: temp });
+		}
+	}}
+/>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<svg {viewBox}
-on:wheel|nonpassive={wheelHandler}
-on:pointerdown={pointerDownHandler}
-on:pointerup={pointerUpHandler}
-on:pointermove={pointerMoveHandler}
+<svg
+	{viewBox}
+	on:wheel|nonpassive={wheelHandler}
+	on:pointerdown={pointerDownHandler}
+	on:pointerup={pointerUpHandler}
+	on:pointermove={pointerMoveHandler}
 	><defs
 		><pattern
 			patternTransform={`translate(${panX},${panY}) scale(${zoom})`}
@@ -164,7 +274,7 @@ on:pointermove={pointerMoveHandler}
 		fill="url(#a)"
 	/>
 	<g transform={`translate(${panX},${panY}) scale(${zoom})`}>
-		{#each exampleJson.keydata as capData}
+		{#each $layoutFile.keydata as capData}
 			<CapSvg {capData} {selectedStore} />
 		{/each}
 		{#if selectBox}
@@ -180,6 +290,15 @@ on:pointermove={pointerMoveHandler}
 				ry="3"
 			></rect>{/if}
 		<!-- <SelectionRenderer {selectedStore}/> -->
+
+		{#if capPlacementTool}
+			<CapSvg
+				capData={capPlacementToolCapData}
+				passive={true}
+				{selectedStore}
+				previewTextValue={capPlacementToolCapData.width.toFixed(2) + "U"}
+			/>
+		{/if}
 	</g>
 </svg>
 

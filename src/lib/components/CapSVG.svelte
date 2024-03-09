@@ -9,6 +9,8 @@
 	export let y = capData.y || 0;
 	export let capColor = capData.color || "#969696";
 	export let legends = capData.legends || "";
+	export let passive: boolean = false;
+	export let previewTextValue = "";
 	let stepped = capData.stepped || false;
 	let selected = false;
 	let capQuarterUnitSize = 13.5;
@@ -77,6 +79,7 @@
 	}
 
 	function selectItem(e: MouseEvent) {
+		if (passive) return;
 		if ($selectedStore == null) selectedStore.set([]);
 		if (e.shiftKey) {
 			// if the type of selected store is an object  then make it an array. if its an array then push the capData to it
@@ -351,6 +354,15 @@
 			class="font-gorton">{legends}</text
 		> -->
 	</g>
+	<text
+		x={svgWidth}
+		y={svgHeight}
+		font-size="10px"
+		fill={capData.fontColor}
+		alignment-baseline="before-edge"
+		text-anchor="end"
+		class="font-gorton">{previewTextValue}</text
+	>
 </g>
 
 <style>
