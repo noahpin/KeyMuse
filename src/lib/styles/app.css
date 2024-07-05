@@ -2,7 +2,7 @@
 
 :root {
     --main-bg: rgb(255, 255, 255);
-    --ui-bg: #f6f7fcaf;
+    --ui-bg: #f6f7fcdb;
     --grid-color: rgb(160, 160, 160);
     --main-text: #120d27;
 }
@@ -51,4 +51,8 @@ svg * {
     to {
         stroke-dashoffset: -40;
     }
+}
+
+canvas {
+    image-rendering: pixelated;
 }

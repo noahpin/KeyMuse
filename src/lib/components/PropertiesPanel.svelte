@@ -20,42 +20,50 @@
 					on:input={(e) => updateProperty("legends", e.target.value)}
 				/>
 				<input
-					type="text"
+					type="number"
+					step=".25"
 					value={$selectedStore[$selectedStore.length - 1].x}
 					on:input={(e) => updateProperty("x", e.target.value)}
 				/>
 				<input
-					type="text"
+					type="number"
+					step=".25"
 					value={$selectedStore[$selectedStore.length - 1].y}
 					on:input={(e) => updateProperty("y", e.target.value)}
 				/>
 				<input
-					type="text"
+					type="number"
+					step=".25"
 					value={$selectedStore[$selectedStore.length - 1].width}
 					on:input={(e) => updateProperty("width", e.target.value)}
 				/>
 				<input
-					type="text"
+					type="number"
+					step=".25"
 					value={$selectedStore[$selectedStore.length - 1].height}
 					on:input={(e) => updateProperty("height", e.target.value)}
 				/>
 				<input
-					type="text"
+					type="number"
+					step=".25"
 					value={$selectedStore[$selectedStore.length - 1].x2}
 					on:input={(e) => updateProperty("x2", e.target.value)}
 				/>
 				<input
-					type="text"
+					type="number"
+					step=".25"
 					value={$selectedStore[$selectedStore.length - 1].y2}
 					on:input={(e) => updateProperty("y2", e.target.value)}
 				/>
 				<input
-					type="text"
+					type="number"
+					step=".25"
 					value={$selectedStore[$selectedStore.length - 1].width2}
 					on:input={(e) => updateProperty("width2", e.target.value)}
 				/>
 				<input
-					type="text"
+					type="number"
+					step=".25"
 					value={$selectedStore[$selectedStore.length - 1].height2}
 					on:input={(e) => updateProperty("height2", e.target.value)}
 				/>

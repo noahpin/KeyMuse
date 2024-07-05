@@ -1,6 +1,7 @@
 <script lang="ts">
 	import PropertiesPanel from "$lib/components/PropertiesPanel.svelte";
 	import Renderer from "$lib/components/Renderer.svelte";
+	import CanvasRenderer from "$lib/components/CanvasRenderer.svelte";
 	import "$lib/styles/app.css";
 	import { writable } from "svelte/store";
 	import exampleJson from "$lib/testJson.json";
@@ -16,7 +17,8 @@
 
 	}
 </script>
-
-<Renderer {selectedStore} {layoutFile} on:createCap={createCap} />
+<CanvasRenderer {selectedStore} {layoutFile}></CanvasRenderer>
+<!-- 
+<Renderer {selectedStore} {layoutFile} on:createCap={createCap} /> -->
 <PropertiesPanel {selectedStore}></PropertiesPanel>
 <ToolBar></ToolBar>

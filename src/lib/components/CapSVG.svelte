@@ -43,6 +43,7 @@
 
 	let textAlignmentWidth = (width - 2) * capQuarterUnitSize;
 	let textAlignmentHeight = (height - 2) * capQuarterUnitSize;
+	$: console.log(capData.legends);
 	$: {
 		stepped = capData.stepped || false;
 		x = capData.x || 0;
