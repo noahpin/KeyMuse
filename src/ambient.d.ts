@@ -1,5 +1,6 @@
 declare global {
     type CapDataElement = {
+		[key: string]: string | undefined;
         legends: string,
         x: number,
         y: number,
@@ -17,5 +18,6 @@ declare global {
         name: string,
         keyData: [CapDataElement]
     }
+    type CanvasRendererInput = {context: CanvasRenderingContext2D, width: number, height: number}
 }
 export {};

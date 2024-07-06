@@ -19,8 +19,8 @@
 
 	let secondaryUnitWidth = capData.width2 || unitWidth;
 	let secondaryUnitHeight = capData.height2 || unitHeight;
-	let secondaryX = capData.x2 || 0;
-	let secondaryY = capData.y2 || 0;
+	let x2 = capData.x2 || 0;
+	let y2 = capData.y2 || 0;
 
 	let width = unitWidth * 4;
 	let height = unitHeight * 4;
@@ -63,8 +63,8 @@
 		legends = capData.legends || "";
 		secondaryUnitWidth = capData.width2 || unitWidth;
 		secondaryUnitHeight = capData.height2 || unitHeight;
-		secondaryX = capData.x2 || 0;
-		secondaryY = capData.y2 || 0;
+		x2 = capData.x2 || 0;
+		y2 = capData.y2 || 0;
 
 		secondaryWidth = secondaryUnitWidth * 4;
 		secondaryHeight = secondaryUnitHeight * 4;
@@ -126,8 +126,8 @@
 				ry="1"
 			></rect>
 			<rect
-				x={capMaskPadding + secondaryX * capQuarterUnitSize * 4}
-				y={capMaskPadding + secondaryY * capQuarterUnitSize * 4}
+				x={capMaskPadding + x2 * capQuarterUnitSize * 4}
+				y={capMaskPadding + y2 * capQuarterUnitSize * 4}
 				width={secondaryCapMaskWidth}
 				height={secondaryCapMaskHeight}
 				fill="#fff"
@@ -151,8 +151,8 @@
 				ry="1"
 			></rect>
 			<rect
-				x={capMaskPadding + secondaryX * capQuarterUnitSize * 4}
-				y={capMaskPadding + secondaryY * capQuarterUnitSize * 4}
+				x={capMaskPadding + x2 * capQuarterUnitSize * 4}
+				y={capMaskPadding + y2 * capQuarterUnitSize * 4}
 				width={secondaryCapMaskWidth}
 				height={secondaryCapMaskHeight}
 				fill="#0000"
@@ -175,8 +175,8 @@
 				ry="1"
 			></rect>
 			<rect
-				x={capMaskPadding + secondaryX * capQuarterUnitSize * 4}
-				y={capMaskPadding + secondaryY * capQuarterUnitSize * 4}
+				x={capMaskPadding + x2 * capQuarterUnitSize * 4}
+				y={capMaskPadding + y2 * capQuarterUnitSize * 4}
 				width={secondaryCapMaskWidth}
 				height={secondaryCapMaskHeight}
 				fill="#0000"
@@ -202,8 +202,8 @@
 				ry="1"
 			></rect>
 			<rect
-				x={capMaskPadding + secondaryX * capQuarterUnitSize * 4}
-				y={capMaskPadding + secondaryY * capQuarterUnitSize * 4}
+				x={capMaskPadding + x2 * capQuarterUnitSize * 4}
+				y={capMaskPadding + y2 * capQuarterUnitSize * 4}
 				width={secondaryCapMaskWidth}
 				height={secondaryCapMaskHeight}
 				fill="#0000"
@@ -222,8 +222,8 @@
 			stroke-width="0"
 		/>
 		<rect
-			x={secondaryX * capQuarterUnitSize * 4}
-			y={secondaryY * capQuarterUnitSize * 4}
+			x={x2 * capQuarterUnitSize * 4}
+			y={y2 * capQuarterUnitSize * 4}
 			width={secondarySvgWidth}
 			height={secondarySvgHeight}
 			fill={capColor}
@@ -242,22 +242,22 @@
 					stroke="#000"
 					stroke-width="2"
 					d={secondaryHighlightSvg}
-					transform={`translate(${secondaryX * capQuarterUnitSize * 4}, ${
-						secondaryY * capQuarterUnitSize * 4
+					transform={`translate(${x2 * capQuarterUnitSize * 4}, ${
+						y2 * capQuarterUnitSize * 4
 					})`}
-					x={secondaryX * capQuarterUnitSize * 4}
-					y={secondaryY * capQuarterUnitSize * 4}
+					x={x2 * capQuarterUnitSize * 4}
+					y={y2 * capQuarterUnitSize * 4}
 					fill="#000"
 				/>
 				<path transform="translate(0, -0)" d={highlightSvg} fill="#fff" />
 				{#if !stepped}
 					<path
 						d={secondaryHighlightSvg}
-						transform={`translate(${secondaryX * capQuarterUnitSize * 4}, ${
-							secondaryY * capQuarterUnitSize * 4
+						transform={`translate(${x2 * capQuarterUnitSize * 4}, ${
+							y2 * capQuarterUnitSize * 4
 						})`}
-						x={secondaryX * capQuarterUnitSize * 4}
-						y={secondaryY * capQuarterUnitSize * 4}
+						x={x2 * capQuarterUnitSize * 4}
+						y={y2 * capQuarterUnitSize * 4}
 						fill="#fff"
 					/>{/if}
 			</g>
