@@ -1,9 +1,11 @@
 <script>
 	import CapAddIcon from "./CapAddIcon.svelte";
+    import { toolStore } from "$lib";
 
 </script>
-<div id="toolbar-panel" class="ui-floating-element">
-    <button><CapAddIcon width={24}></CapAddIcon></button>
+<div id="toolbar-panel" class="ui-floating-element" >
+    <button class={$toolStore == "select" ? "active" : ""} on:click={()=>toolStore.set("select")}><CapAddIcon width={24}></CapAddIcon></button>
+    <button class={$toolStore == "placement" ? "active" : ""} on:click={()=>toolStore.set("placement")}><CapAddIcon width={24}></CapAddIcon></button>
 </div>
 
 <style>
@@ -22,7 +24,7 @@
         width: 30px;
         height: 30px;
     }
-    button:active , button:hover{
+    button:active , button:hover, button.active{
         background: rgb(128, 200, 255);
     }
 </style>

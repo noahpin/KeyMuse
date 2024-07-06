@@ -126,8 +126,8 @@
 			}
 			//iterate through all the caps and check if they are in the box
 			let caught = [];
-			for (let i = 0; i < $layoutFile.keydata.length; i++) {
-				let cap = $layoutFile.keydata[i];
+			for (let i = 0; i < $layoutFile.keyData.length; i++) {
+				let cap = $layoutFile.keyData[i];
 				if (
 					cap.x * 4 * 13.5 > selectBoxStartX &&
 					cap.x * 4 * 13.5 < selectBoxEndX &&
@@ -206,11 +206,11 @@
 			capPlacementTool = true;
 		}
 		if (e.key == "Delete") {
-			let temp = [...$layoutFile.keydata];
+			let temp = [...$layoutFile.keyData];
 			temp = temp.filter((cap) => {
 				return !$selectedStore.includes(cap);
 			});
-			layoutFile.set({ keydata: temp });
+			layoutFile.set({ keyData: temp });
 		}
 	}}
 />
@@ -274,7 +274,7 @@
 		fill="url(#a)"
 	/>
 	<g transform={`translate(${panX},${panY}) scale(${zoom})`}>
-		{#each $layoutFile.keydata as capData}
+		{#each $layoutFile.keyData as capData}
 			<CapSvg {capData} {selectedStore} />
 		{/each}
 		{#if selectBox}

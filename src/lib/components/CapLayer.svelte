@@ -2,10 +2,13 @@
 	import { Layer } from "svelte-canvas";
 	import chroma from "chroma-js";
 	import { text } from "@sveltejs/kit";
+	import gorton from "$lib/styles/fonts/OpenGorton-Bold.otf";
+	import { onMount } from "svelte";
 	export let capData;
 	export let selectedStore;
 	export let unitSize;
 	export let passive = false;
+    export let previewTextValue = "";
 	let x = capData.x;
 	let y = capData.y;
 	let w = capData.width;
@@ -21,6 +24,7 @@
 	export let panX;
 	export let panY;
 	export let zoom;
+	export let selectBox = false;
 	let capPadding = 3;
 	let capRadius = 2;
 	let capHighlightPadding = 11;
@@ -29,6 +33,16 @@
 	let capColor = chroma(capData.color || "#969696");
 	let capDarken = capColor.darken(0.35);
 	let capEdge = capDarken.darken(0.5);
+
+	var font;
+
+	onMount(() => {
+		font = new FontFace("gorton", `url(${gorton})`);
+        font.load().then(function(nFont){
+            document.fonts.add(nFont);
+
+        });
+	});
 
 	function upd(ss) {
 		x = parseFloat(capData.x);
@@ -47,6 +61,7 @@
 		capEdge = capDarken.darken(0.5);
 	}
 	$: upd($selectedStore);
+	$: upd(capData);
 
 	$: render = ({ context, width, height }) => {
 		context.scale(zoom, zoom);
@@ -73,7 +88,7 @@
 
 		if (selected) {
 			context.lineWidth = 5 + capPadding;
-			context.strokeStyle = "#24a7ff";
+			context.strokeStyle = "blue";
 			context.stroke();
 			context.lineWidth = 1 + capPadding;
 			context.strokeStyle = "white";
@@ -110,7 +125,7 @@
 		context.fillStyle = textColor;
 		context.textAlign = "center";
 		context.textBaseline = "middle";
-		context.font = "12px sans-serif";
+		context.font = "12px gorton";
 		context.fillText(
 			legend,
 			x * unitSize + (w / 2) * unitSize + panX / zoom,
@@ -118,26 +133,21 @@
 				(h / 2) * unitSize +
 				(panY - (cHPad / 2.5) * (1 - capHighlightCentered)) / zoom
 		);
+		context.textAlign = "right";
+		context.textBaseline = "top";
+		context.fillText(
+			previewTextValue,
+			x * unitSize + (w) * unitSize + panX / zoom,
+			y * unitSize  +
+				(h) * unitSize +
+				(panY) / zoom
+		);
 		context.scale(1 / zoom, 1 / zoom);
 	};
 
 	function selectItem(e) {
 		if (passive) return;
-		console.log();
 		if ($selectedStore == null) selectedStore.set([]);
-		if (e.detail.originalEvent.shiftKey) {
-			//toggle the selected state of the capData
-			let arr = [...$selectedStore];
-			if (arr.includes(capData)) {
-				arr = arr.filter((item) => item !== capData);
-				selectedStore.set(arr);
-			} else {
-				arr.push(capData);
-				selectedStore.set(arr);
-			}
-		} else {
-			selectedStore.set([capData]);
-		}
 	}
 	$: selected = $selectedStore.includes(capData);
 </script>

@@ -1,14 +1,12 @@
 {
     "name": "TestKBL",
-    "keydata": [
+    "keyData": [
         {
             "legends" : "tilde",
             "width" : 1,
             "color" : "#FFFFFF",
             "height" : 1,
-            "x": 0,
-            "y": 0
-
+            "fontColor": "#000"
         },
         {
             "legends" : 1,

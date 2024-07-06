@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from "svelte";
 	import CapLayer from "./CapLayer.svelte";
+	import { toolStore, updateCapData } from "$lib";
 	// export let data: any = null;
 	// set viewbox to the current window size
 	export let selectedStore: any;
@@ -23,6 +24,7 @@
 	let gridMatrix;
 
 	let gridSize = 56;
+	let quarter = gridSize / 4;
 
 	onMount(() => {
 		patternCanvas = document.createElement("canvas");
@@ -49,7 +51,6 @@
 	function generateGrid(ctx) {
 		let cornerSize = 5;
 		ctx.fillStyle = "#0004";
-		let quarter = gridSize / 4;
 		for (let x = 0; x < 4; x++) {
 			for (let y = 0; y < 4; y++) {
 				ctx.fillRect(x * quarter, y * quarter, 1, 1);
@@ -87,6 +88,7 @@
 	import { Canvas, Layer } from "svelte-canvas";
 	import { tweened } from "svelte/motion";
 	import { quadOut as easing } from "svelte/easing";
+	import type { ParserOptions } from "svelte/types/compiler/interfaces";
 
 	const position = tweened([0.5, 0.5], { duration: 400, easing });
 
@@ -102,23 +104,24 @@
 	};
 	$: selectionRender = ({ context, width, height }) => {
 		if (selectBox) {
-            context.scale(zoom,zoom)
+			context.scale(zoom, zoom);
 			context.fillStyle = "#24a7ff44";
 			context.strokeStyle = "#24a7ff";
-            context.setLineDash([6,8])
-            context.lineCap = "round"
-            context.beginPath()
+			context.setLineDash([6, 8]);
+			context.lineCap = "round";
+			context.beginPath();
 			context.roundRect(
 				selectBoxStartX + panX / zoom,
 				selectBoxStartY + panY / zoom,
 				selectBoxEndX - selectBoxStartX,
-				selectBoxEndY - selectBoxStartY,5
+				selectBoxEndY - selectBoxStartY,
+				5
 			);
-            context.fill();
-            context.stroke();
-            context.scale(1/zoom,1/zoom)
-            context.setLineDash([])
-            context.lineCap = "butt"
+			context.fill();
+			context.stroke();
+			context.scale(1 / zoom, 1 / zoom);
+			context.setLineDash([]);
+			context.lineCap = "butt";
 		}
 	};
 
@@ -145,15 +148,18 @@
 		clickStartY = selectBoxStartY = selectBoxEndY = (e.clientY - panY) / zoom;
 		if (capPlacementTool) {
 			capCreateEndX = capCreateStartX =
-				Math.floor(((e.clientX - panX) / zoom / 54) * 4) / 4 - 0.5;
+				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
 			capCreateEndY = capCreateStartY =
-				Math.floor(((e.clientY - panY) / zoom / 54) * 4) / 4 - 0.5;
+				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
 		}
 		shiftKeyWhenClicked = e.shiftKey;
+		if (!middleMouseDown && !capPlacementTool) selectBox = true;
+		selectBoxEndX = (e.clientX - panX) / zoom;
+		selectBoxEndY = (e.clientY - panY) / zoom;
 	}
 	function pointerUpHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = false;
-		if (e.target.id == "background" && !selectBox) selectedStore.set([]);
+		if (e.target == mainCanvas.getCanvas() && !selectBox) selectedStore.set([]);
 		if (shiftKeyWhenClicked && capPlacementTool && previousCapPlacementData) {
 			let amountX = Math.floor(
 				(capCreateEndX - previousCapPlacementData.x) /
@@ -184,6 +190,7 @@
 				width2: Math.max(1, capCreateEndX - capCreateStartX + 1),
 				height2: Math.max(1, capCreateEndY - capCreateStartY + 1),
 				color: "#e6e6e6",
+				fontColor: "#000",
 			};
 			//broadcast an event to create a new cap
 			dispatch("createCap", cap);
@@ -198,31 +205,84 @@
 			panX += e.movementX;
 			panY += e.movementY;
 		}
-		console.log(clicked, !middleMouseDown, !capPlacementTool);
-		if (selectBox) {
+		if (selectBox && e.target == mainCanvas.getCanvas()) {
 			selectBoxEndX = (e.clientX - panX) / zoom;
 			selectBoxEndY = (e.clientY - panY) / zoom;
 			//if the end is less than start, set start to end and end to start
-			if (selectBoxEndX < clickStartX) {
-				let temp = selectBoxEndX;
-				selectBoxEndX = clickStartX;
-				selectBoxStartX = temp;
+			let cStartX = selectBoxStartX;
+			let cEndX = selectBoxEndX;
+			let cStartY = selectBoxStartY;
+			let cEndY = selectBoxEndY;
+			if (cEndX < cStartX) {
+				let tmp = cStartX;
+				cStartX = cEndX;
+				cEndX = tmp;
 			}
-			if (selectBoxEndY < clickStartY) {
-				let temp = selectBoxEndY;
-				selectBoxEndY = clickStartY;
-				selectBoxStartY = temp;
+			if (cEndY < cStartY) {
+				let tmp = cStartY;
+				cStartY = cEndY;
+				cEndY = tmp;
 			}
 			//iterate through all the caps and check if they are in the box
 			let caught = [];
-			for (let i = 0; i < $layoutFile.keydata.length; i++) {
-				let cap = $layoutFile.keydata[i];
-				if (
-					cap.x * 4 * 13.5 > selectBoxStartX &&
-					cap.x * 4 * 13.5 < selectBoxEndX &&
-					cap.y * 4 * 13.5 > selectBoxStartY &&
-					cap.y * 4 * 13.5 < selectBoxEndY
-				) {
+			for (let i = 0; i < $layoutFile.keyData.length; i++) {
+				let cap = $layoutFile.keyData[i];
+				let pairs = [
+					[cStartX, cStartY],
+					[cEndX, cEndY],
+					[cEndX, cStartY],
+					[cStartX, cEndY],
+				];
+				let capX = cap.x * 4 * quarter;
+				let capY = cap.y * 4 * quarter;
+				let capEndX = cap.width * gridSize + capX;
+				let capEndY = cap.height * gridSize + capY;
+				let capAdded = false;
+				for (let p = 0; p < pairs.length; p++) {
+					let pair = pairs[p];
+					let cx = pair[0];
+					let cy = pair[1];
+					let xb = cx >= capX && cx <= capEndX;
+					let yb = cy >= capY && cy <= capEndY;
+					if (xb && yb) {
+						caught.push(cap);
+						capAdded = true;
+						break;
+					}
+				}
+				if (capAdded) continue;
+				//now check if any of the edges are inside the cap
+				let xe =
+					capX <= cStartX &&
+					cStartX <= capEndX &&
+					cStartY <= capEndY &&
+					cEndY >= capY;
+				let ye =
+					capY <= cStartY &&
+					cStartY <= capEndY &&
+					cStartX <= capEndX &&
+					cEndX >= capX;
+				let xee =
+					capX <= cEndX &&
+					cEndX <= capEndX &&
+					cStartY <= capEndY &&
+					cEndY >= capY;
+				let yee =
+					capY <= cEndY &&
+					cEndY <= capEndY &&
+					cStartX <= capEndX &&
+					cEndX >= capX;
+				if (xe || ye || xee || yee) {
+					caught.push(cap);
+					capAdded = true;
+				}
+				if (capAdded) continue;
+				//see if the center of the cap is inside the bounds
+				let centerX = (cap.width * gridSize) / 2 + capX;
+				let centerY = (cap.height * gridSize) / 2 + capY;
+				let cenx = cStartX <= centerX && centerX <= cEndX;
+				let ceny = cStartY <= centerY && centerY <= cEndY;
+				if (cenx && ceny) {
 					caught.push(cap);
 				}
 			}
@@ -240,9 +300,9 @@
 		if (capPlacementTool && !clicked) {
 			capPlacementToolCapData.color = "#0ef2";
 			capPlacementToolCapData.x =
-				Math.floor(((e.clientX - panX) / zoom / 54) * 4) / 4 - 0.5;
+				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
 			capPlacementToolCapData.y =
-				Math.floor(((e.clientY - panY) / zoom / 54) * 4) / 4 - 0.5;
+				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
 			capPlacementToolCapData.width = 1;
 			capPlacementToolCapData.height = 1;
 		}
@@ -251,9 +311,9 @@
 			capPlacementToolCapData.x = capCreateStartX;
 			capPlacementToolCapData.y = capCreateStartY;
 			capCreateEndX =
-				Math.floor(((e.clientX - panX) / zoom / 54) * 4) / 4 - 0.5;
+				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
 			capCreateEndY =
-				Math.floor(((e.clientY - panY) / zoom / 54) * 4) / 4 - 0.5;
+				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
 			capPlacementToolCapData.width = Math.max(
 				1,
 				capCreateEndX - capCreateStartX + 1
@@ -266,7 +326,8 @@
 	}
 	let previousCapPlacementData = {};
 
-	let capPlacementTool = true;
+	let capPlacementTool = $toolStore == "placement";
+	$: capPlacementTool = $toolStore == "placement";
 	let capPlacementToolCapData = {
 		legends: "",
 		x: 0,
@@ -288,7 +349,7 @@
 	on:pointerdown={pointerDownHandler}
 	on:pointerup={pointerUpHandler}
 	on:pointermove={pointerMoveHandler}
-	on:keyup={(e) => {
+	on:keydown={(e) => {
 		if (e.target != document.body) return;
 		if (e.key == "Escape") {
 			capPlacementTool = false;
@@ -297,11 +358,31 @@
 			capPlacementTool = true;
 		}
 		if (e.key == "Delete") {
-			let temp = [...$layoutFile.keydata];
+			let temp = [...$layoutFile.keyData];
 			temp = temp.filter((cap) => {
 				return !$selectedStore.includes(cap);
 			});
-			layoutFile.set({ keydata: temp });
+			layoutFile.set({ keyData: temp });
+            selectedStore.set([])
+		}
+		if (e.key.includes("Arrow")) {
+			let dX = e.key.includes("Right")
+				? 0.25
+				: e.key.includes("Left")
+					? -0.25
+					: 0;
+			let dY = e.key.includes("Up") ? -0.25 : e.key.includes("Down") ? 0.25 : 0;
+			if (e.shiftKey) {
+				dX *= 4;
+				dY *= 4;
+			}
+			if (e.altKey) {
+				updateCapData($selectedStore, "width", dX, true);
+				updateCapData($selectedStore, "height", dY, true);
+				return;
+			}
+			updateCapData($selectedStore, "x", dX, true);
+			updateCapData($selectedStore, "y", dY, true);
 		}
 	}}
 />
@@ -311,10 +392,10 @@
 	layerEvents={true}
 	width={windowInnerWidth}
 	height={windowInnerHeight}
+	class={"background"}
 >
 	<Layer render={gridRender} />
-	<Layer render={selectionRender} />
-	{#each $layoutFile.keydata as capData}
+	{#each $layoutFile.keyData as capData}
 		<CapLayer
 			unitSize={gridSize}
 			{panX}
@@ -324,4 +405,16 @@
 			{selectedStore}
 		/>
 	{/each}
+	<Layer render={selectionRender} />
+	{#if capPlacementTool}
+		<CapLayer
+			unitSize={gridSize}
+			{panX}
+			{panY}
+			{zoom}
+			capData={capPlacementToolCapData}
+			{selectedStore}
+			previewTextValue={capPlacementToolCapData.width.toFixed(2) + "U"}
+		/>
+	{/if}
 </Canvas>
