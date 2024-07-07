@@ -9,12 +9,12 @@ export const propertyPanelStore = writable<CapDataElement>({
 	legends: "string",
 	x: 0,
 	y: 0,
-	width: 0,
-	height: 0,
+	w: 0,
+	h: 0,
 	x2: 0,
 	y2: 0,
-	width2: 0,
-	height2: 0,
+	w2: 0,
+	h2: 0,
 	color: "string",
 	fontColor: "string",
 	stepped: true,
@@ -36,11 +36,12 @@ export function updateCapData(
         let newValue = value;
 		if (delta) {
 			newValue += c[property];
+            newValue = Math.round(newValue * 1000) / 1000
 		}
-		if (property == "width" && c.width == c.width2) {
-			c.width2 = newValue;
+		if (property == "w" && c.w == c.w2) {
+			c.w2 = newValue;
 		}
-		if (property == "height" && c.height == c.height2) c.height2 = newValue;
+		if (property == "h" && c.h == c.h2) c.h2 = newValue;
 		c[property] = newValue;
 	});
 	let tObj = get(layoutFile);

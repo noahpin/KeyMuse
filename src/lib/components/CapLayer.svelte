@@ -4,7 +4,7 @@
 	import chroma from "chroma-js";
 	import { text } from "@sveltejs/kit";
 	import gorton from "$lib/styles/fonts/OpenGorton-Bold.otf";
-	import { onMount } from "svelte";
+	import { onMount, onDestroy } from "svelte";
 	import { selectedStore } from "$lib";
 	export let capData: CapDataElement;
 	export let unitSize;
@@ -12,12 +12,13 @@
 	export let previewTextValue = "";
 	let x = capData.x;
 	let y = capData.y;
-	let w = capData.width;
-	let h = capData.height;
+	let w = capData.w;
+	let h = capData.h;
 	let x2 = capData.x2 || 0;
 	let y2 = capData.y2 || 0;
-	let w2 = capData.width2 || w;
-	let h2 = capData.height2 || h;
+	let w2 = capData.w2 || w;
+	let h2 = capData.h2 || h;
+	let angle = capData.angle || 0;
 	let stepped = capData.stepped || false;
 	let textColor = capData.fontColor || "black";
 	let legend = capData.legends || "";
@@ -46,12 +47,13 @@
 	function upd(ss: CapDataElement) {
 		x = capData.x;
 		y = capData.y;
-		w = capData.width;
-		h = capData.height;
+		w = capData.w;
+		h = capData.h;
 		x2 = parseFloat(`${capData.x2 || 0}`);
 		y2 = parseFloat(`${capData.y2 || 0}`);
-		w2 = capData.width2 || w;
-		h2 = capData.height2 || h;
+		w2 = capData.w2 || w;
+		h2 = capData.h2 || h;
+	    angle = capData.angle || 0;
 		stepped = capData.stepped || false;
 		textColor = capData.fontColor || "black";
 		legend = capData.legends || "";
@@ -61,8 +63,23 @@
 	}
 	$: upd(capData);
 
+	let requestId;
+
+	function rafLoop() {
+		requestId = requestAnimationFrame(rafLoop);
+		//angle += 0.01;
+	}
+
+	onMount(() => {
+		requestId = requestAnimationFrame(rafLoop);
+	});
+
 	$: render = ({ context, width, height }: CanvasRendererInput) => {
+        let xt = x * unitSize + panX / zoom
+        let yt = y * unitSize + panY / zoom
 		context.scale(zoom, zoom);
+		context.translate(xt, yt);
+		context.rotate(angle * Math.PI / 180);
 		let cPad = capPadding * zoom;
 		let cHPad = capHighlightPadding * zoom;
 		context.fillStyle = capDarken.hex();
@@ -70,15 +87,13 @@
 		context.lineWidth = 3;
 		context.beginPath();
 		context.roundRect(
-			x * unitSize + (panX + cPad) / zoom,
-			y * unitSize + (panY + cPad) / zoom,
+			cPad / zoom, cPad / zoom,
 			w * unitSize - capPadding * 2,
 			h * unitSize - capPadding * 2,
 			capRadius
 		);
 		context.roundRect(
-			(x + x2) * unitSize + (panX + cPad) / zoom,
-			(y + y2) * unitSize + (panY + cPad) / zoom,
+			x2*unitSize + cPad / zoom, y2 * unitSize + cPad / zoom,
 			w2 * unitSize - capPadding * 2,
 			h2 * unitSize - capPadding * 2,
 			capRadius
@@ -101,18 +116,19 @@
 		context.fillStyle = capColor.hex();
 		context.beginPath();
 		context.roundRect(
-			x * unitSize + (panX + cHPad) / zoom,
-			y * unitSize +
-				(panY + cHPad - (cHPad / 2.5) * (1 - Number(capHighlightCentered))) / zoom,
+			cHPad / zoom,
+				(cHPad - (cHPad / 2.5) * (1 - Number(capHighlightCentered))) /
+					zoom,
 			w * unitSize - capHighlightPadding * 2,
 			h * unitSize - capHighlightPadding * 2,
 			capRadius
 		);
 		if (!stepped) {
 			context.roundRect(
-				(x + x2) * unitSize + (panX + cHPad) / zoom,
-				(y + y2) * unitSize +
-					(panY + cHPad - (cHPad / 2.5) * (1 - Number(capHighlightCentered))) / zoom,
+				(x2) * unitSize + ( cHPad) / zoom,
+				(y2) * unitSize +
+					(cHPad - (cHPad / 2.5) * (1 - Number(capHighlightCentered))) /
+						zoom,
 				w2 * unitSize - capHighlightPadding * 2,
 				h2 * unitSize - capHighlightPadding * 2,
 				capRadius
@@ -126,18 +142,20 @@
 		context.font = "12px gorton";
 		context.fillText(
 			legend,
-			x * unitSize + (w / 2) * unitSize + panX / zoom,
-			y * unitSize +
+			 (w / 2) * unitSize ,
+			
 				(h / 2) * unitSize +
-				(panY - (cHPad / 2.5) * (1 - Number(capHighlightCentered))) / zoom
+				( (cHPad / 2.5) * (1 - Number(capHighlightCentered))) / zoom
 		);
 		context.textAlign = "right";
 		context.textBaseline = "top";
 		context.fillText(
 			previewTextValue,
-			x * unitSize + w * unitSize + panX / zoom,
-			y * unitSize + h * unitSize + panY / zoom
+			w * unitSize,
+			 h * unitSize
 		);
+		context.rotate(-1 * angle * Math.PI / 180);
+		context.translate(-1 * xt, -1 * yt);
 		context.scale(1 / zoom, 1 / zoom);
 	};
 	$: selected = $selectedStore.includes(capData);

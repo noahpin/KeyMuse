@@ -22,18 +22,19 @@
 				legends: d.legends || "",
 				x: d.x || 0,
 				y: d.y || 0,
-				width: d.width || 1,
-				height: d.height || 1,
+				w: d.w || 1,
+				h: d.h || 1,
 				x2: d.x2 || 0,
 				y2: d.y2 || 0,
-				width2: d.width2 || null,
-				height2: d.height2 || null,
+				w2: d.w2 || null,
+				h2: d.h2 || null,
+				angle: d.angle || 0,
 				color: d.color || "#fff",
 				fontColor: d.fontColor || "#000",
-				stepped: d.stepped != null ? d.stepped : false
+				stepped: d.stepped != null ? d.stepped : false,
 			};
-			tmp.width2 = tmp.width2 || tmp.width
-			tmp.height2 = tmp.height2 || tmp.height
+			tmp.w2 = tmp.w2 || tmp.w
+			tmp.h2 = tmp.h2 || tmp.h
 			keyData[i] = tmp
 		}
 	}

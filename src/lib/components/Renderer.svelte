@@ -48,6 +48,10 @@
 	let capCreateStartY = 0;
 	let capCreateEndX = 0;
 	let capCreateEndY = 0;
+	let capRotateStartX = 0;
+	let capRotateStartY = 0;
+	let capRotateEndX = 0;
+	let capRotateEndY = 0;
 	const dispatch = createEventDispatcher();
 	let shiftKeyWhenClicked = false;
 	function pointerDownHandler(e: PointerEvent) {
@@ -93,8 +97,8 @@
 				height: Math.max(1, capCreateEndY - capCreateStartY + 1),
 				x2: 0,
 				y2: 0,
-				width2: Math.max(1, capCreateEndX - capCreateStartX + 1),
-				height2: Math.max(1, capCreateEndY - capCreateStartY + 1),
+				w2: Math.max(1, capCreateEndX - capCreateStartX + 1),
+				h2: Math.max(1, capCreateEndY - capCreateStartY + 1),
 				color: "#e6e6e6",
 			};
 			//broadcast an event to create a new cap
@@ -186,8 +190,8 @@
 		height: 1,
 		x2: 0,
 		y2: 0,
-		width2: 0,
-		height2: 0,
+		w2: 0,
+		h2: 0,
 		color: "#0007",
 	};
 </script>

@@ -4,8 +4,9 @@
 
 </script>
 <div id="toolbar-panel" class="ui-floating-element" >
-    <button class={$toolStore == "select" ? "active" : ""} on:click={()=>toolStore.set("select")}><CapAddIcon width={24}></CapAddIcon></button>
+    <button class={$toolStore == "select" ? "active" : ""} on:click={()=>toolStore.set("select")}><i class="hi-marquee"></i></button>
     <button class={$toolStore == "placement" ? "active" : ""} on:click={()=>toolStore.set("placement")}><CapAddIcon width={24}></CapAddIcon></button>
+    <button class={$toolStore == "rotate" ? "active" : ""} on:click={()=>toolStore.set("rotate")}><i class="hi-rotate-right"></i></button>
 </div>
 
 <style>

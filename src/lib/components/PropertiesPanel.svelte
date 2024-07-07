@@ -54,22 +54,22 @@
 						on:input={(e) => updateProperty("y", e)}
 					/>
 					<br />
-					width:
+					w:
 					<br />
 					<input
 						type="number"
 						step=".25"
-						value={$selectedStore[$selectedStore.length - 1].width}
-						on:input={(e) => updateProperty("width", e)}
+						value={$selectedStore[$selectedStore.length - 1].w}
+						on:input={(e) => updateProperty("w", e)}
 					/>
 					<br />
-					height:
+					h:
 					<br />
 					<input
 						type="number"
 						step=".25"
-						value={$selectedStore[$selectedStore.length - 1].height}
-						on:input={(e) => updateProperty("height", e)}
+						value={$selectedStore[$selectedStore.length - 1].h}
+						on:input={(e) => updateProperty("h", e)}
 					/>
 					<br />
 					secondary x:
@@ -90,20 +90,28 @@
 						on:input={(e) => updateProperty("y2", e)}
 					/>
 					<br />
-					secondary width:
+					secondary w:
 					<input
 						type="number"
 						step=".25"
-						value={$selectedStore[$selectedStore.length - 1].width2}
-						on:input={(e) => updateProperty("width2", e)}
+						value={$selectedStore[$selectedStore.length - 1].w2}
+						on:input={(e) => updateProperty("w2", e)}
 					/>
 					<br />
-					secondary height:
+					secondary h:
 					<input
 						type="number"
 						step=".25"
-						value={$selectedStore[$selectedStore.length - 1].height2}
-						on:input={(e) => updateProperty("height2", e)}
+						value={$selectedStore[$selectedStore.length - 1].h2}
+						on:input={(e) => updateProperty("h2", e)}
+					/>
+					<br />
+					angle:
+					<input
+						type="number"
+						step=".25"
+						value={$selectedStore[$selectedStore.length - 1].angle}
+						on:input={(e) => updateProperty("angle", e)}
 					/>
 					<br />
 					cap color:

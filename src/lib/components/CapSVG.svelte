@@ -17,8 +17,8 @@
 	let unitWidth = capData.width || 1;
 	let unitHeight = capData.height || 1;
 
-	let secondaryUnitWidth = capData.width2 || unitWidth;
-	let secondaryUnitHeight = capData.height2 || unitHeight;
+	let secondaryUnitWidth = capData.w2 || unitWidth;
+	let secondaryUnitHeight = capData.h2 || unitHeight;
 	let x2 = capData.x2 || 0;
 	let y2 = capData.y2 || 0;
 
@@ -61,8 +61,8 @@
 		textAlignmentHeight = (height - 2) * capQuarterUnitSize;
 		selected = $selectedStore.includes(capData);
 		legends = capData.legends || "";
-		secondaryUnitWidth = capData.width2 || unitWidth;
-		secondaryUnitHeight = capData.height2 || unitHeight;
+		secondaryUnitWidth = capData.w2 || unitWidth;
+		secondaryUnitHeight = capData.h2 || unitHeight;
 		x2 = capData.x2 || 0;
 		y2 = capData.y2 || 0;
 
@@ -162,7 +162,7 @@
 				ry="1"
 			></rect>
 		</g>
-		<g mix-blend-mode="overlay" opacity="0.19">
+		<g opacity="0.19">
 			<rect
 				x={capMaskPadding}
 				y={capMaskPadding}
@@ -230,7 +230,7 @@
 			stroke-width="0"
 		/>
 		{#if showPreviewStyles}
-			<g mix-blend-mode="overlay" opacity=".19">
+			<g opacity=".19">
 				<path
 					transform="translate(0, -0)"
 					d={highlightSvg}

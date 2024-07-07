@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from "svelte";
 	import CapLayer from "./CapLayer.svelte";
-	import { toolStore, updateCapData } from "$lib";
+	import { toolStore, updateCapData, selectedStore, layoutFile } from "$lib";
 	// export let data: any = null;
 	// set viewbox to the current window size
-	export let selectedStore: any;
-	export let layoutFile: any;
 
 	let windowInnerWidth = 0;
 	let windowInnerHeight = 0;
@@ -66,8 +64,8 @@
 			let zoomDelta = e.deltaY / 100;
 			let zoomFactor = (zoom - zoomDelta) / zoom;
 			zoom -= zoomDelta;
-			if (zoom < .75) {
-				zoom =  .75;
+			if (zoom < 0.75) {
+				zoom = 0.75;
 				return;
 			}
 			if (zoom > 4) {
@@ -86,6 +84,7 @@
 	import { tweened } from "svelte/motion";
 	import { quadOut as easing } from "svelte/easing";
 	import type { ParserOptions } from "svelte/types/compiler/interfaces";
+	import { get, writable } from "svelte/store";
 
 	const position = tweened([0.5, 0.5], { duration: 400, easing });
 
@@ -119,6 +118,75 @@
 			context.scale(1 / zoom, 1 / zoom);
 			context.setLineDash([]);
 		}
+		if (clicked && capRotationTool) {
+			let r = Math.sqrt(
+				Math.pow(capRotateEndX - capRotateStartX, 2) +
+					Math.pow(capRotateEndY - capRotateStartY, 2)
+			);
+			let theta = Math.atan2(
+				capRotateEndX - capRotateStartX,
+				capRotateStartY - capRotateEndY
+			);
+
+			context.setLineDash([]);
+			context.scale(zoom, zoom);
+			context.lineCap = "round";
+			context.fillStyle = "#0007";
+			context.strokeStyle = "#0007";
+			context.beginPath();
+			context.arc(
+				capRotateStartX * gridSize + panX / zoom,
+				capRotateStartY * gridSize + panY / zoom,
+				5,
+				0,
+				2 * Math.PI
+			);
+			context.moveTo(
+				capRotateStartX * gridSize + panX / zoom,
+				capRotateStartY * gridSize + panY / zoom
+			);
+			context.arc(
+				capRotateStartX * gridSize + panX / zoom,
+				capRotateStartY * gridSize + panY / zoom,
+				(r / 2) * gridSize,
+				Math.PI * 1.5,
+				Math.PI * 1.5 + theta,
+				theta < 0
+			);
+			context.moveTo(
+				capRotateStartX * gridSize + panX / zoom,
+				capRotateStartY * gridSize + panY / zoom
+			);
+			context.lineTo(
+				capRotateStartX * gridSize + panX / zoom,
+				(capRotateStartY - r) * gridSize + panY / zoom
+			);
+			context.textAlign = "left";
+			context.fillText(
+				((theta * 180) / Math.PI).toFixed(1) + " deg",
+				capRotateEndX * gridSize + panX / zoom + 10,
+				capRotateEndY * gridSize + panY / zoom
+			);
+			context.stroke();
+			context.lineWidth = 8;
+			context.strokeStyle = "#fff7";
+			context.beginPath();
+			context.moveTo(
+				capRotateStartX * gridSize + panX / zoom,
+				capRotateStartY * gridSize + panY / zoom
+			);
+			context.lineTo(
+				capRotateEndX * gridSize + panX / zoom,
+				capRotateEndY * gridSize + panY / zoom
+			);
+			context.stroke();
+			context.lineWidth = 4;
+			context.strokeStyle = "#24a7ff";
+			context.setLineDash([6, 8]);
+			context.stroke();
+			context.scale(1 / zoom, 1 / zoom);
+			context.setLineDash([]);
+		}
 	};
 
 	let middleMouseDown = false;
@@ -133,8 +201,15 @@
 	let capCreateStartY = 0;
 	let capCreateEndX = 0;
 	let capCreateEndY = 0;
+	let capRotateStartX = 0;
+	let capRotateStartY = 0;
+	let capRotatePreviousX = 0;
+	let capRotatePreviousY = 0;
+	let capRotateEndX = 0;
+	let capRotateEndY = 0;
 	const dispatch = createEventDispatcher();
 	let shiftKeyWhenClicked = false;
+	let rotationStartData: CapDataElement[];
 
 	function pointerDownHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = true;
@@ -148,11 +223,22 @@
 			capCreateEndY = capCreateStartY =
 				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
 		}
+		if (capRotationTool) {
+			capRotatePreviousX =
+				capRotateEndX =
+				capRotateStartX =
+					(((e.clientX - panX) / zoom / gridSize) * 4) / 4;
+			capRotatePreviousY =
+				capRotateEndY =
+				capRotateStartY =
+					(((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			rotationStartData = [...structuredClone(get(selectedStore))];
+		}
 		shiftKeyWhenClicked = e.shiftKey;
-		if (mainClick && !capPlacementTool) selectBox = true;
+		if (mainClick && capSelectTool) selectBox = true;
 	}
 	function pointerUpHandler(e: PointerEvent) {
-		if (e.target == mainCanvas.getCanvas() && !selectBox && mainClick)
+		if (e.target == mainCanvas.getCanvas() && capSelectTool && mainClick)
 			selectedStore.set([]);
 		if (
 			shiftKeyWhenClicked &&
@@ -174,31 +260,31 @@
 				cEndY = cStartY;
 				cStartY = tmp;
 			}
-			let amountX = Math.floor(
-				(cEndX - cStartX) / previousCapPlacementData.width
-			);
-			let amountY = Math.floor(
-				(cEndY - cStartY) / previousCapPlacementData.height
-			);
+			let amountX = Math.floor((cEndX - cStartX) / previousCapPlacementData.w);
+			let amountY = Math.floor((cEndY - cStartY) / previousCapPlacementData.h);
 			console.log(amountX, amountY);
 			let temp = [...$layoutFile.keyData];
 			temp = temp.filter((cap) => {
 				return cap != previousCapPlacementData;
 			});
-			layoutFile.set({ keyData: temp });
+			let file = $layoutFile;
+			file.keyData = temp;
+			layoutFile.set(file);
 			for (let ax = 0; ax <= amountX; ax++) {
 				for (let ay = 0; ay <= amountY; ay++) {
 					let cap = {
 						...previousCapPlacementData,
-						x: cStartX + previousCapPlacementData.width * ax,
-						y: cStartY + previousCapPlacementData.height * ay,
+						x: cStartX + previousCapPlacementData.w * ax,
+						y: cStartY + previousCapPlacementData.h * ay,
 					};
 					dispatch("createCap", cap);
 				}
 			}
 		}
-		if (selectBox && !capPlacementTool && e.target == mainCanvas.getCanvas()) {
+		if (selectBox && capSelectTool && e.target == mainCanvas.getCanvas()) {
 			selectCaps(e);
+		}
+		if (clicked && capRotationTool && mainClick && $selectedStore.length != 0) {
 		}
 		if (clicked && capPlacementTool && !shiftKeyWhenClicked && mainClick) {
 			let cStartX = capCreateStartX;
@@ -219,15 +305,16 @@
 				legends: "",
 				x: cStartX,
 				y: cStartY,
-				width: Math.max(1, cEndX - cStartX + 1),
-				height: Math.max(1, cEndY - cStartY + 1),
+				w: Math.max(1, cEndX - cStartX + 1),
+				h: Math.max(1, cEndY - cStartY + 1),
 				x2: 0,
 				y2: 0,
-				width2: Math.max(1, cEndX - cStartX + 1),
-				height2: Math.max(1, cEndY - cStartY + 1),
+				w2: Math.max(1, cEndX - cStartX + 1),
+				h2: Math.max(1, cEndY - cStartY + 1),
 				color: "#e6e6e6",
 				fontColor: "#000",
 				stepped: false,
+                angle: 0
 			};
 			//broadcast an event to create a new cap
 			dispatch("createCap", cap);
@@ -240,7 +327,7 @@
 		mainClick = false;
 	}
 	function pointerMoveHandler(e: PointerEvent) {
-		if (clicked && mainClick && !capPlacementTool) selectBox = true;
+		if (clicked && mainClick && capSelectTool) selectBox = true;
 		if (middleMouseDown) {
 			panX += e.movementX;
 			panY += e.movementY;
@@ -257,8 +344,42 @@
 				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
 			capPlacementToolCapData.y =
 				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
-			capPlacementToolCapData.width = 1;
-			capPlacementToolCapData.height = 1;
+			capPlacementToolCapData.w = 1;
+			capPlacementToolCapData.h = 1;
+		}
+
+		if (capRotationTool && mainClick && $selectedStore.length != 0) {
+			capRotateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
+			capRotateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			$selectedStore.forEach((capSelected, i) => {
+				let cap = rotationStartData[i];
+				let r = Math.sqrt(
+					Math.pow(cap.x - capRotateStartX, 2) +
+						Math.pow(cap.y - capRotateStartY, 2)
+				);
+				let theta = Math.atan2(
+					cap.x - capRotateStartX,
+					-(cap.y - capRotateStartY)
+				);
+				theta -= Math.PI / 2;
+				let dTheta = Math.atan2(
+					capRotateEndX - capRotateStartX,
+					-(capRotateEndY - capRotateStartY)
+				);
+				theta += dTheta;
+				console.log(cap.angle);
+				let capAngle = cap.angle + (dTheta * 180) / Math.PI;
+
+				let nDX = r * Math.cos(theta) + capRotateStartX;
+				let nDY = r * Math.sin(theta) + capRotateStartY;
+
+				updateCapData([capSelected], "x", Math.round(nDX * 100) / 100);
+				updateCapData([capSelected], "y", Math.round(nDY * 100) / 100);
+				updateCapData([capSelected], "angle", Math.round(capAngle * 100) / 100);
+			});
+
+			capRotatePreviousX = capRotateEndX;
+			capRotatePreviousY = capRotateEndY;
 		}
 		if (mainClick && capPlacementTool) {
 			capPlacementToolCapData.color = "#ececec";
@@ -283,8 +404,8 @@
 			capPlacementToolCapData.x = cStartX;
 			capPlacementToolCapData.y = cStartY;
 
-			capPlacementToolCapData.width = Math.max(1, cEndX - cStartX + 1);
-			capPlacementToolCapData.height = Math.max(1, cEndY - cStartY + 1);
+			capPlacementToolCapData.w = Math.max(1, cEndX - cStartX + 1);
+			capPlacementToolCapData.h = Math.max(1, cEndY - cStartY + 1);
 		}
 	}
 
@@ -316,8 +437,8 @@
 			];
 			let capX = cap.x * 4 * quarter;
 			let capY = cap.y * 4 * quarter;
-			let capEndX = cap.width * gridSize + capX;
-			let capEndY = cap.height * gridSize + capY;
+			let capEndX = cap.w * gridSize + capX;
+			let capEndY = cap.h * gridSize + capY;
 			let capAdded = false;
 			for (let p = 0; p < pairs.length; p++) {
 				let pair = pairs[p];
@@ -359,8 +480,8 @@
 			}
 			if (capAdded) continue;
 			//see if the center of the cap is inside the bounds
-			let centerX = (cap.width * gridSize) / 2 + capX;
-			let centerY = (cap.height * gridSize) / 2 + capY;
+			let centerX = (cap.w * gridSize) / 2 + capX;
+			let centerY = (cap.h * gridSize) / 2 + capY;
 			let cenx = cStartX <= centerX && centerX <= cEndX;
 			let ceny = cStartY <= centerY && centerY <= cEndY;
 			if (cenx && ceny) {
@@ -379,22 +500,27 @@
 	}
 	let previousCapPlacementData: CapDataElement;
 
+	let capSelectTool = $toolStore == "select";
+	$: capSelectTool = $toolStore == "select";
 	let capPlacementTool = $toolStore == "placement";
 	$: capPlacementTool = $toolStore == "placement";
+	let capRotationTool = $toolStore == "rotate";
+	$: capRotationTool = $toolStore == "rotate";
 	// @ts-ignore
 	let capPlacementToolCapData: CapDataElement = {
 		legends: "",
 		x: 0,
 		y: 0,
-		width: 1,
-		height: 1,
+		w: 1,
+		h: 1,
 		x2: 0,
 		y2: 0,
-		width2: 0,
-		height2: 0,
+		w2: 0,
+		h2: 0,
 		color: "#0007",
 		fontColor: "#000",
 		stepped: false,
+		angle: 0,
 	};
 </script>
 
@@ -413,12 +539,17 @@
 		if (e.key == "c") {
 			toolStore.set("placement");
 		}
+		if (e.key == "r") {
+			toolStore.set("rotate");
+		}
 		if (e.key == "Delete") {
-			let temp = [...$layoutFile.keyData];
+			let temp = $layoutFile.keyData;
 			temp = temp.filter((cap) => {
 				return !$selectedStore.includes(cap);
 			});
-			layoutFile.set({ keyData: temp });
+			let file = $layoutFile;
+			file.keyData = temp;
+			layoutFile.set(file);
 			selectedStore.set([]);
 		}
 		if (e.key.includes("Arrow")) {
@@ -433,8 +564,8 @@
 				dY *= 4;
 			}
 			if (e.altKey) {
-				updateCapData($selectedStore, "width", dX, true);
-				updateCapData($selectedStore, "height", dY, true);
+				updateCapData($selectedStore, "w", dX, true);
+				updateCapData($selectedStore, "h", dY, true);
 				return;
 			}
 			updateCapData($selectedStore, "x", dX, true);
@@ -462,7 +593,7 @@
 			{panY}
 			{zoom}
 			capData={capPlacementToolCapData}
-			previewTextValue={capPlacementToolCapData.width.toFixed(2) + "U"}
+			previewTextValue={capPlacementToolCapData.w.toFixed(2) + "U"}
 		/>
 	{/if}
 </Canvas>

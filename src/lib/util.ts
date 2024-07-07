@@ -15,10 +15,10 @@ export function makeid(length: number): string {
 
 export function buildSVGPathFromKeycapData(keycapData: any) {
 	return `M${keycapData.x * 54},${keycapData.y * 54}L${
-		(keycapData.x + keycapData.width) * 54
-	},${keycapData.y * 54}L${(keycapData.x + keycapData.width) * 54},${
-		(keycapData.y + keycapData.height) * 54
-	}L${keycapData.x * 54},${(keycapData.y + keycapData.height) * 54}Z`;
+		(keycapData.x + keycapData.w) * 54
+	},${keycapData.y * 54}L${(keycapData.x + keycapData.w) * 54},${
+		(keycapData.y + keycapData.h) * 54
+	}L${keycapData.x * 54},${(keycapData.y + keycapData.h) * 54}Z`;
 }
 export function svgPathUnion(path1: string, path2: string) {
 	const project = new paper.Project();

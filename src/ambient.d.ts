@@ -4,19 +4,20 @@ declare global {
         legends: string,
         x: number,
         y: number,
-        width: number,
-        height: number,
+        w: number,
+        h: number,
         x2: number,
         y2: number,
-        width2: number,
-        height2: number,
+        w2: number,
+        h2: number,
+        angle: number,
         color: string,
         fontColor: string,
-        stepped: boolean
+        stepped: boolean,
     }
     type FileData = {
         name: string,
-        keyData: [CapDataElement]
+        keyData: [CapDataElement] | CapDataElement[]
     }
     type CanvasRendererInput = {context: CanvasRenderingContext2D, width: number, height: number}
 }
