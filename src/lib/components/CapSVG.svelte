@@ -275,7 +275,7 @@
 			x={textAlignmentWidth / 2 + capQuarterUnitSize}
 			y={textAlignmentHeight / 2 + capQuarterUnitSize}
 			font-size="10px"
-			fill={capData.fontColor}
+			fill={capData.textColor}
 			alignment-baseline="central"
 			text-anchor="middle"
 			class="font-gorton">{legends}</text
@@ -284,7 +284,7 @@
 			x={capQuarterUnitSize}
 			y={textAlignmentHeight / 2 + capQuarterUnitSize}
 			font-size="10px"
-			fill={capData.fontColor}
+			fill={capData.textColor}
 			alignment-baseline="central"
 			text-anchor="start"
 			class="font-gorton">{legends}</text
@@ -293,7 +293,7 @@
 			x={textAlignmentWidth + capQuarterUnitSize}
 			y={textAlignmentHeight / 2 + capQuarterUnitSize}
 			font-size="10px"
-			fill={capData.fontColor}
+			fill={capData.textColor}
 			alignment-baseline="central"
 			text-anchor="end"
 			class="font-gorton">{legends}</text
@@ -303,7 +303,7 @@
 			x={textAlignmentWidth / 2 + capQuarterUnitSize}
 			y={textAlignmentHeight + capQuarterUnitSize}
 			font-size="10px"
-			fill={capData.fontColor}
+			fill={capData.textColor}
 			alignment-baseline="after-edge"
 			text-anchor="middle"
 			class="font-gorton">{legends}</text
@@ -312,7 +312,7 @@
 			x={capQuarterUnitSize}
 			y={textAlignmentHeight + capQuarterUnitSize}
 			font-size="10px"
-			fill={capData.fontColor}
+			fill={capData.textColor}
 			alignment-baseline="after-edge"
 			text-anchor="start"
 			class="font-gorton">{legends}</text
@@ -321,7 +321,7 @@
 			x={textAlignmentWidth + capQuarterUnitSize}
 			y={textAlignmentHeight + capQuarterUnitSize}
 			font-size="10px"
-			fill={capData.fontColor}
+			fill={capData.textColor}
 			alignment-baseline="after-edge"
 			text-anchor="end"
 			class="font-gorton">{legends}</text
@@ -331,7 +331,7 @@
 			x={textAlignmentWidth / 2 + capQuarterUnitSize}
 			y={capQuarterUnitSize}
 			font-size="10px"
-			fill={capData.fontColor}
+			fill={capData.textColor}
 			alignment-baseline="before-edge"
 			text-anchor="middle"
 			class="font-gorton">{legends}</text
@@ -340,7 +340,7 @@
 			x={capQuarterUnitSize}
 			y={capQuarterUnitSize}
 			font-size="10px"
-			fill={capData.fontColor}
+			fill={capData.textColor}
 			alignment-baseline="before-edge"
 			text-anchor="start"
 			class="font-gorton">{legends}</text
@@ -349,7 +349,7 @@
 			x={textAlignmentWidth + capQuarterUnitSize}
 			y={capQuarterUnitSize}
 			font-size="10px"
-			fill={capData.fontColor}
+			fill={capData.textColor}
 			alignment-baseline="before-edge"
 			text-anchor="end"
 			class="font-gorton">{legends}</text
@@ -359,7 +359,7 @@
 		x={svgWidth}
 		y={svgHeight}
 		font-size="10px"
-		fill={capData.fontColor}
+		fill={capData.textColor}
 		alignment-baseline="before-edge"
 		text-anchor="end"
 		class="font-gorton">{previewTextValue}</text

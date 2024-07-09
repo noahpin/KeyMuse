@@ -101,8 +101,8 @@
 	$: selectionRender = ({ context, width, height }: CanvasRendererInput) => {
 		if (selectBox) {
 			context.scale(zoom, zoom);
-			context.fillStyle = "#24a7ff44";
-			context.strokeStyle = "#24a7ff";
+			context.fillStyle = "#2172ff44";
+			context.strokeStyle = "#2172ff";
 			context.setLineDash([6, 8]);
 			context.lineCap = "round";
 			context.beginPath();
@@ -181,7 +181,7 @@
 			);
 			context.stroke();
 			context.lineWidth = 4;
-			context.strokeStyle = "#24a7ff";
+			context.strokeStyle = "#2172ff";
 			context.setLineDash([6, 8]);
 			context.stroke();
 			context.scale(1 / zoom, 1 / zoom);
@@ -312,7 +312,7 @@
 				w2: Math.max(1, cEndX - cStartX + 1),
 				h2: Math.max(1, cEndY - cStartY + 1),
 				color: "#e6e6e6",
-				fontColor: "#000",
+				textColor: "#000",
 				stepped: false,
                 angle: 0
 			};
@@ -339,7 +339,7 @@
 		}
 
 		if (capPlacementTool && !clicked) {
-			capPlacementToolCapData.color = "#0ef2";
+			capPlacementToolCapData.color = "#2172ff22";
 			capPlacementToolCapData.x =
 				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
 			capPlacementToolCapData.y =
@@ -518,7 +518,7 @@
 		w2: 0,
 		h2: 0,
 		color: "#0007",
-		fontColor: "#000",
+		textColor: "#000",
 		stepped: false,
 		angle: 0,
 	};

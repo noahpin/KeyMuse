@@ -20,7 +20,7 @@
 	let h2 = capData.h2 || h;
 	let angle = capData.angle || 0;
 	let stepped = capData.stepped || false;
-	let textColor = capData.fontColor || "black";
+	let textColor = capData.textColor || "black";
 	let legend = capData.legends || "";
 	let selected = false;
 	export let panX;
@@ -55,7 +55,7 @@
 		h2 = capData.h2 || h;
 	    angle = capData.angle || 0;
 		stepped = capData.stepped || false;
-		textColor = capData.fontColor || "black";
+		textColor = capData.textColor || "black";
 		legend = capData.legends || "";
 		capColor = chroma(capData.color || "#969696");
 		capDarken = capColor.darken(0.35);
@@ -101,7 +101,7 @@
 
 		if (selected) {
 			context.lineWidth = 5 + capPadding;
-			context.strokeStyle = "blue";
+			context.strokeStyle = "#2172ff";
 			context.stroke();
 			context.lineWidth = 1 + capPadding;
 			context.strokeStyle = "white";

@@ -2,10 +2,13 @@
 @import url('https://cdn.jsdelivr.net/gh/Hyperiooo/Hypericons@v0.7.6/fonts/hypericons.css');
 
 :root {
-    --main-bg: rgb(255, 255, 255);
-    --ui-bg: #f6f7fcdb;
+    --main-bg: rgb(244, 244, 244);
+    --ui-bg: #ffffff;
     --grid-color: rgb(160, 160, 160);
     --main-text: #120d27;
+    --ui-light-gray: #e4e4e4;
+    --ui-element-background: #efefef;
+    --ui-transparent-outline: #c3c3c366;
 }
 
 * {
@@ -26,10 +29,10 @@ html {
     background: var(--ui-bg);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
-    padding: 12px;
-    border-radius: 8px;
+    padding: 8px;
+    border-radius: 12px;
     position: absolute;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0 7px 15px 0 rgba(0, 0, 0, 0.15);
 }
 
 .ui-floating-element h1 {

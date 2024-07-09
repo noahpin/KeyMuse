@@ -12,7 +12,7 @@ declare global {
         h2: number,
         angle: number,
         color: string,
-        fontColor: string,
+        textColor: string,
         stepped: boolean,
     }
     type FileData = {

@@ -30,7 +30,7 @@
 				h2: d.h2 || null,
 				angle: d.angle || 0,
 				color: d.color || "#fff",
-				fontColor: d.fontColor || "#000",
+				textColor: d.textColor || "#000",
 				stepped: d.stepped != null ? d.stepped : false,
 			};
 			tmp.w2 = tmp.w2 || tmp.w

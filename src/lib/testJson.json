@@ -6,7 +6,7 @@
             "w" : 1,
             "color" : "#FFFFFF",
             "h" : 1,
-            "fontColor": "#000"
+            "textColor": "#000"
         },
         {
             "legends" : 1,

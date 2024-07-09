@@ -2,7 +2,7 @@
 "name":"ColorSpectrum60%",
 "keyData":[
 {
-"fontColor":"#000","legends":1,
+"textColor":"#000","legends":1,
 "w":1,
 "color":"#FF0000",
 "h":1,
@@ -10,7 +10,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"2",
+"textColor":"#000","legends":"2",
 "w":1,
 "color":"#FF7F00",
 "h":1,
@@ -18,7 +18,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"3",
+"textColor":"#000","legends":"3",
 "w":1,
 "color":"#FFFF00",
 "h":1,
@@ -26,7 +26,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"4",
+"textColor":"#000","legends":"4",
 "w":1,
 "color":"#7FFF00",
 "h":1,
@@ -34,7 +34,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"5",
+"textColor":"#000","legends":"5",
 "w":1,
 "color":"#00FF00",
 "h":1,
@@ -42,7 +42,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"6",
+"textColor":"#000","legends":"6",
 "w":1,
 "color":"#00FF7F",
 "h":1,
@@ -50,7 +50,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"7",
+"textColor":"#000","legends":"7",
 "w":1,
 "color":"#00FFFF",
 "h":1,
@@ -58,7 +58,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"8",
+"textColor":"#000","legends":"8",
 "w":1,
 "color":"#007FFF",
 "h":1,
@@ -66,7 +66,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"9",
+"textColor":"#000","legends":"9",
 "w":1,
 "color":"#0000FF",
 "h":1,
@@ -74,7 +74,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"0",
+"textColor":"#000","legends":"0",
 "w":1,
 "color":"#7F00FF",
 "h":1,
@@ -82,7 +82,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"q",
+"textColor":"#000","legends":"q",
 "w":1,
 "color":"#FF00FF",
 "h":1,
@@ -90,7 +90,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"w",
+"textColor":"#000","legends":"w",
 "w":1,
 "color":"#FF007F",
 "h":1,
@@ -98,7 +98,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"e",
+"textColor":"#000","legends":"e",
 "w":1,
 "color":"#FFFFFF",
 "h":1,
@@ -106,7 +106,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"r",
+"textColor":"#000","legends":"r",
 "w":1,
 "color":"#7F7F7F",
 "h":1,
@@ -114,7 +114,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"t",
+"textColor":"#000","legends":"t",
 "w":1,
 "color":"#000000",
 "h":1,
@@ -122,7 +122,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"y",
+"textColor":"#000","legends":"y",
 "w":1,
 "color":"#7F7F7F",
 "h":1,
@@ -130,7 +130,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"u",
+"textColor":"#000","legends":"u",
 "w":1,
 "color":"#FFFFFF",
 "h":1,
@@ -138,7 +138,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"i",
+"textColor":"#000","legends":"i",
 "w":1,
 "color":"#FF007F",
 "h":1,
@@ -146,7 +146,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"o",
+"textColor":"#000","legends":"o",
 "w":1,
 "color":"#FF00FF",
 "h":1,
@@ -154,7 +154,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"p",
+"textColor":"#000","legends":"p",
 "w":1,
 "color":"#7F00FF",
 "h":1,
@@ -162,7 +162,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"a",
+"textColor":"#000","legends":"a",
 "w":1,
 "color":"#0000FF",
 "h":1,
@@ -170,7 +170,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"s",
+"textColor":"#000","legends":"s",
 "w":1,
 "color":"#007FFF",
 "h":1,
@@ -178,7 +178,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"d",
+"textColor":"#000","legends":"d",
 "w":1,
 "color":"#00FFFF",
 "h":1,
@@ -186,7 +186,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"f",
+"textColor":"#000","legends":"f",
 "w":1,
 "color":"#00FF7F",
 "h":1,
@@ -194,7 +194,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"g",
+"textColor":"#000","legends":"g",
 "w":1,
 "color":"#00FF00",
 "h":1,
@@ -202,7 +202,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"h",
+"textColor":"#000","legends":"h",
 "w":1,
 "color":"#7FFF00",
 "h":1,
@@ -210,7 +210,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"j",
+"textColor":"#000","legends":"j",
 "w":1,
 "color":"#FFFF00",
 "h":1,
@@ -218,7 +218,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"k",
+"textColor":"#000","legends":"k",
 "w":1,
 "color":"#FF7F00",
 "h":1,
@@ -226,7 +226,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"l",
+"textColor":"#000","legends":"l",
 "w":1,
 "color":"#FF0000",
 "h":1,
@@ -234,7 +234,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"z",
+"textColor":"#000","legends":"z",
 "w":1,
 "color":"#7F0000",
 "h":1,
@@ -242,7 +242,7 @@
 "y":0
 },
 {
-"fontColor":"#000","legends":"x",
+"textColor":"#000","legends":"x",
 "w":1,
 "color":"#FF0000",
 "h":1,
@@ -250,7 +250,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"c",
+"textColor":"#000","legends":"c",
 "w":1,
 "color":"#FF7F00",
 "h":1,
@@ -258,7 +258,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"v",
+"textColor":"#000","legends":"v",
 "w":1,
 "color":"#FFFF00",
 "h":1,
@@ -266,7 +266,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"b",
+"textColor":"#000","legends":"b",
 "w":1,
 "color":"#7FFF00",
 "h":1,
@@ -274,7 +274,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"n",
+"textColor":"#000","legends":"n",
 "w":1,
 "color":"#00FF00",
 "h":1,
@@ -282,7 +282,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"m",
+"textColor":"#000","legends":"m",
 "w":1,
 "color":"#00FF7F",
 "h":1,
@@ -290,7 +290,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":",",
+"textColor":"#000","legends":",",
 "w":1,
 "color":"#00FFFF",
 "h":1,
@@ -298,7 +298,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":".",
+"textColor":"#000","legends":".",
 "w":1,
 "color":"#007FFF",
 "h":1,
@@ -306,7 +306,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"/",
+"textColor":"#000","legends":"/",
 "w":1,
 "color":"#0000FF",
 "h":1,
@@ -314,7 +314,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"ctrl",
+"textColor":"#000","legends":"ctrl",
 "w":1.5,
 "color":"#7F00FF",
 "h":1,
@@ -322,7 +322,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"win",
+"textColor":"#000","legends":"win",
 "w":1,
 "color":"#FF00FF",
 "h":1,
@@ -330,7 +330,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"alt",
+"textColor":"#000","legends":"alt",
 "w":1,
 "color":"#FF007F",
 "h":1,
@@ -338,7 +338,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"space",
+"textColor":"#000","legends":"space",
 "w":5,
 "color":"#FFFFFF",
 "h":1,
@@ -346,7 +346,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"alt",
+"textColor":"#000","legends":"alt",
 "w":1,
 "color":"#7F7F7F",
 "h":1,
@@ -354,7 +354,7 @@
 "y":1
 },
 {
-"fontColor":"#000","legends":"ctrl",
+"textColor":"#000","legends":"ctrl",
 "w":1.5,
 "color":"#FF007F",
 "h":1,

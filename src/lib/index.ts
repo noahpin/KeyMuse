@@ -16,7 +16,7 @@ export const propertyPanelStore = writable<CapDataElement>({
 	w2: 0,
 	h2: 0,
 	color: "string",
-	fontColor: "string",
+	textColor: "string",
 	stepped: true,
 });
 export const layoutFile = writable<FileData>();
