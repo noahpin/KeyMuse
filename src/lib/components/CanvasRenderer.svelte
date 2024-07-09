@@ -118,15 +118,39 @@
 			context.scale(1 / zoom, 1 / zoom);
 			context.setLineDash([]);
 		}
-		if (clicked && capRotationTool) {
-			let r = Math.sqrt(
-				Math.pow(capRotateEndX - capRotateStartX, 2) +
-					Math.pow(capRotateEndY - capRotateStartY, 2)
+		if (
+			(rotationAnchorManuallySet && capRotationTool) ||
+			(clicked && mainClick && capRotationTool && pointerOnInterface)
+		) {
+			context.setLineDash([]);
+			context.scale(zoom, zoom);
+			context.lineCap = "round";
+			context.fillStyle = "#24a7ff";
+			context.strokeStyle = "#24a7ff";
+			context.beginPath();
+			context.arc(
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom,
+				10,
+				0,
+				2 * Math.PI
 			);
+			context.stroke();
+			context.fill();
+			context.scale(1 / zoom, 1 / zoom);
+		}
+		if (clicked && mainClick && capRotationTool && pointerOnInterface) {
 			let theta = Math.atan2(
-				capRotateEndX - capRotateStartX,
-				capRotateStartY - capRotateEndY
+				capRotateEndX - capRotateAnchorX,
+				capRotateAnchorY - capRotateEndY
 			);
+			let aStartTheta = Math.atan2(
+				capRotateAngleStartX - capRotateAnchorX,
+				-(capRotateAngleStartY - capRotateAnchorY)
+			);
+			aStartTheta -= Math.PI/2
+			let lineDistX = 2 * Math.cos(aStartTheta);
+			let lineDistY = 2 * Math.sin(aStartTheta);
 
 			context.setLineDash([]);
 			context.scale(zoom, zoom);
@@ -134,36 +158,28 @@
 			context.fillStyle = "#0007";
 			context.strokeStyle = "#0007";
 			context.beginPath();
-			context.arc(
-				capRotateStartX * gridSize + panX / zoom,
-				capRotateStartY * gridSize + panY / zoom,
-				5,
-				0,
-				2 * Math.PI
-			);
 			context.moveTo(
-				capRotateStartX * gridSize + panX / zoom,
-				capRotateStartY * gridSize + panY / zoom
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom
 			);
 			context.arc(
-				capRotateStartX * gridSize + panX / zoom,
-				capRotateStartY * gridSize + panY / zoom,
-				(r / 2) * gridSize,
-				Math.PI * 1.5,
-				Math.PI * 1.5 + theta,
-				theta < 0
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom,
+				1 * gridSize,aStartTheta,
+				theta - Math.PI / 2,
+				theta - aStartTheta < 0
 			);
 			context.moveTo(
-				capRotateStartX * gridSize + panX / zoom,
-				capRotateStartY * gridSize + panY / zoom
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom
 			);
 			context.lineTo(
-				capRotateStartX * gridSize + panX / zoom,
-				(capRotateStartY - r) * gridSize + panY / zoom
+				(capRotateAnchorX + lineDistX) * gridSize + panX / zoom,
+				(capRotateAnchorY + lineDistY) * gridSize + panY / zoom
 			);
 			context.textAlign = "left";
 			context.fillText(
-				((theta * 180) / Math.PI).toFixed(1) + " deg",
+				(((theta - aStartTheta - Math.PI / 2) * 180) / Math.PI).toFixed(1) + " deg",
 				capRotateEndX * gridSize + panX / zoom + 10,
 				capRotateEndY * gridSize + panY / zoom
 			);
@@ -172,8 +188,8 @@
 			context.strokeStyle = "#fff7";
 			context.beginPath();
 			context.moveTo(
-				capRotateStartX * gridSize + panX / zoom,
-				capRotateStartY * gridSize + panY / zoom
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom
 			);
 			context.lineTo(
 				capRotateEndX * gridSize + panX / zoom,
@@ -201,18 +217,22 @@
 	let capCreateStartY = 0;
 	let capCreateEndX = 0;
 	let capCreateEndY = 0;
-	let capRotateStartX = 0;
-	let capRotateStartY = 0;
-	let capRotatePreviousX = 0;
-	let capRotatePreviousY = 0;
+	let capRotateAnchorX = 0;
+	let capRotateAnchorY = 0;
 	let capRotateEndX = 0;
 	let capRotateEndY = 0;
+	let capRotateAngleStartX = 0;
+	let capRotateAngleStartY = 0;
 	const dispatch = createEventDispatcher();
 	let shiftKeyWhenClicked = false;
 	let rotationStartData: CapDataElement[];
 
+	let pointerOnInterface = false;
+	let rotationAnchorManuallySet = false;
+
 	function pointerDownHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = true;
+		pointerOnInterface = e.target == mainCanvas.getCanvas();
 		mainClick = e.button == 0;
 		clicked = true;
 		selectBoxStartX = selectBoxEndX = (e.clientX - panX) / zoom;
@@ -223,22 +243,134 @@
 			capCreateEndY = capCreateStartY =
 				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
 		}
-		if (capRotationTool) {
-			capRotatePreviousX =
-				capRotateEndX =
-				capRotateStartX =
-					(((e.clientX - panX) / zoom / gridSize) * 4) / 4;
-			capRotatePreviousY =
-				capRotateEndY =
-				capRotateStartY =
-					(((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+		if (capRotationTool && !e.altKey) {
+			capRotateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
+			capRotateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			capRotateAngleStartX = capRotateEndX;
+			capRotateAngleStartY = capRotateEndY;
+			if (!rotationAnchorManuallySet) {
+				capRotateAnchorX = Math.round(capRotateEndX / 0.25) * 0.25;
+				capRotateAnchorY = Math.round(capRotateEndY / 0.25) * 0.25;
+				capRotateAngleStartX = capRotateAnchorX;
+				capRotateAngleStartY = capRotateAnchorY - 2;
+			}
 			rotationStartData = [...structuredClone(get(selectedStore))];
 		}
 		shiftKeyWhenClicked = e.shiftKey;
 		if (mainClick && capSelectTool) selectBox = true;
 	}
+	function pointerMoveHandler(e: PointerEvent) {
+		if (clicked && mainClick && capSelectTool) selectBox = true;
+		if (middleMouseDown) {
+			panX += e.movementX;
+			panY += e.movementY;
+		}
+		if (selectBox && e.target == mainCanvas.getCanvas()) {
+			selectBoxEndX = (e.clientX - panX) / zoom;
+			selectBoxEndY = (e.clientY - panY) / zoom;
+			//selectCaps(e);
+		}
+
+		if (capPlacementTool && !clicked) {
+			capPlacementToolCapData.color = "#0ef2";
+			capPlacementToolCapData.x =
+				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
+			capPlacementToolCapData.y =
+				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
+			capPlacementToolCapData.w = 1;
+			capPlacementToolCapData.h = 1;
+		}
+
+		if (
+			pointerOnInterface &&
+			capRotationTool &&
+			mainClick &&
+			$selectedStore.length != 0
+		) {
+			capRotateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
+			capRotateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			$selectedStore.forEach((capSelected, i) => {
+				let cap = rotationStartData[i];
+				let r = Math.sqrt(
+					Math.pow(cap.x - capRotateAnchorX, 2) +
+						Math.pow(cap.y - capRotateAnchorY, 2)
+				);
+				let theta = Math.atan2(
+					cap.x - capRotateAnchorX,
+					-(cap.y - capRotateAnchorY)
+				);
+				theta -= Math.PI / 2;
+				let dTheta = Math.atan2(
+					capRotateEndX - capRotateAnchorX,
+					-(capRotateEndY - capRotateAnchorY)
+				);
+				let aStartTheta = Math.atan2(
+					capRotateAngleStartX - capRotateAnchorX,
+					-(capRotateAngleStartY - capRotateAnchorY)
+				);
+				dTheta -= aStartTheta;
+				//convert  dTheta  to  degrees
+				dTheta = (dTheta / Math.PI) * 180;
+				let angleSnap = 1;
+				if (e.ctrlKey) {
+					angleSnap = 5;
+				}
+				dTheta = Math.round(dTheta / angleSnap) * angleSnap;
+				dTheta = (dTheta * Math.PI) / 180;
+
+				theta += dTheta;
+				console.log(cap.angle);
+				let capAngle = cap.angle + (dTheta * 180) / Math.PI;
+
+				let nDX = r * Math.cos(theta) + capRotateAnchorX;
+				let nDY = r * Math.sin(theta) + capRotateAnchorY;
+
+				updateCapData([capSelected], "x", Math.round(nDX * 100) / 100);
+				updateCapData([capSelected], "y", Math.round(nDY * 100) / 100);
+				updateCapData(
+					[capSelected],
+					"angle",
+					Math.round(capAngle * 100) / 100,
+					false,
+					true,
+					100
+				);
+			});
+		}
+		if (mainClick && capPlacementTool && pointerOnInterface) {
+			capPlacementToolCapData.color = "#ececec";
+			capCreateEndX =
+				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
+			capCreateEndY =
+				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
+			let cStartX = capCreateStartX;
+			let cStartY = capCreateStartY;
+			let cEndX = capCreateEndX;
+			let cEndY = capCreateEndY;
+			if (cEndX < cStartX) {
+				let tmp = cEndX;
+				cEndX = cStartX;
+				cStartX = tmp;
+			}
+			if (cEndY < cStartY) {
+				let tmp = cEndY;
+				cEndY = cStartY;
+				cStartY = tmp;
+			}
+			capPlacementToolCapData.x = cStartX;
+			capPlacementToolCapData.y = cStartY;
+
+			capPlacementToolCapData.w = Math.max(1, cEndX - cStartX + 1);
+			capPlacementToolCapData.h = Math.max(1, cEndY - cStartY + 1);
+		}
+	}
 	function pointerUpHandler(e: PointerEvent) {
-		if (e.target == mainCanvas.getCanvas() && capSelectTool && mainClick)
+		if (
+			e.target == mainCanvas.getCanvas() &&
+			capSelectTool &&
+			!shiftKeyWhenClicked &&
+			mainClick
+		)
 			selectedStore.set([]);
 		if (
 			shiftKeyWhenClicked &&
@@ -286,7 +418,20 @@
 		}
 		if (clicked && capRotationTool && mainClick && $selectedStore.length != 0) {
 		}
-		if (clicked && capPlacementTool && !shiftKeyWhenClicked && mainClick) {
+		if (capRotationTool && e.altKey && mainClick && clicked) {
+			capRotateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
+			capRotateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			capRotateAnchorX = Math.round(capRotateEndX / 0.25) * 0.25;
+			capRotateAnchorY = Math.round(capRotateEndY / 0.25) * 0.25;
+			rotationAnchorManuallySet = true;
+		}
+		if (
+			pointerOnInterface &&
+			clicked &&
+			capPlacementTool &&
+			!shiftKeyWhenClicked &&
+			mainClick
+		) {
 			let cStartX = capCreateStartX;
 			let cStartY = capCreateStartY;
 			let cEndX = capCreateEndX;
@@ -314,7 +459,7 @@
 				color: "#e6e6e6",
 				textColor: "#000",
 				stepped: false,
-                angle: 0
+				angle: 0,
 			};
 			//broadcast an event to create a new cap
 			dispatch("createCap", cap);
@@ -325,88 +470,6 @@
 		selectBox = false;
 		clicked = false;
 		mainClick = false;
-	}
-	function pointerMoveHandler(e: PointerEvent) {
-		if (clicked && mainClick && capSelectTool) selectBox = true;
-		if (middleMouseDown) {
-			panX += e.movementX;
-			panY += e.movementY;
-		}
-		if (selectBox && e.target == mainCanvas.getCanvas()) {
-			selectBoxEndX = (e.clientX - panX) / zoom;
-			selectBoxEndY = (e.clientY - panY) / zoom;
-			//selectCaps(e);
-		}
-
-		if (capPlacementTool && !clicked) {
-			capPlacementToolCapData.color = "#2172ff22";
-			capPlacementToolCapData.x =
-				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
-			capPlacementToolCapData.y =
-				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
-			capPlacementToolCapData.w = 1;
-			capPlacementToolCapData.h = 1;
-		}
-
-		if (capRotationTool && mainClick && $selectedStore.length != 0) {
-			capRotateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
-			capRotateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
-			$selectedStore.forEach((capSelected, i) => {
-				let cap = rotationStartData[i];
-				let r = Math.sqrt(
-					Math.pow(cap.x - capRotateStartX, 2) +
-						Math.pow(cap.y - capRotateStartY, 2)
-				);
-				let theta = Math.atan2(
-					cap.x - capRotateStartX,
-					-(cap.y - capRotateStartY)
-				);
-				theta -= Math.PI / 2;
-				let dTheta = Math.atan2(
-					capRotateEndX - capRotateStartX,
-					-(capRotateEndY - capRotateStartY)
-				);
-				theta += dTheta;
-				console.log(cap.angle);
-				let capAngle = cap.angle + (dTheta * 180) / Math.PI;
-
-				let nDX = r * Math.cos(theta) + capRotateStartX;
-				let nDY = r * Math.sin(theta) + capRotateStartY;
-
-				updateCapData([capSelected], "x", Math.round(nDX * 100) / 100);
-				updateCapData([capSelected], "y", Math.round(nDY * 100) / 100);
-				updateCapData([capSelected], "angle", Math.round(capAngle * 100) / 100);
-			});
-
-			capRotatePreviousX = capRotateEndX;
-			capRotatePreviousY = capRotateEndY;
-		}
-		if (mainClick && capPlacementTool) {
-			capPlacementToolCapData.color = "#ececec";
-			capCreateEndX =
-				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
-			capCreateEndY =
-				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
-			let cStartX = capCreateStartX;
-			let cStartY = capCreateStartY;
-			let cEndX = capCreateEndX;
-			let cEndY = capCreateEndY;
-			if (cEndX < cStartX) {
-				let tmp = cEndX;
-				cEndX = cStartX;
-				cStartX = tmp;
-			}
-			if (cEndY < cStartY) {
-				let tmp = cEndY;
-				cEndY = cStartY;
-				cStartY = tmp;
-			}
-			capPlacementToolCapData.x = cStartX;
-			capPlacementToolCapData.y = cStartY;
-
-			capPlacementToolCapData.w = Math.max(1, cEndX - cStartX + 1);
-			capPlacementToolCapData.h = Math.max(1, cEndY - cStartY + 1);
-		}
 	}
 
 	function selectCaps(e: PointerEvent) {
@@ -505,7 +568,7 @@
 	let capPlacementTool = $toolStore == "placement";
 	$: capPlacementTool = $toolStore == "placement";
 	let capRotationTool = $toolStore == "rotate";
-	$: capRotationTool = $toolStore == "rotate";
+	$: {capRotationTool = $toolStore == "rotate"; rotationAnchorManuallySet = false};
 	// @ts-ignore
 	let capPlacementToolCapData: CapDataElement = {
 		legends: "",

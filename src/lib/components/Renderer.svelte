@@ -48,8 +48,8 @@
 	let capCreateStartY = 0;
 	let capCreateEndX = 0;
 	let capCreateEndY = 0;
-	let capRotateStartX = 0;
-	let capRotateStartY = 0;
+	let capRotateAnchorX = 0;
+	let capRotateAnchorY = 0;
 	let capRotateEndX = 0;
 	let capRotateEndY = 0;
 	const dispatch = createEventDispatcher();

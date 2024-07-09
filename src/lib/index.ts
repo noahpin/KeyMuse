@@ -28,7 +28,8 @@ export function updateCapData(
 	property: string,
 	value: any,
 	delta: boolean = false,
-    propagateUpdates: boolean = true
+    propagateUpdates: boolean = true,
+	snapNumeralData: number | null = null
 ) {
 	let temp = get(layoutFile).keyData;
 	targetCapData.forEach((cap: CapDataElement) => {
