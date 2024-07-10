@@ -2,7 +2,7 @@
 	import {
 		updateCapData,
 		selectedStore,
-		layoutFile,
+		projectFile,
 		propertyPanelStore,
 	} from "$lib";
 	function updateProperty(property: string, event: Event | null) {
@@ -21,8 +21,17 @@
 		if (property == "color")
 			capColor = (event.target as HTMLInputElement).value;
 	}
+
+	function alignCapsToGrid() {
+		$selectedStore.forEach((cap) => {
+			let newX = Math.round(cap.x / 0.25) * 0.25;
+			let newY = Math.round(cap.y / 0.25) * 0.25;
+			updateCapData([cap], "x", newX);
+			updateCapData([cap], "y", newY);
+		});
+	}
 	function logData() {
-		console.log($layoutFile);
+		console.log($projectFile);
 	}
 	let textColor = "";
 	let capColor = "";
@@ -198,7 +207,7 @@
 					</div>
 				{/key}
 			</div>
-			<!-- {#key $layoutFile}
+			<!-- {#key $projectFile}
 				<pre>{JSON.stringify($selectedStore, null, 2)}</pre>{/key} -->
 		{:else}
 			<p>No Cap Is Selected</p>
@@ -206,8 +215,8 @@
 	</div>
 	<h1>Actions</h1>
 	<div class="button-grid">
-		<button on:click={logData}>log data</button>
-		<button on:click={logData}>align to grid</button>
+		<button on:click={logData}>Log Data</button>
+		<button on:click={alignCapsToGrid}>Align to Grid</button>
 	</div>
 </div>
 

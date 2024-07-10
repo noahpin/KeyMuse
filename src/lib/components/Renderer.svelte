@@ -5,7 +5,7 @@
 	// export let data: any = null;
 	// set viewbox to the current window size
 	export let selectedStore: any;
-	export let layoutFile: any;
+	export let projectFile: any;
 
 	let windowInnerWidth = 0;
 	let windowInnerHeight = 0;
@@ -130,8 +130,8 @@
 			}
 			//iterate through all the caps and check if they are in the box
 			let caught = [];
-			for (let i = 0; i < $layoutFile.keyData.length; i++) {
-				let cap = $layoutFile.keyData[i];
+			for (let i = 0; i < $projectFile.keyData.length; i++) {
+				let cap = $projectFile.keyData[i];
 				if (
 					cap.x * 4 * 13.5 > selectBoxStartX &&
 					cap.x * 4 * 13.5 < selectBoxEndX &&
@@ -210,11 +210,11 @@
 			capPlacementTool = true;
 		}
 		if (e.key == "Delete") {
-			let temp = [...$layoutFile.keyData];
+			let temp = [...$projectFile.keyData];
 			temp = temp.filter((cap) => {
 				return !$selectedStore.includes(cap);
 			});
-			layoutFile.set({ keyData: temp });
+			projectFile.set({ keyData: temp });
 		}
 	}}
 />
@@ -278,7 +278,7 @@
 		fill="url(#a)"
 	/>
 	<g transform={`translate(${panX},${panY}) scale(${zoom})`}>
-		{#each $layoutFile.keyData as capData}
+		{#each $projectFile.keyData as capData}
 			<CapSvg {capData} {selectedStore} />
 		{/each}
 		{#if selectBox}

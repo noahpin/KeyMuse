@@ -19,9 +19,9 @@ export const propertyPanelStore = writable<CapDataElement>({
 	textColor: "string",
 	stepped: true,
 });
-export const layoutFile = writable<FileData>();
+export const projectFile = writable<FileData>();
 // @ts-ignore
-layoutFile.set(exampleJson);
+projectFile.set(exampleJson);
 
 export function updateCapData(
 	targetCapData: CapDataElement[],
@@ -31,7 +31,7 @@ export function updateCapData(
     propagateUpdates: boolean = true,
 	snapNumeralData: number | null = null
 ) {
-	let temp = get(layoutFile).keyData;
+	let temp = get(projectFile).keyData;
 	targetCapData.forEach((cap: CapDataElement) => {
 		let c: CapDataElement = temp[temp.indexOf(cap)];
         let newValue = value;
@@ -45,9 +45,9 @@ export function updateCapData(
 		if (property == "h" && c.h == c.h2) c.h2 = newValue;
 		c[property] = newValue;
 	});
-	let tObj = get(layoutFile);
+	let tObj = get(projectFile);
 	tObj.keyData = temp;
-	layoutFile.set(tObj);
+	projectFile.set(tObj);
     if(propagateUpdates) {
         let tmp = {...get(propertyPanelStore)}
         tmp[property] = value;

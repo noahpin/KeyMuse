@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from "svelte";
 	import CapLayer from "./CapLayer.svelte";
-	import { toolStore, updateCapData, selectedStore, layoutFile } from "$lib";
+	import { toolStore, updateCapData, selectedStore, projectFile } from "$lib";
 	// export let data: any = null;
 	// set viewbox to the current window size
 
 	let windowInnerWidth = 0;
 	let windowInnerHeight = 0;
-	let panX = 80;
-	let panY = 80;
+	let panX = 90;
+	let panY = 90;
 	let zoom = 1;
 
 	let patternCanvas: HTMLCanvasElement;
@@ -148,7 +148,7 @@
 				capRotateAngleStartX - capRotateAnchorX,
 				-(capRotateAngleStartY - capRotateAnchorY)
 			);
-			aStartTheta -= Math.PI/2
+			aStartTheta -= Math.PI / 2;
 			let lineDistX = 2 * Math.cos(aStartTheta);
 			let lineDistY = 2 * Math.sin(aStartTheta);
 
@@ -165,7 +165,8 @@
 			context.arc(
 				capRotateAnchorX * gridSize + panX / zoom,
 				capRotateAnchorY * gridSize + panY / zoom,
-				1 * gridSize,aStartTheta,
+				1 * gridSize,
+				aStartTheta,
 				theta - Math.PI / 2,
 				theta - aStartTheta < 0
 			);
@@ -179,7 +180,8 @@
 			);
 			context.textAlign = "left";
 			context.fillText(
-				(((theta - aStartTheta - Math.PI / 2) * 180) / Math.PI).toFixed(1) + " deg",
+				(((theta - aStartTheta - Math.PI / 2) * 180) / Math.PI).toFixed(1) +
+					" deg",
 				capRotateEndX * gridSize + panX / zoom + 10,
 				capRotateEndY * gridSize + panY / zoom
 			);
@@ -223,9 +225,13 @@
 	let capRotateEndY = 0;
 	let capRotateAngleStartX = 0;
 	let capRotateAngleStartY = 0;
+    let capTranslateStartX = 0;
+    let capTranslateStartY = 0;
+    let capTranslateEndX = 0;
+    let capTranslateEndY = 0;
 	const dispatch = createEventDispatcher();
 	let shiftKeyWhenClicked = false;
-	let rotationStartData: CapDataElement[];
+	let capActionStartData: CapDataElement[];
 
 	let pointerOnInterface = false;
 	let rotationAnchorManuallySet = false;
@@ -254,8 +260,14 @@
 				capRotateAngleStartX = capRotateAnchorX;
 				capRotateAngleStartY = capRotateAnchorY - 2;
 			}
-			rotationStartData = [...structuredClone(get(selectedStore))];
 		}
+        if(capTranslateTool) {
+			capTranslateEndX = capTranslateStartX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
+			capTranslateEndY = capTranslateStartY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+
+        }
+		if (capRotationTool || capTranslateTool)
+			capActionStartData = [...structuredClone(get(selectedStore))];
 		shiftKeyWhenClicked = e.shiftKey;
 		if (mainClick && capSelectTool) selectBox = true;
 	}
@@ -290,7 +302,7 @@
 			capRotateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
 			capRotateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
 			$selectedStore.forEach((capSelected, i) => {
-				let cap = rotationStartData[i];
+				let cap = capActionStartData[i];
 				let r = Math.sqrt(
 					Math.pow(cap.x - capRotateAnchorX, 2) +
 						Math.pow(cap.y - capRotateAnchorY, 2)
@@ -335,6 +347,31 @@
 					true,
 					100
 				);
+			});
+		}
+		if (
+			pointerOnInterface &&
+			capTranslateTool &&
+			mainClick &&
+			$selectedStore.length != 0
+		) {
+			capTranslateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
+			capTranslateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			$selectedStore.forEach((capSelected, i) => {
+				let cap = capActionStartData[i];
+                let dX = capTranslateEndX - capTranslateStartX;
+                let dY = capTranslateEndY - capTranslateStartY;
+                let snapValue = 4;
+                if (e.ctrlKey) {
+					snapValue = 100;
+				}
+
+				let nX = cap.x + dX;
+                let nY = cap.y + dY;
+                nX = Math.round(nX * snapValue) / snapValue
+                nY = Math.round(nY * snapValue) / snapValue
+				updateCapData([capSelected], "x", nX);
+				updateCapData([capSelected], "y", nY);
 			});
 		}
 		if (mainClick && capPlacementTool && pointerOnInterface) {
@@ -395,13 +432,13 @@
 			let amountX = Math.floor((cEndX - cStartX) / previousCapPlacementData.w);
 			let amountY = Math.floor((cEndY - cStartY) / previousCapPlacementData.h);
 			console.log(amountX, amountY);
-			let temp = [...$layoutFile.keyData];
+			let temp = [...$projectFile.keyData];
 			temp = temp.filter((cap) => {
 				return cap != previousCapPlacementData;
 			});
-			let file = $layoutFile;
+			let file = $projectFile;
 			file.keyData = temp;
-			layoutFile.set(file);
+			projectFile.set(file);
 			for (let ax = 0; ax <= amountX; ax++) {
 				for (let ay = 0; ay <= amountY; ay++) {
 					let cap = {
@@ -490,8 +527,8 @@
 		}
 		//iterate through all the caps and check if they are in the box
 		let caught: CapDataElement[] = [];
-		for (let i = 0; i < $layoutFile.keyData.length; i++) {
-			let cap = $layoutFile.keyData[i];
+		for (let i = 0; i < $projectFile.keyData.length; i++) {
+			let cap = $projectFile.keyData[i];
 			let pairs = [
 				[cStartX, cStartY],
 				[cEndX, cEndY],
@@ -568,7 +605,14 @@
 	let capPlacementTool = $toolStore == "placement";
 	$: capPlacementTool = $toolStore == "placement";
 	let capRotationTool = $toolStore == "rotate";
-	$: {capRotationTool = $toolStore == "rotate"; rotationAnchorManuallySet = false};
+	$: {
+		capRotationTool = $toolStore == "rotate";
+		rotationAnchorManuallySet = false;
+	}
+	let capTranslateTool = $toolStore == "translate";
+	$: {
+		capTranslateTool = $toolStore == "translate";
+	}
 	// @ts-ignore
 	let capPlacementToolCapData: CapDataElement = {
 		legends: "",
@@ -605,14 +649,17 @@
 		if (e.key == "r") {
 			toolStore.set("rotate");
 		}
+		if (e.key == "t") {
+			toolStore.set("translate");
+		}
 		if (e.key == "Delete") {
-			let temp = $layoutFile.keyData;
+			let temp = $projectFile.keyData;
 			temp = temp.filter((cap) => {
 				return !$selectedStore.includes(cap);
 			});
-			let file = $layoutFile;
+			let file = $projectFile;
 			file.keyData = temp;
-			layoutFile.set(file);
+			projectFile.set(file);
 			selectedStore.set([]);
 		}
 		if (e.key.includes("Arrow")) {
@@ -642,10 +689,10 @@
 	layerEvents={true}
 	width={windowInnerWidth}
 	height={windowInnerHeight}
-	class={"background"}
+	class={"background " + (capTranslateTool ? "cursor-translate " : "") + (capRotationTool ? "cursor-rotation " : "")}
 >
 	<Layer render={gridRender} />
-	{#each $layoutFile.keyData as capData}
+	{#each $projectFile.keyData as capData}
 		<CapLayer unitSize={gridSize} {panX} {panY} {zoom} {capData} />
 	{/each}
 	<Layer render={selectionRender} />

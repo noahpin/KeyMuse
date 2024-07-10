@@ -1,21 +1,22 @@
 <script lang="ts">
 	import PropertiesPanel from "$lib/components/PropertiesPanel.svelte";
-	import Renderer from "$lib/components/Renderer.svelte";
 	import CanvasRenderer from "$lib/components/CanvasRenderer.svelte";
 	import "$lib/styles/app.css";
-	import { writable } from "svelte/store";
+	import { writable, type Writable } from "svelte/store";
 	import ToolBar from "$lib/components/ToolBar.svelte";
-	import {layoutFile, selectedStore} from "$lib"
+	import {projectFile, selectedStore} from "$lib"
+	import ProjectBar from "$lib/components/ProjectBar.svelte";
+	import Logo from "$lib/components/Logo.svelte";
 
-	$: enforceFileSchema(layoutFile);
+	$: enforceFileSchema(projectFile);
 
 	function createCap(e: any) {
-		let temp = Object.create($layoutFile)
+		let temp = Object.create($projectFile)
 		temp.keyData.push(e.detail)
-		layoutFile.set(temp)
+		projectFile.set(temp)
 	}
-	function enforceFileSchema(file) {
-		let keyData: [CapDataElement] = $layoutFile.keyData;
+	function enforceFileSchema(file: Writable<FileData>) {
+		let keyData: [CapDataElement] | CapDataElement[] = $projectFile.keyData;
 		for(let i = 0; i < keyData.length; i++) {
 			let d = keyData[i]
 			let tmp = {
@@ -39,8 +40,8 @@
 		}
 	}
 </script>
-<CanvasRenderer  {selectedStore} {layoutFile} on:createCap={createCap}></CanvasRenderer>
-<!-- 
-<Renderer {selectedStore} {layoutFile} on:createCap={createCap} /> -->
+<CanvasRenderer on:createCap={createCap}></CanvasRenderer>
 <PropertiesPanel></PropertiesPanel>
 <ToolBar></ToolBar>
+<ProjectBar></ProjectBar>
+<Logo></Logo>

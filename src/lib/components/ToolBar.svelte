@@ -7,18 +7,26 @@
     <button class={$toolStore == "select" ? "active" : ""} on:click={()=>toolStore.set("select")}><i class="hi-marquee"></i></button>
     <button class={$toolStore == "placement" ? "active" : ""} on:click={()=>toolStore.set("placement")}><i class="hi-plus-large"></i></button>
     <button class={$toolStore == "rotate" ? "active" : ""} on:click={()=>toolStore.set("rotate")}><i class="hi-rotate-right"></i></button>
+    <button class={$toolStore == "translate" ? "active" : ""} on:click={()=>toolStore.set("translate")}><i class="hi-move"></i></button>
+    <div class="divider"></div>
+    <button disabled on:click={()=>toolStore.set("rotate")}><i class="hi-undo"></i></button>
+    <button disabled on:click={()=>toolStore.set("rotate")}><i class="hi-redo"></i></button>
 </div>
 
 <style>
 	#toolbar-panel {
-		top: 12px;
+		top: 80px;
 		left: 12px;
 		z-index: 100;
 		box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        gap: 4px
+        gap: 4px;
+        align-items: center;
 	}
+    .divider {
+        width: 34px; height: 1px; background: var(--ui-light-gray)
+    }
     button{
         background: none;
         outline: none;
@@ -28,6 +36,10 @@
         width: 40px;
         height: 40px;
         border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--main-text);
     }
     button:hover {
         background: var(--ui-light-gray);

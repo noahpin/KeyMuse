@@ -4,6 +4,7 @@
 	import chroma from "chroma-js";
 	import { text } from "@sveltejs/kit";
 	import gorton from "$lib/styles/fonts/OpenGorton-Bold.otf";
+	import Astha from "$lib/styles/fonts/ASTHA-LATIN.otf";
 	import { onMount, onDestroy } from "svelte";
 	import { selectedStore } from "$lib";
 	export let capData: CapDataElement;
@@ -29,8 +30,8 @@
 	let capPadding = 3;
 	let capRadius = 2;
 	let capHighlightPadding = 11;
-	let capHighlightCentered: Boolean = true;
-
+    let capHighlightCentered: Boolean = true;
+    let fontLoaded = false;
 	let capColor = chroma(capData.color || "#969696");
 	let capDarken = capColor.darken(0.35);
 	let capEdge = capDarken.darken(0.5);
@@ -38,9 +39,10 @@
 	var font;
 
 	onMount(() => {
-		font = new FontFace("gorton", `url(${gorton})`);
+		font = new FontFace("CapFont", `url(${Astha})`);
 		font.load().then(function (nFont) {
 			document.fonts.add(nFont);
+            fontLoaded = true;
 		});
 	});
 
@@ -75,6 +77,7 @@
 	});
 
 	$: render = ({ context, width, height }: CanvasRendererInput) => {
+        if(fontLoaded) {}
         let xt = x * unitSize + panX / zoom
         let yt = y * unitSize + panY / zoom
 		context.scale(zoom, zoom);
@@ -139,7 +142,7 @@
 		context.fillStyle = textColor;
 		context.textAlign = "center";
 		context.textBaseline = "middle";
-		context.font = "12px gorton";
+		context.font = "12px CapFont";
 		context.fillText(
 			legend,
 			 (w / 2) * unitSize ,

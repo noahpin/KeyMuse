@@ -5,7 +5,8 @@
     --main-bg: rgb(244, 244, 244);
     --ui-bg: #ffffff;
     --grid-color: rgb(160, 160, 160);
-    --main-text: #120d27;
+    --main-text: #1e1f24;
+    --secondary-text: rgb(43, 48, 50);
     --ui-light-gray: #e4e4e4;
     --ui-element-background: #efefef;
     --ui-transparent-outline: #c3c3c366;
@@ -32,7 +33,20 @@ html {
     padding: 8px;
     border-radius: 12px;
     position: absolute;
-    box-shadow: 0 7px 15px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 0 5px 7px 0 rgba(0, 0, 0, 0.068);
+}
+h1, h2, h3 {
+    color: var(--main-text);
+}
+p, label {
+    color: var(--secondary-text)
+}
+button, input {
+    color: var(--main-text)
+}
+button:disabled {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .ui-floating-element h1 {
@@ -59,4 +73,8 @@ svg * {
 
 canvas {
     image-rendering: pixelated;
+}
+
+.cursor-translate {
+    cursor: move;
 }
