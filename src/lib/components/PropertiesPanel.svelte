@@ -4,6 +4,8 @@
 		selectedStore,
 		projectFile,
 		propertyPanelStore,
+		alignCapsToGrid,
+		logData
 	} from "$lib";
 	function updateProperty(property: string, event: Event | null) {
 		if (!event?.target) return;
@@ -21,18 +23,7 @@
 		if (property == "color")
 			capColor = (event.target as HTMLInputElement).value;
 	}
-
-	function alignCapsToGrid() {
-		$selectedStore.forEach((cap) => {
-			let newX = Math.round(cap.x / 0.25) * 0.25;
-			let newY = Math.round(cap.y / 0.25) * 0.25;
-			updateCapData([cap], "x", newX);
-			updateCapData([cap], "y", newY);
-		});
-	}
-	function logData() {
-		console.log($projectFile);
-	}
+	
 	let textColor = "";
 	let capColor = "";
 	$: {

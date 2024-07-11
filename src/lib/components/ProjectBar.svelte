@@ -55,7 +55,7 @@
     button:hover {
         background: var(--ui-light-gray);
     }
-    button:active ,  button.active{
+    button:active {
         background: #2172ff;
         color: white;
     }

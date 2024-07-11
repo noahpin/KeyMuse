@@ -1,10 +1,17 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from "svelte";
 	import CapLayer from "./CapLayer.svelte";
-	import { toolStore, updateCapData, selectedStore, projectFile } from "$lib";
-	// export let data: any = null;
-	// set viewbox to the current window size
-
+	import {
+		toolStore,
+		updateCapData,
+		selectedStore,
+		projectFile,
+		getBlankCapData,
+	} from "$lib";
+	import { Canvas, Layer } from "svelte-canvas";
+	import { tweened } from "svelte/motion";
+	import { quadOut as easing } from "svelte/easing";
+	import { get } from "svelte/store";
 	let windowInnerWidth = 0;
 	let windowInnerHeight = 0;
 	let panX = 90;
@@ -16,7 +23,6 @@
 	let mainCanvas: any;
 	let mainCtx;
 	$: mainCtx = mainCanvas?.getContext();
-	$: setPixelated(mainCtx);
 	let gridPattern;
 	$: gridPattern = mainCtx?.createPattern(patternCanvas, "repeat");
 	let gridMatrix: DOMMatrix;
@@ -34,11 +40,6 @@
 		if (patternContext != null) generateGrid(patternContext);
 	});
 
-	function setPixelated(ctx: CanvasRenderingContext2D) {
-		if (ctx == undefined) return;
-		ctx.imageSmoothingEnabled = false;
-	}
-
 	function generateGrid(ctx: CanvasRenderingContext2D) {
 		let cornerSize = 5;
 		ctx.fillStyle = "#0004";
@@ -53,155 +54,6 @@
 		ctx.fillRect(0, gridSize - cornerSize + 1, 1, cornerSize);
 		ctx.fillRect(gridSize - cornerSize + 1, 0, cornerSize, 1);
 	}
-
-	function wheelHandler(e: WheelEvent) {
-		e.preventDefault();
-		if (e.ctrlKey) {
-			let zoomDelta = e.deltaY / 100;
-			let zoomFactor = (zoom - zoomDelta) / zoom;
-			zoom -= zoomDelta;
-			if (zoom < 0.75) {
-				zoom = 0.75;
-				return;
-			}
-			if (zoom > 4) {
-				zoom = 4;
-				return;
-			}
-			panX = e.clientX - (e.clientX - panX) * zoomFactor;
-			panY = e.clientY - (e.clientY - panY) * zoomFactor;
-		} else {
-			panX -= (e.deltaX * zoom) / 2;
-			panY -= (e.deltaY * zoom) / 2;
-		}
-	}
-
-	import { Canvas, Layer } from "svelte-canvas";
-	import { tweened } from "svelte/motion";
-	import { quadOut as easing } from "svelte/easing";
-	import type { ParserOptions } from "svelte/types/compiler/interfaces";
-	import { get, writable } from "svelte/store";
-
-	const position = tweened([0.5, 0.5], { duration: 400, easing });
-
-	setInterval(() => {
-		position.set([Math.random(), Math.random()]);
-	}, 500);
-	$: gridRender = ({ context, width, height }: CanvasRendererInput) => {
-		gridPattern?.setTransform(
-			gridMatrix?.translate(panX - 0.5 * zoom, panY - 0.5 * zoom).scale(zoom)
-		);
-		context.fillStyle = gridPattern;
-		context.fillRect(0, 0, width, height);
-	};
-	$: selectionRender = ({ context, width, height }: CanvasRendererInput) => {
-		if (selectBox) {
-			context.scale(zoom, zoom);
-			context.fillStyle = "#2172ff44";
-			context.strokeStyle = "#2172ff";
-			context.setLineDash([6, 8]);
-			context.lineCap = "round";
-			context.beginPath();
-			context.roundRect(
-				selectBoxStartX + panX / zoom,
-				selectBoxStartY + panY / zoom,
-				selectBoxEndX - selectBoxStartX,
-				selectBoxEndY - selectBoxStartY,
-				5
-			);
-			context.fill();
-			context.stroke();
-			context.scale(1 / zoom, 1 / zoom);
-			context.setLineDash([]);
-		}
-		if (
-			(rotationAnchorManuallySet && capRotationTool) ||
-			(clicked && mainClick && capRotationTool && pointerOnInterface)
-		) {
-			context.setLineDash([]);
-			context.scale(zoom, zoom);
-			context.lineCap = "round";
-			context.fillStyle = "#24a7ff";
-			context.strokeStyle = "#24a7ff";
-			context.beginPath();
-			context.arc(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom,
-				10,
-				0,
-				2 * Math.PI
-			);
-			context.stroke();
-			context.fill();
-			context.scale(1 / zoom, 1 / zoom);
-		}
-		if (clicked && mainClick && capRotationTool && pointerOnInterface) {
-			let theta = Math.atan2(
-				capRotateEndX - capRotateAnchorX,
-				capRotateAnchorY - capRotateEndY
-			);
-			let aStartTheta = Math.atan2(
-				capRotateAngleStartX - capRotateAnchorX,
-				-(capRotateAngleStartY - capRotateAnchorY)
-			);
-			aStartTheta -= Math.PI / 2;
-			let lineDistX = 2 * Math.cos(aStartTheta);
-			let lineDistY = 2 * Math.sin(aStartTheta);
-
-			context.setLineDash([]);
-			context.scale(zoom, zoom);
-			context.lineCap = "round";
-			context.fillStyle = "#0007";
-			context.strokeStyle = "#0007";
-			context.beginPath();
-			context.moveTo(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom
-			);
-			context.arc(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom,
-				1 * gridSize,
-				aStartTheta,
-				theta - Math.PI / 2,
-				theta - aStartTheta < 0
-			);
-			context.moveTo(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom
-			);
-			context.lineTo(
-				(capRotateAnchorX + lineDistX) * gridSize + panX / zoom,
-				(capRotateAnchorY + lineDistY) * gridSize + panY / zoom
-			);
-			context.textAlign = "left";
-			context.fillText(
-				(((theta - aStartTheta - Math.PI / 2) * 180) / Math.PI).toFixed(1) +
-					" deg",
-				capRotateEndX * gridSize + panX / zoom + 10,
-				capRotateEndY * gridSize + panY / zoom
-			);
-			context.stroke();
-			context.lineWidth = 8;
-			context.strokeStyle = "#fff7";
-			context.beginPath();
-			context.moveTo(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom
-			);
-			context.lineTo(
-				capRotateEndX * gridSize + panX / zoom,
-				capRotateEndY * gridSize + panY / zoom
-			);
-			context.stroke();
-			context.lineWidth = 4;
-			context.strokeStyle = "#2172ff";
-			context.setLineDash([6, 8]);
-			context.stroke();
-			context.scale(1 / zoom, 1 / zoom);
-			context.setLineDash([]);
-		}
-	};
 
 	let middleMouseDown = false;
 	let mainClick = false;
@@ -231,6 +83,28 @@
 
 	let pointerOnInterface = false;
 	let rotationAnchorManuallySet = false;
+
+	function wheelHandler(e: WheelEvent) {
+		e.preventDefault();
+		if (e.ctrlKey) {
+			let zoomDelta = e.deltaY / 100;
+			let zoomFactor = (zoom - zoomDelta) / zoom;
+			zoom -= zoomDelta;
+			if (zoom < 0.75) {
+				zoom = 0.75;
+				return;
+			}
+			if (zoom > 4) {
+				zoom = 4;
+				return;
+			}
+			panX = e.clientX - (e.clientX - panX) * zoomFactor;
+			panY = e.clientY - (e.clientY - panY) * zoomFactor;
+		} else {
+			panX -= (e.deltaX * zoom) / 2;
+			panY -= (e.deltaY * zoom) / 2;
+		}
+	}
 
 	function pointerDownHandler(e: PointerEvent) {
 		if (e.button == 1) middleMouseDown = true;
@@ -594,6 +468,7 @@
 		}
 		selectedStore.set(caught);
 	}
+
 	let previousCapPlacementData: CapDataElement;
 
 	let capSelectTool = $toolStore == "select";
@@ -606,23 +481,124 @@
 		rotationAnchorManuallySet = false;
 	}
 	let capTranslateTool = $toolStore == "translate";
-	$: {
-		capTranslateTool = $toolStore == "translate";
-	}
-	let capPlacementToolCapData: CapDataElement = {
-		legends: "",
-		x: 0,
-		y: 0,
-		w: 1,
-		h: 1,
-		x2: 0,
-		y2: 0,
-		w2: 0,
-		h2: 0,
-		color: "#0007",
-		textColor: "#000",
-		stepped: false,
-		r: 0,
+	$: capTranslateTool = $toolStore == "translate";
+
+	let capPlacementToolCapData: CapDataElement = getBlankCapData();
+
+	$: gridRender = ({ context, width, height }: CanvasRendererInput) => {
+		gridPattern?.setTransform(
+			gridMatrix?.translate(panX - 0.5 * zoom, panY - 0.5 * zoom).scale(zoom)
+		);
+		context.fillStyle = gridPattern;
+		context.fillRect(0, 0, width, height);
+	};
+	$: selectionRender = ({ context, width, height }: CanvasRendererInput) => {
+		if (selectBox) {
+			context.scale(zoom, zoom);
+			context.fillStyle = "#2172ff44";
+			context.strokeStyle = "#2172ff";
+			context.setLineDash([6, 8]);
+			context.lineCap = "round";
+			context.beginPath();
+			context.roundRect(
+				selectBoxStartX + panX / zoom,
+				selectBoxStartY + panY / zoom,
+				selectBoxEndX - selectBoxStartX,
+				selectBoxEndY - selectBoxStartY,
+				5
+			);
+			context.fill();
+			context.stroke();
+			context.scale(1 / zoom, 1 / zoom);
+			context.setLineDash([]);
+		}
+		if (
+			(rotationAnchorManuallySet && capRotationTool) ||
+			(clicked && mainClick && capRotationTool && pointerOnInterface)
+		) {
+			context.setLineDash([]);
+			context.scale(zoom, zoom);
+			context.lineCap = "round";
+			context.fillStyle = "#24a7ff";
+			context.strokeStyle = "#24a7ff";
+			context.beginPath();
+			context.arc(
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom,
+				10,
+				0,
+				2 * Math.PI
+			);
+			context.stroke();
+			context.fill();
+			context.scale(1 / zoom, 1 / zoom);
+		}
+		if (clicked && mainClick && capRotationTool && pointerOnInterface) {
+			let theta = Math.atan2(
+				capRotateEndX - capRotateAnchorX,
+				capRotateAnchorY - capRotateEndY
+			);
+			let aStartTheta = Math.atan2(
+				capRotateAngleStartX - capRotateAnchorX,
+				-(capRotateAngleStartY - capRotateAnchorY)
+			);
+			aStartTheta -= Math.PI / 2;
+			let lineDistX = 2 * Math.cos(aStartTheta);
+			let lineDistY = 2 * Math.sin(aStartTheta);
+
+			context.setLineDash([]);
+			context.scale(zoom, zoom);
+			context.lineCap = "round";
+			context.fillStyle = "#0007";
+			context.strokeStyle = "#0007";
+			context.beginPath();
+			context.moveTo(
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom
+			);
+			context.arc(
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom,
+				1 * gridSize,
+				aStartTheta,
+				theta - Math.PI / 2,
+				theta - aStartTheta < 0
+			);
+			context.moveTo(
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom
+			);
+			context.lineTo(
+				(capRotateAnchorX + lineDistX) * gridSize + panX / zoom,
+				(capRotateAnchorY + lineDistY) * gridSize + panY / zoom
+			);
+			context.textAlign = "left";
+			context.fillText(
+				(((theta - aStartTheta - Math.PI / 2) * 180) / Math.PI).toFixed(1) +
+					" deg",
+				capRotateEndX * gridSize + panX / zoom + 10,
+				capRotateEndY * gridSize + panY / zoom
+			);
+			context.stroke();
+			context.lineWidth = 8;
+			context.strokeStyle = "#fff7";
+			context.beginPath();
+			context.moveTo(
+				capRotateAnchorX * gridSize + panX / zoom,
+				capRotateAnchorY * gridSize + panY / zoom
+			);
+			context.lineTo(
+				capRotateEndX * gridSize + panX / zoom,
+				capRotateEndY * gridSize + panY / zoom
+			);
+			context.stroke();
+			context.lineWidth = 4;
+			context.strokeStyle = "#2172ff";
+			context.setLineDash([6, 8]);
+			context.stroke();
+			context.scale(1 / zoom, 1 / zoom);
+			context.setLineDash([]);
+		}
 	};
 </script>
 

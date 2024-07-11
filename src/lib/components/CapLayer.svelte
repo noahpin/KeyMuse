@@ -34,7 +34,7 @@
 	let capDarken = capColor.darken(0.35);
 	let capEdge = capDarken.darken(0.5);
 
-	var font;
+	let font;
 
 	onMount(() => {
 		font = new FontFace("CapFont", `url(${Astha})`);
@@ -44,7 +44,7 @@
 		});
 	});
 
-	function upd(ss: CapDataElement) {
+	function updateData(ss: CapDataElement) { // its done this way because for some reason, doing it normally reactively doesnt work correctly.
 		x = capData.x;
 		y = capData.y;
 		w = capData.w;
@@ -61,19 +61,8 @@
 		capDarken = capColor.darken(0.35);
 		capEdge = capDarken.darken(0.5);
 	}
-	$: upd(capData);
-
-	let requestId;
-
-	function rafLoop() {
-		requestId = requestAnimationFrame(rafLoop);
-		//r += 0.01;
-	}
-
-	onMount(() => {
-		requestId = requestAnimationFrame(rafLoop);
-	});
-
+	$: updateData(capData);
+	
 	$: render = ({ context, width, height }: CanvasRendererInput) => {
         if(fontLoaded) {}
         let xt = x * unitSize + panX / zoom

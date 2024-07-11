@@ -5,7 +5,7 @@
 </script>
 <div id="toolbar-panel" class="ui-floating-element" >
     <button class={$toolStore == "select" ? "active" : ""} on:click={()=>toolStore.set("select")}><i class="hi-marquee"></i></button>
-    <button class={$toolStore == "placement" ? "active" : ""} on:click={()=>toolStore.set("placement")}><i class="hi-plus-large"></i></button>
+    <button class={$toolStore == "placement" ? "active" : ""} on:click={()=>toolStore.set("placement")}><CapAddIcon></CapAddIcon></button>
     <button class={$toolStore == "rotate" ? "active" : ""} on:click={()=>toolStore.set("rotate")}><i class="hi-rotate-right"></i></button>
     <button class={$toolStore == "translate" ? "active" : ""} on:click={()=>toolStore.set("translate")}><i class="hi-move"></i></button>
     <div class="divider"></div>
@@ -47,5 +47,6 @@
     button:active ,  button.active{
         background: #2172ff;
         color: white;
+        fill: white !important;
     }
 </style>
