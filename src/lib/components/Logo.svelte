@@ -14,7 +14,7 @@
 			{PKG.version}
 		</span>
 	</div>
-	<a href="https://discord.gg/wb9xS2d9eg" target="_blank">
+	<a href="https://github.com/noahpin/KeyMuse" target="_blank">
 		<Icon src={RiLogosGithubFill} color="black" size="24" />
 	</a>
 </div>
