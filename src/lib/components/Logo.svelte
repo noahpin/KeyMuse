@@ -5,8 +5,10 @@
 
 <div class="logo-parent">
 	<div class="noclick">
-		<i class="hi-keyboard"></i>
-		<span>Unnamed Keyboard App</span>
+		<span class="accent">
+			<i class="hi-keyboard"></i>
+			KeyMuse
+		</span>
 		<span class="secondary">
 			<!-- svelte-ignore missing-declaration -->
 			{PKG.version}
@@ -52,5 +54,13 @@
 	}
 	a:hover {
 		opacity: 1;
+	}
+	.accent {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		color: var(--accent);
+		--hi-accent: var(--accent);
+		--hi-base: var(--ui-bg);
 	}
 </style>

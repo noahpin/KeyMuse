@@ -7,6 +7,7 @@
 		selectedStore,
 		projectFile,
 		getBlankCapData,
+		uiAccent,
 	} from "$lib";
 	import { Canvas, Layer } from "svelte-canvas";
 	import { tweened } from "svelte/motion";
@@ -495,8 +496,8 @@
 	$: selectionRender = ({ context, width, height }: CanvasRendererInput) => {
 		if (selectBox) {
 			context.scale(zoom, zoom);
-			context.fillStyle = "#2172ff44";
-			context.strokeStyle = "#2172ff";
+			context.fillStyle = $uiAccent + "22";
+			context.strokeStyle = $uiAccent;
 			context.setLineDash([6, 8]);
 			context.lineCap = "round";
 			context.beginPath();
@@ -519,8 +520,8 @@
 			context.setLineDash([]);
 			context.scale(zoom, zoom);
 			context.lineCap = "round";
-			context.fillStyle = "#24a7ff";
-			context.strokeStyle = "#24a7ff";
+			context.fillStyle = $uiAccent;
+			context.strokeStyle = $uiAccent;
 			context.beginPath();
 			context.arc(
 				capRotateAnchorX * gridSize + panX / zoom,
@@ -593,7 +594,7 @@
 			);
 			context.stroke();
 			context.lineWidth = 4;
-			context.strokeStyle = "#2172ff";
+			context.strokeStyle = $uiAccent;
 			context.setLineDash([6, 8]);
 			context.stroke();
 			context.scale(1 / zoom, 1 / zoom);

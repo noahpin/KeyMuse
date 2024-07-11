@@ -5,7 +5,7 @@
 	import gorton from "$lib/styles/fonts/OpenGorton-Bold.otf";
 	import Astha from "$lib/styles/fonts/ASTHA-LATIN.otf";
 	import { onMount, onDestroy } from "svelte";
-	import { selectedStore } from "$lib";
+	import { selectedStore, uiAccent } from "$lib";
 	export let capData: CapDataElement;
 	export let unitSize;
 	export let previewTextValue = "";
@@ -62,7 +62,7 @@
 		capEdge = capDarken.darken(0.5);
 	}
 	$: updateData(capData);
-	
+
 	$: render = ({ context, width, height }: CanvasRendererInput) => {
         if(fontLoaded) {}
         let xt = x * unitSize + panX / zoom
@@ -91,7 +91,7 @@
 
 		if (selected) {
 			context.lineWidth = 5 + capPadding;
-			context.strokeStyle = "#2172ff";
+			context.strokeStyle = $uiAccent;
 			context.stroke();
 			context.lineWidth = 1 + capPadding;
 			context.strokeStyle = "white";

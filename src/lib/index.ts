@@ -2,6 +2,7 @@
 import { writable, get, type Writable } from "svelte/store";
 import templateFile from "$lib/template.json";
 
+export const uiAccent = writable("#ff00ff");
 export const toolStore = writable("select");
 export const selectedStore = writable<CapDataElement[]>([]);
 //used to control when the property panel updates its data.
@@ -53,6 +54,7 @@ export function alignCapsToGrid() {
 }
 
 export function logData() {
+	console.log('asdf')
 	console.log(get(projectFile));
 }
 

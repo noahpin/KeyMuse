@@ -56,7 +56,7 @@
         background: var(--ui-light-gray);
     }
     button:active {
-        background: #2172ff;
+        background: var(--accent);
         color: white;
     }
 </style>
