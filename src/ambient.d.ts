@@ -1,6 +1,6 @@
 declare global {
         type CapDataElement = {
-            [key: string]: string | undefined;
+            [key: string];
             legends: string,
             x: number,
             y: number,
@@ -8,8 +8,8 @@ declare global {
             h: number,
             x2: number,
             y2: number,
-            w2: number,
-            h2: number,
+            w2: number | null,
+            h2: number | null,
             r: number,
             color: string,
             textColor: string,

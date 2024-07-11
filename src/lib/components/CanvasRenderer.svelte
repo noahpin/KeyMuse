@@ -26,16 +26,12 @@
 
 	onMount(() => {
 		patternCanvas = document.createElement("canvas");
-		//@ts-ignore
-		const patternContext: CanvasRenderingContext2D =
+		const patternContext: CanvasRenderingContext2D | null =
 			patternCanvas.getContext("2d");
 
 		patternCanvas.width = patternCanvas.height = gridSize;
-
-		setPixelated(patternContext);
-
 		gridMatrix = new DOMMatrix();
-		generateGrid(patternContext);
+		if (patternContext != null) generateGrid(patternContext);
 	});
 
 	function setPixelated(ctx: CanvasRenderingContext2D) {
@@ -225,10 +221,10 @@
 	let capRotateEndY = 0;
 	let capRotateAngleStartX = 0;
 	let capRotateAngleStartY = 0;
-    let capTranslateStartX = 0;
-    let capTranslateStartY = 0;
-    let capTranslateEndX = 0;
-    let capTranslateEndY = 0;
+	let capTranslateStartX = 0;
+	let capTranslateStartY = 0;
+	let capTranslateEndX = 0;
+	let capTranslateEndY = 0;
 	const dispatch = createEventDispatcher();
 	let shiftKeyWhenClicked = false;
 	let capActionStartData: CapDataElement[];
@@ -261,11 +257,12 @@
 				capRotateAngleStartY = capRotateAnchorY - 2;
 			}
 		}
-        if(capTranslateTool) {
-			capTranslateEndX = capTranslateStartX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
-			capTranslateEndY = capTranslateStartY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
-
-        }
+		if (capTranslateTool) {
+			capTranslateEndX = capTranslateStartX =
+				(((e.clientX - panX) / zoom / gridSize) * 4) / 4;
+			capTranslateEndY = capTranslateStartY =
+				(((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+		}
 		if (capRotationTool || capTranslateTool)
 			capActionStartData = [...structuredClone(get(selectedStore))];
 		shiftKeyWhenClicked = e.shiftKey;
@@ -359,17 +356,17 @@
 			capTranslateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
 			$selectedStore.forEach((capSelected, i) => {
 				let cap = capActionStartData[i];
-                let dX = capTranslateEndX - capTranslateStartX;
-                let dY = capTranslateEndY - capTranslateStartY;
-                let snapValue = 4;
-                if (e.ctrlKey) {
+				let dX = capTranslateEndX - capTranslateStartX;
+				let dY = capTranslateEndY - capTranslateStartY;
+				let snapValue = 4;
+				if (e.ctrlKey) {
 					snapValue = 100;
 				}
 
 				let nX = cap.x + dX;
-                let nY = cap.y + dY;
-                nX = Math.round(nX * snapValue) / snapValue
-                nY = Math.round(nY * snapValue) / snapValue
+				let nY = cap.y + dY;
+				nX = Math.round(nX * snapValue) / snapValue;
+				nY = Math.round(nY * snapValue) / snapValue;
 				updateCapData([capSelected], "x", nX);
 				updateCapData([capSelected], "y", nY);
 			});
@@ -500,7 +497,6 @@
 			};
 			//broadcast an event to create a new cap
 			dispatch("createCap", cap);
-			// @ts-ignore
 			previousCapPlacementData = cap;
 		}
 		middleMouseDown = false;
@@ -613,7 +609,6 @@
 	$: {
 		capTranslateTool = $toolStore == "translate";
 	}
-	// @ts-ignore
 	let capPlacementToolCapData: CapDataElement = {
 		legends: "",
 		x: 0,
@@ -689,7 +684,9 @@
 	layerEvents={true}
 	width={windowInnerWidth}
 	height={windowInnerHeight}
-	class={"background " + (capTranslateTool ? "cursor-translate " : "") + (capRotationTool ? "cursor-rotation " : "")}
+	class={"background " +
+		(capTranslateTool ? "cursor-translate " : "") +
+		(capRotationTool ? "cursor-rotation " : "")}
 >
 	<Layer render={gridRender} />
 	{#each $projectFile.keyData as capData}

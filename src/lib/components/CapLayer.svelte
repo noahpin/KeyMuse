@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Layer } from "svelte-canvas";
-	// @ts-ignore
 	import chroma from "chroma-js";
 	import { text } from "@sveltejs/kit";
 	import gorton from "$lib/styles/fonts/OpenGorton-Bold.otf";
@@ -9,7 +8,6 @@
 	import { selectedStore } from "$lib";
 	export let capData: CapDataElement;
 	export let unitSize;
-	export let passive = false;
 	export let previewTextValue = "";
 	let x = capData.x;
 	let y = capData.y;

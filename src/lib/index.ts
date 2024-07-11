@@ -4,7 +4,6 @@ import exampleJson from "$lib/testJson.json";
 
 export const toolStore = writable("select");
 export const selectedStore = writable<CapDataElement[]>([]);
-// @ts-ignore
 export const propertyPanelStore = writable<CapDataElement>({
 	legends: "string",
 	x: 0,
@@ -15,6 +14,7 @@ export const propertyPanelStore = writable<CapDataElement>({
 	y2: 0,
 	w2: 0,
 	h2: 0,
+    r: 0,
 	color: "string",
 	textColor: "string",
 	stepped: true,

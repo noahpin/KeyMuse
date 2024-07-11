@@ -19,7 +19,7 @@
 		let keyData: [CapDataElement] | CapDataElement[] = $projectFile.keyData;
 		for(let i = 0; i < keyData.length; i++) {
 			let d = keyData[i]
-			let tmp = {
+			let tmp: CapDataElement = {
 				legends: d.legends || "",
 				x: d.x || 0,
 				y: d.y || 0,
