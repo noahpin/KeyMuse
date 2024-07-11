@@ -19,7 +19,7 @@
 	let y2 = capData.y2 || 0;
 	let w2 = capData.w2 || w;
 	let h2 = capData.h2 || h;
-	let angle = capData.angle || 0;
+	let r = capData.r || 0;
 	let stepped = capData.stepped || false;
 	let textColor = capData.textColor || "black";
 	let legend = capData.legends || "";
@@ -55,7 +55,7 @@
 		y2 = parseFloat(`${capData.y2 || 0}`);
 		w2 = capData.w2 || w;
 		h2 = capData.h2 || h;
-	    angle = capData.angle || 0;
+	    r = capData.r || 0;
 		stepped = capData.stepped || false;
 		textColor = capData.textColor || "black";
 		legend = capData.legends || "";
@@ -69,7 +69,7 @@
 
 	function rafLoop() {
 		requestId = requestAnimationFrame(rafLoop);
-		//angle += 0.01;
+		//r += 0.01;
 	}
 
 	onMount(() => {
@@ -82,7 +82,7 @@
         let yt = y * unitSize + panY / zoom
 		context.scale(zoom, zoom);
 		context.translate(xt, yt);
-		context.rotate(angle * Math.PI / 180);
+		context.rotate(r * Math.PI / 180);
 		let cPad = capPadding * zoom;
 		let cHPad = capHighlightPadding * zoom;
 		context.fillStyle = capDarken.hex();
@@ -157,7 +157,7 @@
 			w * unitSize,
 			 h * unitSize
 		);
-		context.rotate(-1 * angle * Math.PI / 180);
+		context.rotate(-1 * r * Math.PI / 180);
 		context.translate(-1 * xt, -1 * yt);
 		context.scale(1 / zoom, 1 / zoom);
 	};

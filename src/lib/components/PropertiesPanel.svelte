@@ -160,8 +160,8 @@
 							<input
 								name="angle"
 								type="number"
-								value={$selectedStore[$selectedStore.length - 1].angle}
-								on:input={(e) => updateProperty("angle", e)}
+								value={$selectedStore[$selectedStore.length - 1].r}
+								on:input={(e) => updateProperty("r", e)}
 							/>
 						</div>
 						<div class="input-stack">

@@ -331,8 +331,8 @@
 				dTheta = (dTheta * Math.PI) / 180;
 
 				theta += dTheta;
-				console.log(cap.angle);
-				let capAngle = cap.angle + (dTheta * 180) / Math.PI;
+				console.log(cap.r);
+				let capAngle = cap.r + (dTheta * 180) / Math.PI;
 
 				let nDX = r * Math.cos(theta) + capRotateAnchorX;
 				let nDY = r * Math.sin(theta) + capRotateAnchorY;
@@ -341,7 +341,7 @@
 				updateCapData([capSelected], "y", Math.round(nDY * 100) / 100);
 				updateCapData(
 					[capSelected],
-					"angle",
+					"r",
 					Math.round(capAngle * 100) / 100,
 					false,
 					true,
@@ -496,7 +496,7 @@
 				color: "#e6e6e6",
 				textColor: "#000",
 				stepped: false,
-				angle: 0,
+				r: 0,
 			};
 			//broadcast an event to create a new cap
 			dispatch("createCap", cap);
@@ -627,7 +627,7 @@
 		color: "#0007",
 		textColor: "#000",
 		stepped: false,
-		angle: 0,
+		r: 0,
 	};
 </script>
 

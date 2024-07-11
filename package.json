@@ -1,6 +1,6 @@
 {
 	"name": "kle-silly-project",
-	"version": "0.0.1",
+	"version": "0.0.1-Alpha",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",

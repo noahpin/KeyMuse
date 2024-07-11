@@ -29,7 +29,7 @@
 				y2: d.y2 || 0,
 				w2: d.w2 || null,
 				h2: d.h2 || null,
-				angle: d.angle || 0,
+				r: d.r || 0,
 				color: d.color || "#fff",
 				textColor: d.textColor || "#000",
 				stepped: d.stepped != null ? d.stepped : false,

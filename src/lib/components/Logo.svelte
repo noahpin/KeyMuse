@@ -1,4 +1,5 @@
-<div class="logo-parent"><i class="hi-keyboard"></i>Unnamed Keyboard App<span class="secondary">v.0.0.1-Alpha</span></div>
+<!-- svelte-ignore missing-declaration -->
+<div class="logo-parent"><i class="hi-keyboard"></i>Unnamed Keyboard App<span class="secondary">{PKG.version}</span></div>
 
 <style>
 	.logo-parent {
