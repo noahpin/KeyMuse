@@ -8,6 +8,7 @@
 		projectFile,
 		getBlankCapData,
 		uiAccent,
+		projectAction,
 	} from "$lib";
 	import { Canvas, Layer } from "svelte-canvas";
 	import { tweened } from "svelte/motion";
@@ -486,6 +487,9 @@
 
 	let capPlacementToolCapData: CapDataElement = getBlankCapData();
 
+	let homeTool = $projectAction == "home";
+	$: homeTool = $projectAction == "home";
+
 	$: gridRender = ({ context, width, height }: CanvasRendererInput) => {
 		gridPattern?.setTransform(
 			gridMatrix?.translate(panX - 0.5 * zoom, panY - 0.5 * zoom).scale(zoom)
@@ -494,6 +498,11 @@
 		context.fillRect(0, 0, width, height);
 	};
 	$: selectionRender = ({ context, width, height }: CanvasRendererInput) => {
+		if (homeTool) {
+			panX = 90
+			panY = 90
+			projectAction.set("none")
+		}
 		if (selectBox) {
 			context.scale(zoom, zoom);
 			context.fillStyle = $uiAccent + "22";
@@ -623,6 +632,9 @@
 		}
 		if (e.key == "t") {
 			toolStore.set("translate");
+		}
+		if (e.key == "h") {
+			projectAction.set("home");
 		}
 		if (e.key == "Delete") {
 			let temp = $projectFile.keyData;
