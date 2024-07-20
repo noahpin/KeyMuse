@@ -1,5 +1,6 @@
 {
 	"name": "kle-silly-project",
+	"license": "GPL-3.0",
 	"version": "0.0.1-Alpha",
 	"private": true,
 	"scripts": {
