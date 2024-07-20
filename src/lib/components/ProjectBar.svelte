@@ -1,12 +1,15 @@
 <script>
 	import CapAddIcon from "./CapAddIcon.svelte";
     import { toolStore } from "$lib";
+    import { projectAction } from "$lib";
     import { projectFile } from "$lib";
-
+    import { Icon } from "svelte-icons-pack";
+    import { TrOutlineHome } from "svelte-icons-pack/tr"; 
 </script>
 <div id="toolbar-panel" class="ui-floating-element" >
     <button disabled on:click={()=>toolStore.set("rotate")}><i class="hi-carat-left"></i></button>
     <div class="divider"></div>
+    <button on:click={()=>projectAction.set("home")}><Icon src={TrOutlineHome} size=24></Icon></button>
     <button disabled on:click={()=>toolStore.set("rotate")}><i class="hi-gear"></i></button>
     <button disabled on:click={()=>toolStore.set("rotate")}><i class="hi-import"></i></button>
     <button disabled on:click={()=>toolStore.set("rotate")}><i class="hi-export"></i></button>
