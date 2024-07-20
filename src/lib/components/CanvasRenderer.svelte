@@ -621,6 +621,10 @@
 	on:pointermove={pointerMoveHandler}
 	on:keydown={(e) => {
 		if (e.target != document.body) return;
+		if (e.ctrlKey && e.key == "a") {
+			e.preventDefault()
+			selectedStore.set($projectFile.keyData);
+		}
 		if (e.key == "Escape") {
 			toolStore.set("select");
 		}
