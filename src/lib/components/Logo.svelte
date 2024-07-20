@@ -33,6 +33,7 @@
 		position: absolute;
 		bottom: 12px;
 		left: 12px;
+		user-select: none;
 	}
 	.secondary {
 		opacity: 0.5;
@@ -41,7 +42,7 @@
 		align-items: center;
 	}
 	.noclick {
-		pointer-events: none;
+		pointer-events: none !important;
 		display: flex;
 		gap: 8px;
 		align-items: center;

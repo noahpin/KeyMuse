@@ -12,6 +12,16 @@
 		variableDeletionStore,
 	} from "$lib";
 	import ColorVariable from "./ColorVariable.svelte";
+	import { offset, flip, shift, type ComputePositionConfig } from "svelte-floating-ui/dom";
+	import { createFloatingActions } from "svelte-floating-ui";
+	let options: Partial<ComputePositionConfig> = {
+		strategy: "absolute",
+		placement: "bottom",
+		middleware: [offset(6), flip(), shift()],
+	}
+	const [floatingCapRef, floatingCapContent] = createFloatingActions(options);
+	const [floatingTextRef, floatingTextContent] = createFloatingActions(options);
+
 	function updateProperty(property: string, event: Event | null) {
 		if (!event?.target) return;
 		updateCapData(
@@ -47,12 +57,17 @@
 				? $selectedStore[$selectedStore.length - 1].textColor
 				: "";
 	}
+	let textColorButton: HTMLElement;
+	let capColorButton: HTMLElement;
 	let showTextColorVarPicker = false;
 	let showCapColorVarPicker = false;
 	function onwindowclick(e: MouseEvent) {
-		if ((e.target as HTMLElement).classList.contains("color-variable-button"))
+		let cl = (e.target as HTMLElement).classList
+		if (cl.contains("color-input-variable-picker") || cl.contains("picker-button"))
 			return;
+		if(e.target != textColorButton)
 		showTextColorVarPicker = false;
+		if(e.target != capColorButton)
 		showCapColorVarPicker = false;
 	}
 </script>
@@ -208,6 +223,8 @@
 									></div>
 								</div>
 								<button
+								bind:this={capColorButton}
+									use:floatingCapRef
 									on:click={(e) =>
 										(showCapColorVarPicker = !showCapColorVarPicker)}
 									class={"color-variable-button " +
@@ -216,16 +233,18 @@
 								>
 							</div>
 							{#if showCapColorVarPicker}
-								<div class="color-input-variable-picker">
-									{#each $projectFile.variables as variable}
-										<button
-											on:click={(e) =>
-												setColorToVariable("color", "$" + variable.id)}
-											style={`background: ${variable.color}; color: ${getWhiteOrBlackFromColor(variable.color)}`}
-											>{variable.displayName}</button
+							<div class="color-input-variable-picker" use:floatingCapContent>
+								{#each $projectFile.variables as variable}
+									<button
+									class={"picker-button " + (capColor == "$" + variable.id ? "active" : "")}
+										on:click={(e) =>
+											setColorToVariable("color", "$" + variable.id)}
 										>
-									{/each}
-								</div>
+										<div class="swatch" style={`background: ${variable.color};`}></div>
+										{variable.displayName}</button
+									>
+								{/each}
+							</div>
 							{/if}
 						</div>
 						<div class="input-stack">
@@ -248,6 +267,8 @@
 									></div>
 								</div>
 								<button
+								bind:this={textColorButton}
+								use:floatingTextRef
 									on:click={(e) =>
 										(showTextColorVarPicker = !showTextColorVarPicker)}
 									class={"color-variable-button " +
@@ -256,13 +277,15 @@
 								>
 							</div>
 							{#if showTextColorVarPicker}
-								<div class="color-input-variable-picker">
+								<div class="color-input-variable-picker" use:floatingTextContent>
 									{#each $projectFile.variables as variable}
 										<button
+										class={"picker-button " + (textColor == "$" + variable.id ? "active" : "")}
 											on:click={(e) =>
 												setColorToVariable("textColor", "$" + variable.id)}
-											style={`background: ${variable.color}; color: ${getWhiteOrBlackFromColor(variable.color)}`}
-											>{variable.displayName}</button
+											>
+											<div class="swatch" style={`background: ${variable.color};`}></div>
+											{variable.displayName}</button
 										>
 									{/each}
 								</div>
@@ -366,7 +389,6 @@
 		background: var(--accent);
 	}
 	button {
-		padding: 8px 12px;
 		margin: 0;
 		box-sizing: border-box;
 		font-size: 16px;
@@ -377,6 +399,13 @@
 		border: 1px solid var(--ui-transparent-outline);
 		flex-basis: 40%;
 		flex-grow: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 4px;
+		height: 36px;
+		box-sizing: border-box;
+		flex-shrink: 0;
 	}
 
 	.shallow-button {
@@ -415,5 +444,19 @@
 		width: 100%;
 		text-wrap: nowrap;
 		overflow: hidden;
+	}
+	.picker-button {
+		justify-content: left;
+		gap: 8px;
+		min-height: 36px;
+	}
+	.picker-button.active {
+		border: 1px solid var(--accent);
+		background: var(--accent-light);
+	}
+	.swatch {
+		box-sizing: border-box;
+		width: 20px; height: 20px; border-radius: 2px;
+		border: 1px solid var(--ui-transparent-outline);
 	}
 </style>

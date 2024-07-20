@@ -42,6 +42,7 @@
 	});
 
 	function generateGrid(ctx: CanvasRenderingContext2D) {
+		
 		let cornerSize = 5;
 		ctx.fillStyle = "#0004";
 		for (let x = 0; x < 4; x++) {
