@@ -1,6 +1,8 @@
 // place files you want to import through the `$lib` alias in this folder.
 import { writable, get, type Writable } from "svelte/store";
 import templateFile from "$lib/template.json";
+import chroma from "chroma-js";
+import { makeid } from "./util";
 
 export const uiAccent = writable("#ff00ff");
 export const toolStore = writable("select");
@@ -9,6 +11,8 @@ export const selectedStore = writable<CapDataElement[]>([]);
 // TODO: make the property panel update if a specific data member updates, not based on the entire object.
 export const propertyPanelStore = writable<CapDataElement>(getBlankCapData());
 export const projectFile = writable<FileData>();
+
+export const variableDeletionStore = writable();
 // @ts-ignore
 projectFile.set(templateFile);
 
@@ -102,4 +106,52 @@ export function createCap(e: any) {
 	let temp = Object.create(get(projectFile));
 	temp.keyData.push(e.detail);
 	projectFile.set(temp);
+}
+
+export function updateVariableData(id: string, name: string | null = null, color: string | null = null ) {
+	let temp: FileData = (get(projectFile));
+	let el = temp.variables.find(e => e.id == id)
+	if(name != null && el != null) el.displayName = name;
+	if(color != null && el != null) el.color = color;
+	projectFile.set(temp);
+
+	
+	propertyPanelStore.set(get(propertyPanelStore));
+}
+
+export function getVariableData(id: string): string {
+	return get(projectFile).variables.find(e => e.id == id)?.color || "#ffffff";
+}
+
+export function parseCapColor(color: string): string {
+	
+	if(color.startsWith("#")) return color;
+	else if (color.startsWith("$")) return getVariableData(color.replace("$", ""));
+	return "#ff00ff"
+}
+
+export function getWhiteOrBlackFromColor(color: string) {
+	let c = chroma(color).rgb();
+	return (c[0]*0.299 + c[1]*0.587 + c[2]*0.114) > 186 ? "#000" : "#fff"
+}
+
+export function createVariable() {
+	let temp: FileData = get(projectFile);
+	let v: ColorVariable = {
+		id: makeid(5),
+		color: chroma.random().hex(),
+		displayName: "Color Variable"
+	}
+	temp.variables.push(v);
+	projectFile.set(temp);
+}
+
+export function deleteVariable(id: string) {
+	let temp: FileData = get(projectFile);
+	let v = temp.variables.find(e => e.id == id)
+	if(v == null) return;
+	let i = temp.variables.indexOf(v)
+	if(i > -1) temp.variables.splice(i, 1)
+	projectFile.set(temp);
+	variableDeletionStore.set(null);
 }
