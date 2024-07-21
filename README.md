@@ -1,6 +1,6 @@
-# KeyMuse
+![KeyMuse Header](./static/og-image.png)
 
-A work in progress Keyboard Layout Editor alternative.
+KeyMuse is a visual keycap, keyboard, and keymap editor with a rich feature set and intuitive interface.
 
 ## Developing
 
