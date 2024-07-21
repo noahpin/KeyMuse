@@ -5,7 +5,7 @@
 	import gorton from "$lib/styles/fonts/OpenGorton-Bold.otf";
 	import Astha from "$lib/styles/fonts/ASTHA-LATIN.otf";
 	import { onMount, onDestroy } from "svelte";
-	import { selectedStore, uiAccent } from "$lib";
+	import { parseCapColor, selectedStore, uiAccent } from "$lib";
 	export let capData: CapDataElement;
 	export let unitSize;
 	export let previewTextValue = "";
@@ -19,7 +19,7 @@
 	let h2 = capData.h2 || h;
 	let r = capData.r || 0;
 	let stepped = capData.stepped || false;
-	let textColor = capData.textColor || "black";
+	let textColor = parseCapColor(capData.textColor) || "black";
 	let legend = capData.legends || "";
 	let selected = false;
 	export let panX;
@@ -30,7 +30,7 @@
 	let capHighlightPadding = 11;
     let capHighlightCentered: Boolean = true;
     let fontLoaded = false;
-	let capColor = chroma(capData.color || "#969696");
+	let capColor = chroma(parseCapColor(capData.color) || "#969696");
 	let capDarken = capColor.darken(0.35);
 	let capEdge = capDarken.darken(0.5);
 
@@ -55,9 +55,9 @@
 		h2 = capData.h2 || h;
 	    r = capData.r || 0;
 		stepped = capData.stepped || false;
-		textColor = capData.textColor || "black";
+		textColor = parseCapColor(capData.textColor) || "black";
 		legend = capData.legends || "";
-		capColor = chroma(capData.color || "#969696");
+		capColor = chroma(parseCapColor(capData.color) || "#969696");
 		capDarken = capColor.darken(0.35);
 		capEdge = capDarken.darken(0.5);
 	}

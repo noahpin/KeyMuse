@@ -1,5 +1,17 @@
 {
     "name": "Default Layout",
+    "variables": [
+        {
+            "id": "DACC",
+            "color": "#8833ff",
+            "displayName": "Accent Color"
+        },
+        {
+            "id": "DACCT",
+            "color": "#ffffff",
+            "displayName": "Accent Text"
+        }
+    ],
     "keyData": [
         {
             "legends": "Esc",
@@ -11,8 +23,8 @@
             "y2": 0,
             "w2": 1,
             "h2": 1,
-            "color": "#7116f1",
-            "textColor": "#ffffff",
+            "color": "$DACC",
+            "textColor": "$DACCT",
             "stepped": false,
             "r": 0
         },
@@ -596,8 +608,8 @@
             "y2": 0,
             "w2": 2.25,
             "h2": 1,
-            "color": "#7116f1",
-            "textColor": "#ffffff",
+            "color": "$DACC",
+            "textColor": "$DACCT",
             "stepped": false,
             "r": 0
         },
@@ -1121,8 +1133,8 @@
             "y2": 0,
             "w2": 1,
             "h2": 1,
-            "color": "#7116f1",
-            "textColor": "#ffffff",
+            "color": "$DACC",
+            "textColor": "$DACCT",
             "stepped": false,
             "r": 0
         },
@@ -1136,8 +1148,8 @@
             "y2": 0,
             "w2": 1,
             "h2": 1,
-            "color": "#7116f1",
-            "textColor": "#ffffff",
+            "color": "$DACC",
+            "textColor": "$DACCT",
             "stepped": false,
             "r": 0
         },
@@ -1151,8 +1163,8 @@
             "y2": 0,
             "w2": 1,
             "h2": 1,
-            "color": "#7116f1",
-            "textColor": "#ffffff",
+            "color": "$DACC",
+            "textColor": "$DACCT",
             "stepped": false,
             "r": 0
         },
@@ -1166,8 +1178,8 @@
             "y2": 0,
             "w2": 1,
             "h2": 1,
-            "color": "#7116f1",
-            "textColor": "#ffffff",
+            "color": "$DACC",
+            "textColor": "$DACCT",
             "stepped": false,
             "r": 0
         },
@@ -1556,8 +1568,8 @@
             "y2": 0,
             "w2": 1,
             "h2": 2,
-            "color": "#7116f1",
-            "textColor": "#ffffff",
+            "color": "$DACC",
+            "textColor": "$DACCT",
             "stepped": false,
             "r": 0
         }

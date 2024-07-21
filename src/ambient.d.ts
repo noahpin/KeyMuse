@@ -17,7 +17,13 @@ declare global {
         }
         type FileData = {
             name: string,
+            variables: [ColorVariable] | ColorVariable[],
             keyData: [CapDataElement] | CapDataElement[]
+        }
+        type ColorVariable = {
+            id: string, 
+            displayName: string,
+            color: string
         }
     type CanvasRendererInput = {context: CanvasRenderingContext2D, width: number, height: number}
 }
