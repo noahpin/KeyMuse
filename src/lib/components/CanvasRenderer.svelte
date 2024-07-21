@@ -628,57 +628,7 @@
 	on:pointerdown={pointerDownHandler}
 	on:pointerup={pointerUpHandler}
 	on:pointermove={pointerMoveHandler}
-	on:keydown={(e) => {
-		if (e.target != document.body) return;
-		if (e.ctrlKey && e.key == "a") {
-			e.preventDefault();
-			selectedStore.set($projectFile.keyData);
-		}
-		if (e.key == "Escape") {
-			toolStore.set("select");
-		}
-		if (e.key == "c") {
-			toolStore.set("placement");
-		}
-		if (e.key == "r") {
-			toolStore.set("rotate");
-		}
-		if (e.key == "t") {
-			toolStore.set("translate");
-		}
-		if (e.key == "h") {
-			projectAction.set("home");
-		}
-		if (e.key == "Delete") {
-			let temp = $projectFile.keyData;
-			temp = temp.filter((cap) => {
-				return !$selectedStore.includes(cap);
-			});
-			let file = $projectFile;
-			file.keyData = temp;
-			projectFile.set(file);
-			selectedStore.set([]);
-		}
-		if (e.key.includes("Arrow")) {
-			let dX = e.key.includes("Right")
-				? 0.25
-				: e.key.includes("Left")
-					? -0.25
-					: 0;
-			let dY = e.key.includes("Up") ? -0.25 : e.key.includes("Down") ? 0.25 : 0;
-			if (e.shiftKey) {
-				dX *= 4;
-				dY *= 4;
-			}
-			if (e.altKey) {
-				updateCapData($selectedStore, "w", dX, true);
-				updateCapData($selectedStore, "h", dY, true);
-				return;
-			}
-			updateCapData($selectedStore, "x", dX, true);
-			updateCapData($selectedStore, "y", dY, true);
-		}
-	}}
+	
 />
 
 <Canvas

@@ -59,7 +59,6 @@ export function alignCapsToGrid() {
 }
 
 export function logData() {
-	console.log('asdf')
 	console.log(get(projectFile));
 }
 
@@ -109,31 +108,34 @@ export function createCap(e: any) {
 	projectFile.set(temp);
 }
 
-export function updateVariableData(id: string, name: string | null = null, color: string | null = null ) {
-	let temp: FileData = (get(projectFile));
-	let el = temp.variables.find(e => e.id == id)
-	if(name != null && el != null) el.displayName = name;
-	if(color != null && el != null) el.color = color;
+export function updateVariableData(
+	id: string,
+	name: string | null = null,
+	color: string | null = null
+) {
+	let temp: FileData = get(projectFile);
+	let el = temp.variables.find((e) => e.id == id);
+	if (name != null && el != null) el.displayName = name;
+	if (color != null && el != null) el.color = color;
 	projectFile.set(temp);
 
-	
 	propertyPanelStore.set(get(propertyPanelStore));
 }
 
 export function getVariableData(id: string): string {
-	return get(projectFile).variables.find(e => e.id == id)?.color || "#ffffff";
+	return get(projectFile).variables.find((e) => e.id == id)?.color || "#ffffff";
 }
 
 export function parseCapColor(color: string): string {
-	
-	if(color.startsWith("#")) return color;
-	else if (color.startsWith("$")) return getVariableData(color.replace("$", ""));
-	return "#ff00ff"
+	if (color.startsWith("#")) return color;
+	else if (color.startsWith("$"))
+		return getVariableData(color.replace("$", ""));
+	return "#ff00ff";
 }
 
 export function getWhiteOrBlackFromColor(color: string) {
 	let c = chroma(color).rgb();
-	return (c[0]*0.299 + c[1]*0.587 + c[2]*0.114) > 186 ? "#000" : "#fff"
+	return c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114 > 186 ? "#000" : "#fff";
 }
 
 export function createVariable() {
@@ -141,18 +143,51 @@ export function createVariable() {
 	let v: ColorVariable = {
 		id: makeid(5),
 		color: chroma.random().hex(),
-		displayName: "Color Variable"
-	}
+		displayName: "Color Variable",
+	};
 	temp.variables.push(v);
 	projectFile.set(temp);
 }
 
 export function deleteVariable(id: string) {
 	let temp: FileData = get(projectFile);
-	let v = temp.variables.find(e => e.id == id)
-	if(v == null) return;
-	let i = temp.variables.indexOf(v)
-	if(i > -1) temp.variables.splice(i, 1)
+	let v = temp.variables.find((e) => e.id == id);
+	if (v == null) return;
+	let i = temp.variables.indexOf(v);
+	if (i > -1) temp.variables.splice(i, 1);
 	projectFile.set(temp);
 	variableDeletionStore.set(null);
+}
+
+export function selectAll(e: KeyboardEvent) {
+	console.log("selectall");
+	e.preventDefault();
+	selectedStore.set(get(projectFile).keyData);
+}
+
+export function deleteSelection() {
+	let temp = get(projectFile).keyData;
+	temp = temp.filter((cap) => {
+		return !get(selectedStore).includes(cap);
+	});
+	let file = get(projectFile);
+	file.keyData = temp;
+	projectFile.set(file);
+	selectedStore.set([]);
+}
+
+export function nudgeSelectedCaps(e: KeyboardEvent) {
+	let dX = e.key.includes("Right") ? 0.25 : e.key.includes("Left") ? -0.25 : 0;
+	let dY = e.key.includes("Up") ? -0.25 : e.key.includes("Down") ? 0.25 : 0;
+	if (e.shiftKey) {
+		dX *= 4;
+		dY *= 4;
+	}
+	if (e.altKey) {
+		updateCapData(get(selectedStore), "w", dX, true);
+		updateCapData(get(selectedStore), "h", dY, true);
+		return;
+	}
+	updateCapData(get(selectedStore), "x", dX, true);
+	updateCapData(get(selectedStore), "y", dY, true);
 }
