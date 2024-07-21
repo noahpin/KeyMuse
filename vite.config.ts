@@ -11,5 +11,8 @@ export default defineConfig({
 	plugins: [sveltekit()],
     define: {
         PKG: pkg
+    },
+    server: {
+        host: true
     }
 });
