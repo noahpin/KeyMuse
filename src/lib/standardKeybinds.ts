@@ -10,7 +10,7 @@ export function initializeStandardKeybinds() {
     standardKeybinds.push(new Keybind("tool_rotate", new KeyCombo("r"), ()=> {toolStore.set("rotate")}))
     standardKeybinds.push(new Keybind("tool_translate", new KeyCombo("t"), ()=> {toolStore.set("translate")}))
     standardKeybinds.push(new Keybind("action_home", new KeyCombo("h"), ()=> {projectAction.set("home")}))
-    standardKeybinds.push(new Keybind("action_delete", new KeyCombo("delete"), ()=> {deleteSelection}))
+    standardKeybinds.push(new Keybind("action_delete", new KeyCombo("delete"), deleteSelection))
     standardKeybinds.push(new Keybind("nudge", new KeyCombo(["arrowup", "arrowdown", "arrowleft", "arrowright"]), nudgeSelectedCaps))
 
     keybindManager.setKeybinds(standardKeybinds);
