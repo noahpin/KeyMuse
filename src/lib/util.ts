@@ -15,3 +15,7 @@ export function setPixelated(ctx: CanvasRenderingContext2D) {
 	if (ctx == undefined) return;
 	ctx.imageSmoothingEnabled = false;
 }
+
+export function clamp (t: number, a: number, b: number) {
+	return Math.min(Math.max(t, a), b)
+}

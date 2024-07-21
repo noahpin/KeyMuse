@@ -11,14 +11,15 @@
 		projectAction,
 	} from "$lib";
 	import { Canvas, Layer } from "svelte-canvas";
-	import { tweened } from "svelte/motion";
-	import { quadOut as easing } from "svelte/easing";
 	import { get } from "svelte/store";
+	import { clamp } from "$lib/util";
 	let windowInnerWidth = 0;
 	let windowInnerHeight = 0;
 	let panX = 90;
 	let panY = 90;
 	let zoom = 1;
+	let zoomMin = 0.5;
+	let zoomMax = 5;
 
 	let patternCanvas: HTMLCanvasElement;
 
@@ -43,7 +44,6 @@
 	});
 
 	function generateGrid(ctx: CanvasRenderingContext2D) {
-		
 		let cornerSize = 5;
 		ctx.fillStyle = "#0004";
 		for (let x = 0; x < 4; x++) {
@@ -88,25 +88,32 @@
 	let rotationAnchorManuallySet = false;
 
 	function wheelHandler(e: WheelEvent) {
+		let isTrackpad = Math.abs(e.deltaY) < 75; //arbitrary threshold, the deltaY of trackpads is much smaller than a wheel
 		e.preventDefault();
 		if (e.ctrlKey) {
-			let zoomDelta = e.deltaY / 100;
-			let zoomFactor = (zoom - zoomDelta) / zoom;
-			zoom -= zoomDelta;
-			if (zoom < 0.75) {
-				zoom = 0.75;
-				return;
+			let zoomDelta = e.deltaY;
+			if (isTrackpad) {
+				zoomDelta *= 3;
 			}
-			if (zoom > 4) {
-				zoom = 4;
-				return;
-			}
-			panX = e.clientX - (e.clientX - panX) * zoomFactor;
-			panY = e.clientY - (e.clientY - panY) * zoomFactor;
-		} else {
-			panX -= (e.deltaX * zoom) / 2;
-			panY -= (e.deltaY * zoom) / 2;
+			handleZoom(zoomDelta, e.clientX, e.clientY);
+		} else if (!middleMouseDown) {
+			let mult = zoom;
+			if (isTrackpad) mult = Math.sqrt(zoom);
+			panX -= (e.deltaX * mult) / 2;
+			panY -= (e.deltaY * mult) / 2;
 		}
+	}
+
+	function handleZoom(delta: number, x: number, y: number) {
+		let sign = Math.sign(delta);
+		let deltaAdjustedSpeed = Math.min(0.25, Math.abs(delta / 128));
+		let scaleMultiplier = Math.abs(1 - sign * deltaAdjustedSpeed);
+		let preZoom = zoom;
+		zoom *= scaleMultiplier;
+		zoom = clamp(zoom, zoomMin, zoomMax);
+		let zoomFactor = zoom / preZoom;
+		panX = x - (x - panX) * zoomFactor;
+		panY = y - (y - panY) * zoomFactor;
 	}
 
 	function pointerDownHandler(e: PointerEvent) {
@@ -500,9 +507,10 @@
 	};
 	$: selectionRender = ({ context, width, height }: CanvasRendererInput) => {
 		if (homeTool) {
-			panX = 90
-			panY = 90
-			projectAction.set("none")
+			panX = 90;
+			panY = 90;
+			zoom = 1;
+			projectAction.set("none");
 		}
 		if (selectBox) {
 			context.scale(zoom, zoom);
@@ -623,7 +631,7 @@
 	on:keydown={(e) => {
 		if (e.target != document.body) return;
 		if (e.ctrlKey && e.key == "a") {
-			e.preventDefault()
+			e.preventDefault();
 			selectedStore.set($projectFile.keyData);
 		}
 		if (e.key == "Escape") {
