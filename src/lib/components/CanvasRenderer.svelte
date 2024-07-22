@@ -1,23 +1,21 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from "svelte";
 	import CapLayer from "./CapLayer.svelte";
-	import {
-		updateCapData,
-	} from "$lib";
+	import { updateCapData } from "$lib";
 	import {
 		toolStore,
 		selectedStore,
 		projectFile,
 		uiAccent,
-		projectAction} from "$lib/stores";
+		projectAction,
+		canvasPan,
+		canvasZoom,
+	} from "$lib/stores";
 	import { Canvas, Layer } from "svelte-canvas";
 	import { get } from "svelte/store";
-	import { clamp , getBlankCapData} from "$lib/util";
+	import { clamp, getBlankCapData } from "$lib/util";
 	let windowInnerWidth = 0;
 	let windowInnerHeight = 0;
-	let panX = 90;
-	let panY = 90;
-	let zoom = 1;
 	let zoomMin = 0.5;
 	let zoomMax = 5;
 
@@ -92,7 +90,7 @@
 	let previousTouchDist = 0;
 
 	let touchTransforming = false;
-	let wasTouchTransforming = false; // this is used to block pointerend events after a touch has already ended, used for selection. 
+	let wasTouchTransforming = false; // this is used to block pointerend events after a touch has already ended, used for selection.
 
 	function touchStartHandler(e: TouchEvent) {
 		e.preventDefault();
@@ -126,8 +124,10 @@
 		);
 		let dX = tX - previousTouchX;
 		let dY = tY - previousTouchY;
-		panX += dX;
-		panY += dY;
+		let pan = $canvasPan;
+		pan.x += dX;
+		pan.y += dY;
+		canvasPan.set(pan, {hard: true});
 
 		let scaleMultiplier = 1 + (distance / previousTouchDist - 1);
 
@@ -155,20 +155,27 @@
 			let scaleMultiplier = Math.abs(1 - sign * deltaAdjustedSpeed);
 			handleZoom(scaleMultiplier, e.clientX, e.clientY);
 		} else if (!middleMouseDown) {
-			let mult = zoom;
-			if (isTrackpad) mult = Math.sqrt(zoom);
-			panX -= (e.deltaX * mult) / 2;
-			panY -= (e.deltaY * mult) / 2;
+			let mult = $canvasZoom;
+			if (isTrackpad) mult = Math.sqrt($canvasZoom);
+			let pan = $canvasPan;
+			pan.x -= (e.deltaX * mult) / 2;
+			pan.y -= (e.deltaY * mult) / 2;
+			canvasPan.set(pan, {hard: true});
 		}
 	}
 
 	function handleZoom(delta: number, x: number, y: number) {
-		let preZoom = zoom;
-		zoom *= delta;
-		zoom = clamp(zoom, zoomMin, zoomMax);
-		let zoomFactor = zoom / preZoom;
-		panX = x - (x - panX) * zoomFactor;
-		panY = y - (y - panY) * zoomFactor;
+		let preZoom = $canvasZoom;
+		let zoomStoreVal = preZoom;
+		zoomStoreVal *= delta;
+		zoomStoreVal = clamp(zoomStoreVal, zoomMin, zoomMax);
+		let zoomFactor = zoomStoreVal / preZoom;
+		let pan = $canvasPan;
+		canvasZoom.set(zoomStoreVal, {hard: true});
+		canvasPan.set({
+			x: x - (x - pan.x) * zoomFactor,
+			y: y - (y - pan.y) * zoomFactor,
+		}, {hard: true});
 	}
 
 	function pointerDownHandler(e: PointerEvent) {
@@ -178,17 +185,17 @@
 		pointerOnInterface = e.target == mainCanvas.getCanvas();
 		mainClick = e.button == 0;
 		clicked = true;
-		selectBoxStartX = selectBoxEndX = (e.clientX - panX) / zoom;
-		selectBoxStartY = selectBoxEndY = (e.clientY - panY) / zoom;
+		selectBoxStartX = selectBoxEndX = (e.clientX - $canvasPan.x) / $canvasZoom;
+		selectBoxStartY = selectBoxEndY = (e.clientY - $canvasPan.y) / $canvasZoom;
 		if (capPlacementTool) {
 			capCreateEndX = capCreateStartX =
-				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
+				Math.floor(((e.clientX - $canvasPan.x) / $canvasZoom / gridSize) * 4) / 4 - 0.5;
 			capCreateEndY = capCreateStartY =
-				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
+				Math.floor(((e.clientY - $canvasPan.y) / $canvasZoom / gridSize) * 4) / 4 - 0.5;
 		}
 		if (capRotationTool && !e.altKey) {
-			capRotateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
-			capRotateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			capRotateEndX = (((e.clientX - $canvasPan.x) / $canvasZoom / gridSize) * 4) / 4;
+			capRotateEndY = (((e.clientY - $canvasPan.y) / $canvasZoom / gridSize) * 4) / 4;
 			capRotateAngleStartX = capRotateEndX;
 			capRotateAngleStartY = capRotateEndY;
 			if (!rotationAnchorManuallySet) {
@@ -200,9 +207,9 @@
 		}
 		if (capTranslateTool) {
 			capTranslateEndX = capTranslateStartX =
-				(((e.clientX - panX) / zoom / gridSize) * 4) / 4;
+				(((e.clientX - $canvasPan.x) / $canvasZoom / gridSize) * 4) / 4;
 			capTranslateEndY = capTranslateStartY =
-				(((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+				(((e.clientY - $canvasPan.y) / $canvasZoom / gridSize) * 4) / 4;
 		}
 		if (capRotationTool || capTranslateTool)
 			capActionStartData = [...structuredClone(get(selectedStore))];
@@ -214,21 +221,23 @@
 		if (touchTransforming) return;
 		if (clicked && mainClick && capSelectTool) selectBox = true;
 		if (middleMouseDown) {
-			panX += e.movementX;
-			panY += e.movementY;
+			let pan = $canvasPan;
+			pan.x += e.movementX;
+			pan.y += e.movementY
+			canvasPan.set(pan, {hard: true});
 		}
 		if (selectBox && e.target == mainCanvas.getCanvas()) {
-			selectBoxEndX = (e.clientX - panX) / zoom;
-			selectBoxEndY = (e.clientY - panY) / zoom;
+			selectBoxEndX = (e.clientX - $canvasPan.x) / $canvasZoom;
+			selectBoxEndY = (e.clientY - $canvasPan.y) / $canvasZoom;
 			//selectCaps(e);
 		}
 
 		if (capPlacementTool && !clicked) {
 			capPlacementToolCapData.color = "#0ef2";
 			capPlacementToolCapData.x =
-				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
+				Math.floor(((e.clientX - $canvasPan.x) / $canvasZoom / gridSize) * 4) / 4 - 0.5;
 			capPlacementToolCapData.y =
-				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
+				Math.floor(((e.clientY - $canvasPan.y) / $canvasZoom / gridSize) * 4) / 4 - 0.5;
 			capPlacementToolCapData.w = 1;
 			capPlacementToolCapData.h = 1;
 		}
@@ -239,8 +248,8 @@
 			mainClick &&
 			$selectedStore.length != 0
 		) {
-			capRotateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
-			capRotateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			capRotateEndX = (((e.clientX - $canvasPan.x) / $canvasZoom / gridSize) * 4) / 4;
+			capRotateEndY = (((e.clientY - $canvasPan.y) / $canvasZoom / gridSize) * 4) / 4;
 			$selectedStore.forEach((capSelected, i) => {
 				let cap = capActionStartData[i];
 				let r = Math.sqrt(
@@ -295,8 +304,8 @@
 			mainClick &&
 			$selectedStore.length != 0
 		) {
-			capTranslateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
-			capTranslateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			capTranslateEndX = (((e.clientX - $canvasPan.x) / $canvasZoom / gridSize) * 4) / 4;
+			capTranslateEndY = (((e.clientY - $canvasPan.y) / $canvasZoom / gridSize) * 4) / 4;
 			$selectedStore.forEach((capSelected, i) => {
 				let cap = capActionStartData[i];
 				let dX = capTranslateEndX - capTranslateStartX;
@@ -317,9 +326,9 @@
 		if (mainClick && capPlacementTool && pointerOnInterface) {
 			capPlacementToolCapData.color = "#ececec";
 			capCreateEndX =
-				Math.floor(((e.clientX - panX) / zoom / gridSize) * 4) / 4 - 0.5;
+				Math.floor(((e.clientX - $canvasPan.x) / $canvasZoom / gridSize) * 4) / 4 - 0.5;
 			capCreateEndY =
-				Math.floor(((e.clientY - panY) / zoom / gridSize) * 4) / 4 - 0.5;
+				Math.floor(((e.clientY - $canvasPan.y) / $canvasZoom / gridSize) * 4) / 4 - 0.5;
 			let cStartX = capCreateStartX;
 			let cStartY = capCreateStartY;
 			let cEndX = capCreateEndX;
@@ -342,7 +351,7 @@
 		}
 	}
 	function pointerUpHandler(e: PointerEvent) {
-		if(wasTouchTransforming) return;
+		if (wasTouchTransforming) return;
 		if (
 			e.target == mainCanvas.getCanvas() &&
 			capSelectTool &&
@@ -397,8 +406,8 @@
 		if (clicked && capRotationTool && mainClick && $selectedStore.length != 0) {
 		}
 		if (capRotationTool && e.altKey && mainClick && clicked) {
-			capRotateEndX = (((e.clientX - panX) / zoom / gridSize) * 4) / 4;
-			capRotateEndY = (((e.clientY - panY) / zoom / gridSize) * 4) / 4;
+			capRotateEndX = (((e.clientX - $canvasPan.x) / $canvasZoom / gridSize) * 4) / 4;
+			capRotateEndY = (((e.clientY - $canvasPan.y) / $canvasZoom / gridSize) * 4) / 4;
 			capRotateAnchorX = Math.round(capRotateEndX / 0.25) * 0.25;
 			capRotateAnchorY = Math.round(capRotateEndY / 0.25) * 0.25;
 			rotationAnchorManuallySet = true;
@@ -560,36 +569,35 @@
 
 	$: gridRender = ({ context, width, height }: CanvasRendererInput) => {
 		gridPattern?.setTransform(
-			gridMatrix?.translate(panX - 0.5 * zoom, panY - 0.5 * zoom).scale(zoom)
+			gridMatrix?.translate($canvasPan.x - 0.5 * $canvasZoom, $canvasPan.y - 0.5 * $canvasZoom).scale($canvasZoom)
 		);
 		context.fillStyle = gridPattern;
 		context.fillRect(0, 0, width, height);
 	};
 	$: selectionRender = ({ context, width, height }: CanvasRendererInput) => {
 		if (homeTool) {
-			panX = 90;
-			panY = 90;
-			zoom = 1;
+			canvasPan.set({x: 90, y: 90});
+			canvasZoom.set(1);
 			projectAction.set("none");
 		}
-		if(touchTransforming || wasTouchTransforming) return;
+		if (touchTransforming || wasTouchTransforming) return;
 		if (selectBox && !capTranslateTool) {
-			context.scale(zoom, zoom);
+			context.scale($canvasZoom, $canvasZoom);
 			context.fillStyle = $uiAccent + "22";
 			context.strokeStyle = $uiAccent;
 			context.setLineDash([6, 8]);
 			context.lineCap = "round";
 			context.beginPath();
 			context.roundRect(
-				selectBoxStartX + panX / zoom,
-				selectBoxStartY + panY / zoom,
+				selectBoxStartX + $canvasPan.x / $canvasZoom,
+				selectBoxStartY + $canvasPan.y / $canvasZoom,
 				selectBoxEndX - selectBoxStartX,
 				selectBoxEndY - selectBoxStartY,
 				5
 			);
 			context.fill();
 			context.stroke();
-			context.scale(1 / zoom, 1 / zoom);
+			context.scale(1 / $canvasZoom, 1 / $canvasZoom);
 			context.setLineDash([]);
 		}
 		if (
@@ -597,21 +605,21 @@
 			(clicked && mainClick && capRotationTool && pointerOnInterface)
 		) {
 			context.setLineDash([]);
-			context.scale(zoom, zoom);
+			context.scale($canvasZoom, $canvasZoom);
 			context.lineCap = "round";
 			context.fillStyle = $uiAccent;
 			context.strokeStyle = $uiAccent;
 			context.beginPath();
 			context.arc(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom,
+				capRotateAnchorX * gridSize + $canvasPan.x / $canvasZoom,
+				capRotateAnchorY * gridSize + $canvasPan.y / $canvasZoom,
 				10,
 				0,
 				2 * Math.PI
 			);
 			context.stroke();
 			context.fill();
-			context.scale(1 / zoom, 1 / zoom);
+			context.scale(1 / $canvasZoom, 1 / $canvasZoom);
 		}
 		if (clicked && mainClick && capRotationTool && pointerOnInterface) {
 			let theta = Math.atan2(
@@ -627,56 +635,56 @@
 			let lineDistY = 2 * Math.sin(aStartTheta);
 
 			context.setLineDash([]);
-			context.scale(zoom, zoom);
+			context.scale($canvasZoom, $canvasZoom);
 			context.lineCap = "round";
 			context.fillStyle = "#0007";
 			context.strokeStyle = "#0007";
 			context.beginPath();
 			context.moveTo(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom
+				capRotateAnchorX * gridSize + $canvasPan.x / $canvasZoom,
+				capRotateAnchorY * gridSize + $canvasPan.y / $canvasZoom
 			);
 			context.arc(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom,
+				capRotateAnchorX * gridSize + $canvasPan.x / $canvasZoom,
+				capRotateAnchorY * gridSize + $canvasPan.y / $canvasZoom,
 				1 * gridSize,
 				aStartTheta,
 				theta - Math.PI / 2,
 				theta - aStartTheta < 0
 			);
 			context.moveTo(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom
+				capRotateAnchorX * gridSize + $canvasPan.x / $canvasZoom,
+				capRotateAnchorY * gridSize + $canvasPan.y / $canvasZoom
 			);
 			context.lineTo(
-				(capRotateAnchorX + lineDistX) * gridSize + panX / zoom,
-				(capRotateAnchorY + lineDistY) * gridSize + panY / zoom
+				(capRotateAnchorX + lineDistX) * gridSize + $canvasPan.x / $canvasZoom,
+				(capRotateAnchorY + lineDistY) * gridSize + $canvasPan.y / $canvasZoom
 			);
 			context.textAlign = "left";
 			context.fillText(
 				(((theta - aStartTheta - Math.PI / 2) * 180) / Math.PI).toFixed(1) +
 					" deg",
-				capRotateEndX * gridSize + panX / zoom + 10,
-				capRotateEndY * gridSize + panY / zoom
+				capRotateEndX * gridSize + $canvasPan.x / $canvasZoom + 10,
+				capRotateEndY * gridSize + $canvasPan.y / $canvasZoom
 			);
 			context.stroke();
 			context.lineWidth = 8;
 			context.strokeStyle = "#fff7";
 			context.beginPath();
 			context.moveTo(
-				capRotateAnchorX * gridSize + panX / zoom,
-				capRotateAnchorY * gridSize + panY / zoom
+				capRotateAnchorX * gridSize + $canvasPan.x / $canvasZoom,
+				capRotateAnchorY * gridSize + $canvasPan.y / $canvasZoom
 			);
 			context.lineTo(
-				capRotateEndX * gridSize + panX / zoom,
-				capRotateEndY * gridSize + panY / zoom
+				capRotateEndX * gridSize + $canvasPan.x / $canvasZoom,
+				capRotateEndY * gridSize + $canvasPan.y / $canvasZoom
 			);
 			context.stroke();
 			context.lineWidth = 4;
 			context.strokeStyle = $uiAccent;
 			context.setLineDash([6, 8]);
 			context.stroke();
-			context.scale(1 / zoom, 1 / zoom);
+			context.scale(1 / $canvasZoom, 1 / $canvasZoom);
 			context.setLineDash([]);
 		}
 	};
@@ -707,15 +715,12 @@
 	>
 		<Layer render={gridRender} />
 		{#each $projectFile.keyData as capData}
-			<CapLayer unitSize={gridSize} {panX} {panY} {zoom} {capData} />
+			<CapLayer unitSize={gridSize} {capData} />
 		{/each}
 		<Layer render={selectionRender} />
-		{#if capPlacementTool && (!touchTransforming && !wasTouchTransforming)}
+		{#if capPlacementTool && !touchTransforming && !wasTouchTransforming}
 			<CapLayer
 				unitSize={gridSize}
-				{panX}
-				{panY}
-				{zoom}
 				capData={capPlacementToolCapData}
 				previewTextValue={capPlacementToolCapData.w.toFixed(2) + "U"}
 			/>

@@ -6,7 +6,7 @@
 	import Astha from "$lib/styles/fonts/ASTHA-LATIN.otf";
 	import { onMount, onDestroy } from "svelte";
 	import { parseCapColor } from "$lib";
-	import { selectedStore, uiAccent } from "$lib/stores";
+	import { canvasPan, canvasZoom, selectedStore, uiAccent } from "$lib/stores";
 	export let capData: CapDataElement;
 	export let unitSize;
 	export let previewTextValue = "";
@@ -23,14 +23,11 @@
 	let textColor = parseCapColor(capData.textColor) || "black";
 	let legend = capData.legends || "";
 	let selected = false;
-	export let panX;
-	export let panY;
-	export let zoom;
 	let capPadding = 3;
 	let capRadius = 2;
 	let capHighlightPadding = 11;
-    let capHighlightCentered: Boolean = true;
-    let fontLoaded = false;
+	let capHighlightCentered: Boolean = true;
+	let fontLoaded = false;
 	let capColor = chroma(parseCapColor(capData.color) || "#969696");
 	let capDarken = capColor.darken(0.35);
 	let capEdge = capDarken.darken(0.5);
@@ -41,11 +38,12 @@
 		font = new FontFace("CapFont", `url(${Astha})`);
 		font.load().then(function (nFont) {
 			document.fonts.add(nFont);
-            fontLoaded = true;
+			fontLoaded = true;
 		});
 	});
 
-	function updateData(ss: CapDataElement) { // its done this way because for some reason, doing it normally reactively doesnt work correctly.
+	function updateData(ss: CapDataElement) {
+		// its done this way because for some reason, doing it normally reactively doesnt work correctly.
 		x = capData.x;
 		y = capData.y;
 		w = capData.w;
@@ -54,7 +52,7 @@
 		y2 = parseFloat(`${capData.y2 || 0}`);
 		w2 = capData.w2 || w;
 		h2 = capData.h2 || h;
-	    r = capData.r || 0;
+		r = capData.r || 0;
 		stepped = capData.stepped || false;
 		textColor = parseCapColor(capData.textColor) || "black";
 		legend = capData.legends || "";
@@ -65,26 +63,29 @@
 	$: updateData(capData);
 
 	$: render = ({ context, width, height }: CanvasRendererInput) => {
-        if(fontLoaded) {}
-        let xt = x * unitSize + panX / zoom
-        let yt = y * unitSize + panY / zoom
-		context.scale(zoom, zoom);
+		if (fontLoaded) {
+		}
+		let xt = x * unitSize + $canvasPan.x / $canvasZoom;
+		let yt = y * unitSize + $canvasPan.y / $canvasZoom;
+		context.scale($canvasZoom, $canvasZoom);
 		context.translate(xt, yt);
-		context.rotate(r * Math.PI / 180);
-		let cPad = capPadding * zoom;
-		let cHPad = capHighlightPadding * zoom;
+		context.rotate((r * Math.PI) / 180);
+		let cPad = capPadding * $canvasZoom;
+		let cHPad = capHighlightPadding * $canvasZoom;
 		context.fillStyle = capDarken.hex();
 		context.strokeStyle = capEdge.hex();
 		context.lineWidth = 3;
 		context.beginPath();
 		context.roundRect(
-			cPad / zoom, cPad / zoom,
+			cPad / $canvasZoom,
+			cPad / $canvasZoom,
 			w * unitSize - capPadding * 2,
 			h * unitSize - capPadding * 2,
 			capRadius
 		);
 		context.roundRect(
-			x2*unitSize + cPad / zoom, y2 * unitSize + cPad / zoom,
+			x2 * unitSize + cPad / $canvasZoom,
+			y2 * unitSize + cPad / $canvasZoom,
 			w2 * unitSize - capPadding * 2,
 			h2 * unitSize - capPadding * 2,
 			capRadius
@@ -107,19 +108,17 @@
 		context.fillStyle = capColor.hex();
 		context.beginPath();
 		context.roundRect(
-			cHPad / zoom,
-				(cHPad - (cHPad / 2.5) * (1 - Number(capHighlightCentered))) /
-					zoom,
+			cHPad / $canvasZoom,
+			(cHPad - (cHPad / 2.5) * (1 - Number(capHighlightCentered))) / $canvasZoom,
 			w * unitSize - capHighlightPadding * 2,
 			h * unitSize - capHighlightPadding * 2,
 			capRadius
 		);
 		if (!stepped) {
 			context.roundRect(
-				(x2) * unitSize + ( cHPad) / zoom,
-				(y2) * unitSize +
-					(cHPad - (cHPad / 2.5) * (1 - Number(capHighlightCentered))) /
-						zoom,
+				x2 * unitSize + cHPad / $canvasZoom,
+				y2 * unitSize +
+					(cHPad - (cHPad / 2.5) * (1 - Number(capHighlightCentered))) / $canvasZoom,
 				w2 * unitSize - capHighlightPadding * 2,
 				h2 * unitSize - capHighlightPadding * 2,
 				capRadius
@@ -133,21 +132,17 @@
 		context.font = "12px CapFont";
 		context.fillText(
 			legend,
-			 (w / 2) * unitSize ,
-			
-				(h / 2) * unitSize +
-				( (cHPad / 2.5) * (1 - Number(capHighlightCentered))) / zoom
+			(w / 2) * unitSize,
+
+			(h / 2) * unitSize +
+				((cHPad / 2.5) * (1 - Number(capHighlightCentered))) / $canvasZoom
 		);
 		context.textAlign = "right";
 		context.textBaseline = "top";
-		context.fillText(
-			previewTextValue,
-			w * unitSize,
-			 h * unitSize
-		);
-		context.rotate(-1 * r * Math.PI / 180);
+		context.fillText(previewTextValue, w * unitSize, h * unitSize);
+		context.rotate((-1 * r * Math.PI) / 180);
 		context.translate(-1 * xt, -1 * yt);
-		context.scale(1 / zoom, 1 / zoom);
+		context.scale(1 / $canvasZoom, 1 / $canvasZoom);
 	};
 	$: selected = $selectedStore.includes(capData);
 </script>
