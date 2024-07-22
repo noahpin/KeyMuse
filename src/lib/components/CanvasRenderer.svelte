@@ -87,6 +87,61 @@
 	let pointerOnInterface = false;
 	let rotationAnchorManuallySet = false;
 
+	let previousTouchX = 0;
+	let previousTouchY = 0;
+	let previousTouchDist = 0;
+
+	let touchTransforming = false;
+	let wasTouchTransforming = false; // this is used to block pointerend events after a touch has already ended, used for selection. 
+
+	function touchStartHandler(e: TouchEvent) {
+		e.preventDefault();
+		wasTouchTransforming = false;
+		if (e.touches.length < 2) return;
+		touchTransforming = true;
+
+		let tX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+		let tY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+		let distance = Math.sqrt(
+			Math.pow(e.touches[0].clientX - e.touches[1].clientX, 2) +
+				Math.pow(e.touches[0].clientY - e.touches[1].clientY, 2)
+		);
+
+		previousTouchX = tX;
+		previousTouchY = tY;
+		previousTouchDist = distance;
+	}
+
+	function touchMoveHandler(e: TouchEvent) {
+		e.preventDefault();
+		if (e.touches.length < 2) return;
+		touchTransforming = true;
+		wasTouchTransforming = true;
+
+		let tX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+		let tY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+		let distance = Math.sqrt(
+			Math.pow(e.touches[0].clientX - e.touches[1].clientX, 2) +
+				Math.pow(e.touches[0].clientY - e.touches[1].clientY, 2)
+		);
+		let dX = tX - previousTouchX;
+		let dY = tY - previousTouchY;
+		panX += dX;
+		panY += dY;
+
+		let scaleMultiplier = 1 + (distance / previousTouchDist - 1);
+
+		handleZoom(scaleMultiplier, tX, tY);
+
+		previousTouchX = tX;
+		previousTouchY = tY;
+		previousTouchDist = distance;
+	}
+
+	function touchEndHandler(e: TouchEvent) {
+		touchTransforming = false;
+	}
+
 	function wheelHandler(e: WheelEvent) {
 		let isTrackpad = Math.abs(e.deltaY) < 75; //arbitrary threshold, the deltaY of trackpads is much smaller than a wheel
 		e.preventDefault();
@@ -95,7 +150,10 @@
 			if (isTrackpad) {
 				zoomDelta *= 3;
 			}
-			handleZoom(zoomDelta, e.clientX, e.clientY);
+			let sign = Math.sign(zoomDelta);
+			let deltaAdjustedSpeed = Math.min(0.25, Math.abs(zoomDelta / 128));
+			let scaleMultiplier = Math.abs(1 - sign * deltaAdjustedSpeed);
+			handleZoom(scaleMultiplier, e.clientX, e.clientY);
 		} else if (!middleMouseDown) {
 			let mult = zoom;
 			if (isTrackpad) mult = Math.sqrt(zoom);
@@ -105,11 +163,8 @@
 	}
 
 	function handleZoom(delta: number, x: number, y: number) {
-		let sign = Math.sign(delta);
-		let deltaAdjustedSpeed = Math.min(0.25, Math.abs(delta / 128));
-		let scaleMultiplier = Math.abs(1 - sign * deltaAdjustedSpeed);
 		let preZoom = zoom;
-		zoom *= scaleMultiplier;
+		zoom *= delta;
 		zoom = clamp(zoom, zoomMin, zoomMax);
 		let zoomFactor = zoom / preZoom;
 		panX = x - (x - panX) * zoomFactor;
@@ -117,6 +172,8 @@
 	}
 
 	function pointerDownHandler(e: PointerEvent) {
+		e.preventDefault();
+		if (touchTransforming) return;
 		if (e.button == 1) middleMouseDown = true;
 		pointerOnInterface = e.target == mainCanvas.getCanvas();
 		mainClick = e.button == 0;
@@ -153,6 +210,8 @@
 		if (mainClick && capSelectTool) selectBox = true;
 	}
 	function pointerMoveHandler(e: PointerEvent) {
+		e.preventDefault();
+		if (touchTransforming) return;
 		if (clicked && mainClick && capSelectTool) selectBox = true;
 		if (middleMouseDown) {
 			panX += e.movementX;
@@ -283,6 +342,7 @@
 		}
 	}
 	function pointerUpHandler(e: PointerEvent) {
+		if(wasTouchTransforming) return;
 		if (
 			e.target == mainCanvas.getCanvas() &&
 			capSelectTool &&
@@ -506,6 +566,7 @@
 		context.fillRect(0, 0, width, height);
 	};
 	$: selectionRender = ({ context, width, height }: CanvasRendererInput) => {
+		if(touchTransforming || wasTouchTransforming) return;
 		if (homeTool) {
 			panX = 90;
 			panY = 90;
@@ -625,34 +686,39 @@
 	bind:innerWidth={windowInnerWidth}
 	bind:innerHeight={windowInnerHeight}
 	on:wheel|nonpassive={wheelHandler}
-	on:pointerdown={pointerDownHandler}
-	on:pointerup={pointerUpHandler}
-	on:pointermove={pointerMoveHandler}
-	
 />
-
-<Canvas
-	bind:this={mainCanvas}
-	layerEvents={true}
-	width={windowInnerWidth}
-	height={windowInnerHeight}
-	class={"background " +
-		(capTranslateTool ? "cursor-translate " : "") +
-		(capRotationTool ? "cursor-rotation " : "")}
+<div
+	id="canvas-event-wrapper"
+	on:pointerdown|nonpassive={pointerDownHandler}
+	on:pointerup|nonpassive={pointerUpHandler}
+	on:pointermove|nonpassive={pointerMoveHandler}
+	on:touchstart|nonpassive={touchStartHandler}
+	on:touchmove|nonpassive={touchMoveHandler}
+	on:touchend|nonpassive={touchEndHandler}
 >
-	<Layer render={gridRender} />
-	{#each $projectFile.keyData as capData}
-		<CapLayer unitSize={gridSize} {panX} {panY} {zoom} {capData} />
-	{/each}
-	<Layer render={selectionRender} />
-	{#if capPlacementTool}
-		<CapLayer
-			unitSize={gridSize}
-			{panX}
-			{panY}
-			{zoom}
-			capData={capPlacementToolCapData}
-			previewTextValue={capPlacementToolCapData.w.toFixed(2) + "U"}
-		/>
-	{/if}
-</Canvas>
+	<Canvas
+		bind:this={mainCanvas}
+		layerEvents={true}
+		width={windowInnerWidth}
+		height={windowInnerHeight}
+		class={"background " +
+			(capTranslateTool ? "cursor-translate " : "") +
+			(capRotationTool ? "cursor-rotation " : "")}
+	>
+		<Layer render={gridRender} />
+		{#each $projectFile.keyData as capData}
+			<CapLayer unitSize={gridSize} {panX} {panY} {zoom} {capData} />
+		{/each}
+		<Layer render={selectionRender} />
+		{#if capPlacementTool}
+			<CapLayer
+				unitSize={gridSize}
+				{panX}
+				{panY}
+				{zoom}
+				capData={capPlacementToolCapData}
+				previewTextValue={capPlacementToolCapData.w.toFixed(2) + "U"}
+			/>
+		{/if}
+	</Canvas>
+</div>
