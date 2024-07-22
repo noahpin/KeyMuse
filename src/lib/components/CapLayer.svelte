@@ -5,7 +5,8 @@
 	import gorton from "$lib/styles/fonts/OpenGorton-Bold.otf";
 	import Astha from "$lib/styles/fonts/ASTHA-LATIN.otf";
 	import { onMount, onDestroy } from "svelte";
-	import { parseCapColor, selectedStore, uiAccent } from "$lib";
+	import { parseCapColor } from "$lib";
+	import { selectedStore, uiAccent } from "$lib/stores";
 	export let capData: CapDataElement;
 	export let unitSize;
 	export let previewTextValue = "";

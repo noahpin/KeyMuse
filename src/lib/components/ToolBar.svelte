@@ -1,6 +1,6 @@
 <script>
 	import CapAddIcon from "./CapAddIcon.svelte";
-    import { toolStore } from "$lib";
+    import { toolStore } from "$lib/stores";
 
 </script>
 <div id="toolbar-panel" class="ui-floating-element" >

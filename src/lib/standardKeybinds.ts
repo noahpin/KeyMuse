@@ -1,5 +1,6 @@
-import { deleteSelection, nudgeSelectedCaps, projectAction, selectAll, toolStore } from "$lib";
+import { deleteSelection, nudgeSelectedCaps, selectAll } from "$lib";
 import { keybindManager, KeyCombo, Keybind } from "./keybindManager";
+import { projectAction, toolStore } from "./stores";
 
 let standardKeybinds: Keybind[] = [];
 

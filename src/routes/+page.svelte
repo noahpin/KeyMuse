@@ -4,7 +4,8 @@
 	import "$lib/styles/app.css";
 	import { writable, type Writable } from "svelte/store";
 	import ToolBar from "$lib/components/ToolBar.svelte";
-	import { createCap, enforceFileSchema, getBlankCapData, projectFile, selectedStore, uiAccent } from "$lib";
+	import { createCap, enforceFileSchema  } from "$lib";
+	import {projectFile, selectedStore, uiAccent} from "$lib/stores"
 	import ProjectBar from "$lib/components/ProjectBar.svelte";
 	import Logo from "$lib/components/Logo.svelte";
 	import { onMount } from "svelte";
