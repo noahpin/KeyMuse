@@ -566,14 +566,14 @@
 		context.fillRect(0, 0, width, height);
 	};
 	$: selectionRender = ({ context, width, height }: CanvasRendererInput) => {
-		if(touchTransforming || wasTouchTransforming) return;
 		if (homeTool) {
 			panX = 90;
 			panY = 90;
 			zoom = 1;
 			projectAction.set("none");
 		}
-		if (selectBox) {
+		if(touchTransforming || wasTouchTransforming) return;
+		if (selectBox && !capTranslateTool) {
 			context.scale(zoom, zoom);
 			context.fillStyle = $uiAccent + "22";
 			context.strokeStyle = $uiAccent;
@@ -710,7 +710,7 @@
 			<CapLayer unitSize={gridSize} {panX} {panY} {zoom} {capData} />
 		{/each}
 		<Layer render={selectionRender} />
-		{#if capPlacementTool}
+		{#if capPlacementTool && (!touchTransforming && !wasTouchTransforming)}
 			<CapLayer
 				unitSize={gridSize}
 				{panX}
