@@ -1,4 +1,5 @@
 import { getBlankCapData } from "$lib/util";
+import { spring } from "svelte/motion";
 import { writable } from "svelte/store";
 
 export const uiAccent = writable("#ff00ff");
@@ -10,3 +11,6 @@ export const selectedStore = writable<CapDataElement[]>([]);
 export const propertyPanelStore = writable<CapDataElement>(getBlankCapData());
 export const projectFile = writable<FileData>();
 export const variableDeletionStore = writable();
+
+export const canvasPan = spring({x: 90, y: 90});
+export const canvasZoom = spring(1, {precision: 0.001});
