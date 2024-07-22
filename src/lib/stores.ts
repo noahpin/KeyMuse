@@ -13,4 +13,4 @@ export const projectFile = writable<FileData>();
 export const variableDeletionStore = writable();
 
 export const canvasPan = spring({x: 90, y: 90});
-export const canvasZoom = spring(1, {precision: 0.0001});
+export const canvasZoom = spring(1, {precision: 0.001});
