@@ -1,24 +1,31 @@
 <script lang="ts">
 	import {
 		updateCapData,
-		selectedStore,
-		projectFile,
-		propertyPanelStore,
 		alignCapsToGrid,
 		logData,
 		parseCapColor,
 		getWhiteOrBlackFromColor,
 		createVariable,
-		variableDeletionStore,
 	} from "$lib";
+	import {
+		selectedStore,
+		projectFile,
+		propertyPanelStore,
+		variableDeletionStore,
+	} from "$lib/stores";
 	import ColorVariable from "./ColorVariable.svelte";
-	import { offset, flip, shift, type ComputePositionConfig } from "svelte-floating-ui/dom";
+	import {
+		offset,
+		flip,
+		shift,
+		type ComputePositionConfig,
+	} from "svelte-floating-ui/dom";
 	import { createFloatingActions } from "svelte-floating-ui";
 	let options: Partial<ComputePositionConfig> = {
 		strategy: "absolute",
 		placement: "bottom",
 		middleware: [offset(6), flip(), shift()],
-	}
+	};
 	const [floatingCapRef, floatingCapContent] = createFloatingActions(options);
 	const [floatingTextRef, floatingTextContent] = createFloatingActions(options);
 
@@ -62,13 +69,14 @@
 	let showTextColorVarPicker = false;
 	let showCapColorVarPicker = false;
 	function onwindowclick(e: MouseEvent) {
-		let cl = (e.target as HTMLElement).classList
-		if (cl.contains("color-input-variable-picker") || cl.contains("picker-button"))
+		let cl = (e.target as HTMLElement).classList;
+		if (
+			cl.contains("color-input-variable-picker") ||
+			cl.contains("picker-button")
+		)
 			return;
-		if(e.target != textColorButton)
-		showTextColorVarPicker = false;
-		if(e.target != capColorButton)
-		showCapColorVarPicker = false;
+		if (e.target != textColorButton) showTextColorVarPicker = false;
+		if (e.target != capColorButton) showCapColorVarPicker = false;
 	}
 </script>
 
@@ -223,7 +231,7 @@
 									></div>
 								</div>
 								<button
-								bind:this={capColorButton}
+									bind:this={capColorButton}
 									use:floatingCapRef
 									on:click={(e) =>
 										(showCapColorVarPicker = !showCapColorVarPicker)}
@@ -233,18 +241,22 @@
 								>
 							</div>
 							{#if showCapColorVarPicker}
-							<div class="color-input-variable-picker" use:floatingCapContent>
-								{#each $projectFile.variables as variable}
-									<button
-									class={"picker-button " + (capColor == "$" + variable.id ? "active" : "")}
-										on:click={(e) =>
-											setColorToVariable("color", "$" + variable.id)}
+								<div class="color-input-variable-picker" use:floatingCapContent>
+									{#each $projectFile.variables as variable}
+										<button
+											class={"picker-button " +
+												(capColor == "$" + variable.id ? "active" : "")}
+											on:click={(e) =>
+												setColorToVariable("color", "$" + variable.id)}
 										>
-										<div class="swatch" style={`background: ${variable.color};`}></div>
-										{variable.displayName}</button
-									>
-								{/each}
-							</div>
+											<div
+												class="swatch"
+												style={`background: ${variable.color};`}
+											></div>
+											{variable.displayName}</button
+										>
+									{/each}
+								</div>
 							{/if}
 						</div>
 						<div class="input-stack">
@@ -267,8 +279,8 @@
 									></div>
 								</div>
 								<button
-								bind:this={textColorButton}
-								use:floatingTextRef
+									bind:this={textColorButton}
+									use:floatingTextRef
 									on:click={(e) =>
 										(showTextColorVarPicker = !showTextColorVarPicker)}
 									class={"color-variable-button " +
@@ -277,14 +289,21 @@
 								>
 							</div>
 							{#if showTextColorVarPicker}
-								<div class="color-input-variable-picker" use:floatingTextContent>
+								<div
+									class="color-input-variable-picker"
+									use:floatingTextContent
+								>
 									{#each $projectFile.variables as variable}
 										<button
-										class={"picker-button " + (textColor == "$" + variable.id ? "active" : "")}
+											class={"picker-button " +
+												(textColor == "$" + variable.id ? "active" : "")}
 											on:click={(e) =>
 												setColorToVariable("textColor", "$" + variable.id)}
-											>
-											<div class="swatch" style={`background: ${variable.color};`}></div>
+										>
+											<div
+												class="swatch"
+												style={`background: ${variable.color};`}
+											></div>
 											{variable.displayName}</button
 										>
 									{/each}
@@ -456,7 +475,9 @@
 	}
 	.swatch {
 		box-sizing: border-box;
-		width: 20px; height: 20px; border-radius: 2px;
+		width: 20px;
+		height: 20px;
+		border-radius: 2px;
 		border: 1px solid var(--ui-transparent-outline);
 	}
 </style>

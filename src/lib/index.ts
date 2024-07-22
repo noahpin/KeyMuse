@@ -2,18 +2,10 @@
 import { writable, get, type Writable } from "svelte/store";
 import templateFile from "$lib/template.json";
 import chroma from "chroma-js";
-import { makeid } from "./util";
+import { makeid, getBlankCapData } from "./util";
 
-export const uiAccent = writable("#ff00ff");
-export const toolStore = writable("select");
-export const projectAction = writable("none");
-export const selectedStore = writable<CapDataElement[]>([]);
-//used to control when the property panel updates its data.
-// TODO: make the property panel update if a specific data member updates, not based on the entire object.
-export const propertyPanelStore = writable<CapDataElement>(getBlankCapData());
-export const projectFile = writable<FileData>();
+import { projectFile, propertyPanelStore, selectedStore, variableDeletionStore } from "./stores"
 
-export const variableDeletionStore = writable();
 // @ts-ignore
 projectFile.set(templateFile);
 
@@ -62,23 +54,6 @@ export function logData() {
 	console.log(get(projectFile));
 }
 
-export function getBlankCapData(): CapDataElement {
-	return {
-		legends: "",
-		x: 0,
-		y: 0,
-		w: 1,
-		h: 1,
-		x2: 0,
-		y2: 0,
-		w2: 0,
-		h2: 0,
-		color: "#0007",
-		textColor: "#000",
-		stepped: false,
-		r: 0,
-	};
-}
 export function enforceFileSchema(file: Writable<FileData>) {
 	let keyData: [CapDataElement] | CapDataElement[] = get(file).keyData;
 	for (let i = 0; i < keyData.length; i++) {

@@ -2,17 +2,17 @@
 	import { createEventDispatcher, onMount } from "svelte";
 	import CapLayer from "./CapLayer.svelte";
 	import {
-		toolStore,
 		updateCapData,
+	} from "$lib";
+	import {
+		toolStore,
 		selectedStore,
 		projectFile,
-		getBlankCapData,
 		uiAccent,
-		projectAction,
-	} from "$lib";
+		projectAction} from "$lib/stores";
 	import { Canvas, Layer } from "svelte-canvas";
 	import { get } from "svelte/store";
-	import { clamp } from "$lib/util";
+	import { clamp , getBlankCapData} from "$lib/util";
 	let windowInnerWidth = 0;
 	let windowInnerHeight = 0;
 	let panX = 90;
