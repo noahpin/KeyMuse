@@ -38,6 +38,7 @@ html {
     position: absolute;
     box-shadow: 0 5px 7px 0 rgba(0, 0, 0, 0.068);
     overflow-y: scroll;
+    border: 1px solid rgba(127, 127, 127, 0.182);
 }
 h1, h2, h3 {
     color: var(--main-text);
