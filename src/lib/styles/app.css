@@ -8,6 +8,7 @@
     --main-text: #1e1f24;
     --secondary-text: rgb(43, 48, 50);
     --ui-light-gray: #e4e4e4;
+    --ui-gray: #c7c7c7;
     --ui-element-background: #efefef;
     --ui-transparent-outline: #c3c3c366;
     --accent: #7116f1;
@@ -36,7 +37,8 @@ html {
     border-radius: 12px;
     position: absolute;
     box-shadow: 0 5px 7px 0 rgba(0, 0, 0, 0.068);
-    overflow: hidden;
+    overflow-y: scroll;
+    border: 1px solid rgba(127, 127, 127, 0.182);
 }
 h1, h2, h3 {
     color: var(--main-text);
@@ -119,7 +121,7 @@ input[type="color"] {
     height: 100%;
     top: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 500;
     pointer-events: none;
 }
 .color-side input {

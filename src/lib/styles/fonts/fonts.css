@@ -2,7 +2,7 @@
   font-family: 'UncutSans';
   src: url('./UncutSans-Regular.woff2') format('woff2'),
        url('./UncutSans-Regular.woff') format('woff');
-  font-weight: normal;
+  font-weight: 100;
   font-style: normal;
 }
 
@@ -10,7 +10,7 @@
   font-family: 'UncutSans';
   src: url('./UncutSans-RegularItalic.woff2') format('woff2'),
        url('./UncutSans-RegularItalic.woff') format('woff');
-  font-weight: normal;
+  font-weight: 100;
   font-style: italic;
 }
 
@@ -34,7 +34,7 @@
   font-family: 'UncutSans';
   src: url('./UncutSans-Bold.woff2') format('woff2'),
        url('./UncutSans-Bold.woff') format('woff');
-  font-weight: bold;
+  font-weight: 800;
   font-style: normal;
 }
 
@@ -42,7 +42,7 @@
   font-family: 'UncutSans';
   src: url('./UncutSans-BoldItalic.woff2') format('woff2'),
        url('./UncutSans-BoldItalic.woff') format('woff');
-  font-weight: bold;
+  font-weight: 800;
   font-style: italic;
 }
 
