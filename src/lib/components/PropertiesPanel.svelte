@@ -26,6 +26,7 @@
 		TrFillLayoutSidebarRightExpand,
 	} from "svelte-icons-pack/tr";
 	import { Icon } from "svelte-icons-pack";
+	import { spring } from "svelte/motion";
 	let options: Partial<ComputePositionConfig> = {
 		strategy: "absolute",
 		placement: "bottom",
@@ -85,9 +86,65 @@
 	}
 
 	let panelCollapsed = false;
+
+	let windowW = 0;
+	let windowH = 0;
+
+	$: breakpoint = 750 > windowW;
+
+	let snapPointOpen = 0;
+	let snapPointClosed = -525;
+
+	let sheetPositionStore = spring(snapPointClosed);
+
+	let sheetEl: HTMLElement;
+	let doSheetMove = false;
+
+	let startY = 0;
+	let prevY = 0;
+	let sheetOpen = false; //false means closed
+	function touchStartHandler(e: TouchEvent) {
+		prevY = startY = e.touches[0].clientY;
+	}
+	function touchMoveHandler(e: TouchEvent) {
+		let dY = prevY - e.touches[0].clientY;
+		if (sheetOpen) {
+			if (sheetEl.scrollTop == 0 && dY < 0) doSheetMove = true;
+		} else {
+			doSheetMove = true;
+		}
+		if (doSheetMove) {
+			e.preventDefault();
+		} else {
+			doSheetMove = false;
+			prevY = e.touches[0].clientY;
+			return;
+		}
+		sheetPositionStore.set(Math.min(snapPointOpen, $sheetPositionStore + dY), {
+			hard: true,
+		});
+		prevY = e.touches[0].clientY;
+		doSheetMove = false;
+	}
+
+	function touchEndHandler(e: TouchEvent) {
+		let cur = sheetOpen ? snapPointOpen : snapPointClosed;
+		let next = sheetOpen ? snapPointClosed : snapPointOpen;
+		let thresh = Math.abs(next - cur) * 0.15;
+		if (Math.abs($sheetPositionStore - cur) > thresh) {
+			sheetOpen = !sheetOpen;
+			sheetPositionStore.set(next);
+		} else {
+			sheetPositionStore.set(cur);
+		}
+	}
 </script>
 
-<svelte:window on:click={onwindowclick} />
+<svelte:window
+	on:click={onwindowclick}
+	bind:innerWidth={windowW}
+	bind:innerHeight={windowH}
+/>
 <div
 	id="properties-panel-toggle"
 	class={"ui-floating-element " + (panelCollapsed ? "" : "panel-off")}
@@ -99,17 +156,27 @@
 	>
 </div>
 <div
+	bind:this={sheetEl}
+	on:touchstart={touchStartHandler}
+	on:touchmove={touchMoveHandler}
+	on:touchend={touchEndHandler}
 	id="properties-panel"
+	style={breakpoint ? `bottom: ${$sheetPositionStore}px;` : ""}
 	class={"ui-floating-element " + (panelCollapsed ? "panel-off" : "")}
 >
+	{#if breakpoint}
+		<div class="sheet-topline"></div>
+	{/if}
 	<h1>
 		Properties
-		<button
-			class="toggle-collapse"
-			on:click={() => {
-				panelCollapsed = true;
-			}}><Icon src={TrFillLayoutSidebarRightCollapse} size="24"></Icon></button
-		>
+		{#if !breakpoint}
+			<button
+				class="toggle-collapse"
+				on:click={() => {
+					panelCollapsed = true;
+				}}
+				><Icon src={TrFillLayoutSidebarRightCollapse} size="24"></Icon></button
+			>{/if}
 	</h1>
 	<div>
 		{#if $selectedStore.length != 0}
@@ -411,9 +478,11 @@
 		box-sizing: border-box;
 		padding: 8px 12px !important;
 		padding-top: 0 !important;
-		transition: 0.3s;
+		transition:
+			0.3s opacity,
+			0.3s transform;
 	}
-	#properties-panel>:last-child {
+	#properties-panel > :last-child {
 		margin-bottom: 60px !important;
 	}
 
@@ -421,6 +490,27 @@
 		transform: translateX(100%);
 		opacity: 0;
 		pointer-events: none;
+	}
+
+	@media screen and (max-width: 750px) {
+		#properties-panel {
+			width: 100vw;
+			max-width: min(450px, calc(100vw - 24px));
+			top: unset;
+			max-height: 600px;
+			border-bottom-right-radius: 0;
+			border-bottom-left-radius: 0;
+		}
+		#properties-panel h1 {
+			padding-top: 19px !important;
+		}
+	}
+
+	.sheet-topline {
+		position: sticky;
+		width: 50px; height: 5px; border-radius:  100px; background: var(--ui-gray);
+		left: 50%; transform: translate(-50%); top: 10px; z-index: 9999;
+		margin-bottom: -10px;
 	}
 
 	#properties-panel h1 {
