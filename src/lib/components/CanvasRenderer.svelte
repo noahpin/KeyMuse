@@ -693,10 +693,10 @@
 <svelte:window
 	bind:innerWidth={windowInnerWidth}
 	bind:innerHeight={windowInnerHeight}
-	on:wheel|nonpassive={wheelHandler}
 />
 <div
 	id="canvas-event-wrapper"
+	on:wheel|nonpassive={wheelHandler}
 	on:pointerdown|nonpassive={pointerDownHandler}
 	on:pointerup|nonpassive={pointerUpHandler}
 	on:pointermove|nonpassive={pointerMoveHandler}

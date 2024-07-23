@@ -21,6 +21,11 @@
 		type ComputePositionConfig,
 	} from "svelte-floating-ui/dom";
 	import { createFloatingActions } from "svelte-floating-ui";
+	import {
+		TrFillLayoutSidebarRightCollapse,
+		TrFillLayoutSidebarRightExpand,
+	} from "svelte-icons-pack/tr";
+	import { Icon } from "svelte-icons-pack";
 	let options: Partial<ComputePositionConfig> = {
 		strategy: "absolute",
 		placement: "bottom",
@@ -78,12 +83,34 @@
 		if (e.target != textColorButton) showTextColorVarPicker = false;
 		if (e.target != capColorButton) showCapColorVarPicker = false;
 	}
+
+	let panelCollapsed = false;
 </script>
 
 <svelte:window on:click={onwindowclick} />
-
-<div id="properties-panel" class="ui-floating-element">
-	<h1>Properties</h1>
+<div
+	id="properties-panel-toggle"
+	class={"ui-floating-element " + (panelCollapsed ? "" : "panel-off")}
+>
+	<button
+		on:click={() => {
+			panelCollapsed = false;
+		}}><Icon src={TrFillLayoutSidebarRightExpand} size="24"></Icon></button
+	>
+</div>
+<div
+	id="properties-panel"
+	class={"ui-floating-element " + (panelCollapsed ? "panel-off" : "")}
+>
+	<h1>
+		Properties
+		<button
+			class="toggle-collapse"
+			on:click={() => {
+				panelCollapsed = true;
+			}}><Icon src={TrFillLayoutSidebarRightCollapse} size="24"></Icon></button
+		>
+	</h1>
 	<div>
 		{#if $selectedStore.length != 0}
 			<div>
@@ -319,7 +346,7 @@
 			<p>No Cap Is Selected</p>
 		{/if}
 	</div>
-	<h1>Variables</h1>
+	<h2>Variables</h2>
 	<div class="button-grid">
 		{#key $variableDeletionStore}
 			{#each $projectFile.variables as variable}
@@ -330,7 +357,7 @@
 			><i class="hi-plus-large"></i></button
 		>
 	</div>
-	<h1>Actions</h1>
+	<h2>Actions</h2>
 	<div class="button-grid">
 		<button on:click={logData}>Log Data</button>
 		<button on:click={alignCapsToGrid}>Align to Grid</button>
@@ -338,19 +365,82 @@
 </div>
 
 <style>
+	#properties-panel-toggle {
+		top: 12px;
+		right: 12px;
+		z-index: 80;
+		box-sizing: border-box;
+		transition: 0.3s;
+	}
+
+	#properties-panel-toggle button,
+	.toggle-collapse {
+		background: none;
+		outline: none;
+		border: none;
+		margin: 0;
+		padding: 0;
+		width: 40px;
+		height: 40px;
+		border-radius: 4px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--main-text);
+	}
+	#properties-panel-toggle button:hover,
+	.toggle-collapse:hover {
+		background: var(--ui-light-gray);
+	}
+	#properties-panel-toggle button:active,
+	.toggle-collapse:active {
+		background: var(--accent);
+		color: white;
+	}
+	.toggle-collapse {
+		position: absolute;
+		right: -4px;
+		top: 8px;
+	}
 	#properties-panel {
 		top: 12px;
 		right: 12px;
 		width: 300px;
 		height: calc(100vh - 24px);
-		z-index: 100;
+		z-index: 200;
 		box-sizing: border-box;
 		padding: 8px 12px !important;
+		padding-top: 0 !important;
+		transition: 0.3s;
 	}
+	#properties-panel>:last-child {
+		margin-bottom: 60px !important;
+	}
+
+	.panel-off {
+		transform: translateX(100%);
+		opacity: 0;
+		pointer-events: none;
+	}
+
 	#properties-panel h1 {
+		padding-bottom: 11px;
+		padding-top: 14px;
+		border-bottom: 1px solid var(--ui-light-gray);
+		margin-top: 0px;
+		font-weight: bold;
+		font-size: 1.6em;
+		position: sticky;
+		top: 0;
+		z-index: 1000;
+		background-color: white;
+	}
+	#properties-panel h2 {
 		padding-bottom: 6px;
 		border-bottom: 1px solid var(--ui-light-gray);
 		margin-top: 18px;
+		font-weight: 500;
+		font-size: 1.3em;
 	}
 	input {
 		width: 100%;
