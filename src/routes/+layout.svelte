@@ -1,17 +1,19 @@
 <script lang="ts">
-    import {page} from '$app/stores';
-	import { onKeyDown } from '$lib/keybindManager';
-	import { initializeStandardKeybinds } from '$lib/standardKeybinds';
-	import { onMount } from 'svelte';
+	import { page } from "$app/stores";
+	import { onKeyDown } from "$lib/keybindManager";
+	import { initializeStandardKeybinds } from "$lib/standardKeybinds";
+	import { onMount } from "svelte";
 
-    onMount(()=> {
-        initializeStandardKeybinds();
-    })
+	onMount(() => {
+		initializeStandardKeybinds();
+	});
 </script>
+
 <svelte:head>
-    <meta property="og:image" content={`${$page.url.href}og-image.png`} />
+	<meta property="og:image" content={`${$page.url.href}og-image.png`} />
 </svelte:head>
 
 <svelte:window on:keydown={onKeyDown} />
-
-<slot></slot>
+<main>
+	<slot></slot>
+</main>

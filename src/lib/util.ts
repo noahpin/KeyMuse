@@ -37,3 +37,5 @@ export function getBlankCapData(): CapDataElement {
 		r: 0,
 	};
 }
+
+export const lerp = (x: number, y: number, a: number): number => x * (1 - a) + y * a;
