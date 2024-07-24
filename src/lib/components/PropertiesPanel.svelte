@@ -100,9 +100,28 @@
 	let sheetEl: HTMLElement;
 	let doSheetMove = false;
 
+	var sheetBarIdleState = {m: 6, e: 6}
+	var sheetBarHoverOpenState = {m: 2.5, e: 9.5}
+	var sheetBarHoverCloseState = {m: 9.5, e: 2.5};
+	
+	var sheetBarSpring = spring(sheetBarIdleState)
+
+	function sheetBarOver() {
+		sheetBarSpring.set(sheetOpen ? sheetBarHoverCloseState : sheetBarHoverOpenState)
+	}
+	function sheetBarOut() {
+		sheetBarSpring.set(sheetBarIdleState)
+	}
+
 	let startY = 0;
 	let prevY = 0;
 	let sheetOpen = false; //false means closed
+	function toggleSheetOpen() {
+		sheetOpen = !sheetOpen;
+
+		let next = sheetOpen ? snapPointOpen : snapPointClosed;
+		sheetPositionStore.set(next);
+	}
 	function touchStartHandler(e: TouchEvent) {
 		prevY = startY = e.touches[0].clientY;
 	}
@@ -165,7 +184,18 @@
 	class={"ui-floating-element " + (panelCollapsed ? "panel-off" : "")}
 >
 	{#if breakpoint}
-		<div class="sheet-topline"></div>
+		<button class="sheet-topline-button" on:click={toggleSheetOpen} on:pointerenter={sheetBarOver} on:pointerout={sheetBarOut}>
+			<svg class="sheet-topline" viewBox="0 0 50 12">
+				<path
+					d={`M 2.5 ${$sheetBarSpring.e} L 25 ${$sheetBarSpring.m} L 47.6 ${$sheetBarSpring.e}`}
+					fill="none"
+					stroke="var(--ui-gray)"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="5"
+				></path>
+			</svg>
+		</button>
 	{/if}
 	<h1>
 		Properties
@@ -505,12 +535,25 @@
 			padding-top: 19px !important;
 		}
 	}
-
-	.sheet-topline {
+	.sheet-topline-button {
 		position: sticky;
-		width: 50px; height: 5px; border-radius:  100px; background: var(--ui-gray);
-		left: 50%; transform: translate(-50%); top: 10px; z-index: 9999;
-		margin-bottom: -10px;
+		left: 50%;
+		transform: translate(-50%);
+		top: 5px;
+		z-index: 9999;
+		margin-bottom: -20px;
+		height: 20px;
+		padding: 0;
+		background: transparent;
+		border: none;
+		border-radius: 0;
+		overflow: visible;
+		width: 70px;
+	}
+	.sheet-topline {
+		width: 50px;
+		height: 12px;
+		pointer-events: none;
 	}
 
 	#properties-panel h1 {
