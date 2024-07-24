@@ -27,6 +27,7 @@
 	} from "svelte-icons-pack/tr";
 	import { Icon } from "svelte-icons-pack";
 	import { spring } from "svelte/motion";
+	import { lerp } from "$lib/util";
 	let options: Partial<ComputePositionConfig> = {
 		strategy: "absolute",
 		placement: "bottom",
@@ -92,20 +93,43 @@
 
 	$: breakpoint = 750 > windowW;
 
-	let snapPointOpen = 0;
-	let snapPointClosed = -525;
+	let snapPointOpen = -600;
+	let snapPointClosed = -75;
 
 	let sheetPositionStore = spring(snapPointClosed);
 
 	let sheetEl: HTMLElement;
 	let doSheetMove = false;
 
+	var sheetBarIdleState = { m: 6, e: 6 };
+	var sheetBarHoverOpenState = { m: 2.5, e: 9.5 };
+	var sheetBarHoverCloseState = { m: 9.5, e: 2.5 };
+
+	var sheetBarSpring = spring(sheetBarIdleState);
+
+	function sheetBarOver() {
+		sheetBarSpring.set(
+			sheetOpen ? sheetBarHoverCloseState : sheetBarHoverOpenState
+		);
+	}
+	function sheetBarOut() {
+		sheetBarSpring.set(sheetBarIdleState);
+	}
+
 	let startY = 0;
 	let prevY = 0;
 	let sheetOpen = false; //false means closed
+	function toggleSheetOpen() {
+		sheetOpen = !sheetOpen;
+
+		let next = sheetOpen ? snapPointOpen : snapPointClosed;
+		sheetPositionStore.set(next);
+	}
 	function touchStartHandler(e: TouchEvent) {
 		prevY = startY = e.touches[0].clientY;
 	}
+	let rawNPos = 0;
+	let yWhenOverTop: number | null = null;
 	function touchMoveHandler(e: TouchEvent) {
 		let dY = prevY - e.touches[0].clientY;
 		if (sheetOpen) {
@@ -120,7 +144,14 @@
 			prevY = e.touches[0].clientY;
 			return;
 		}
-		sheetPositionStore.set(Math.min(snapPointOpen, $sheetPositionStore + dY), {
+		let nPos = $sheetPositionStore - dY;
+		rawNPos = nPos;
+		if(nPos < snapPointOpen) {
+			if(yWhenOverTop == null) yWhenOverTop = e.touches[0].clientY
+			let diff = yWhenOverTop - e.touches[0].clientY;
+			nPos = snapPointOpen - lerp(diff, 0, 0.65);
+		}
+		sheetPositionStore.set(nPos, {
 			hard: true,
 		});
 		prevY = e.touches[0].clientY;
@@ -131,6 +162,7 @@
 		let cur = sheetOpen ? snapPointOpen : snapPointClosed;
 		let next = sheetOpen ? snapPointClosed : snapPointOpen;
 		let thresh = Math.abs(next - cur) * 0.15;
+		yWhenOverTop= null;
 		if (Math.abs($sheetPositionStore - cur) > thresh) {
 			sheetOpen = !sheetOpen;
 			sheetPositionStore.set(next);
@@ -156,19 +188,36 @@
 	>
 </div>
 <div
-	bind:this={sheetEl}
 	on:touchstart={touchStartHandler}
 	on:touchmove={touchMoveHandler}
 	on:touchend={touchEndHandler}
 	id="properties-panel"
-	style={breakpoint ? `bottom: ${$sheetPositionStore}px;` : ""}
+	
+	style={breakpoint ? `transform: translateY(${$sheetPositionStore}px);` : ""}
 	class={"ui-floating-element " + (panelCollapsed ? "panel-off" : "")}
 >
-	{#if breakpoint}
-		<div class="sheet-topline"></div>
-	{/if}
 	<h1>
 		Properties
+
+		{#if breakpoint}
+			<button
+				class="sheet-topline-button"
+				on:click={toggleSheetOpen}
+				on:pointerenter={sheetBarOver}
+				on:pointerout={sheetBarOut}
+			>
+				<svg class="sheet-topline" viewBox="0 0 50 12">
+					<path
+						d={`M 2.5 ${$sheetBarSpring.e} L 25 ${$sheetBarSpring.m} L 47.6 ${$sheetBarSpring.e}`}
+						fill="none"
+						stroke="var(--ui-gray)"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="5"
+					></path>
+				</svg>
+			</button>
+		{/if}
 		{#if !breakpoint}
 			<button
 				class="toggle-collapse"
@@ -178,256 +227,262 @@
 				><Icon src={TrFillLayoutSidebarRightCollapse} size="24"></Icon></button
 			>{/if}
 	</h1>
-	<div>
-		{#if $selectedStore.length != 0}
-			<div>
-				{#key $propertyPanelStore}
-					<div class="input-stack">
-						<label for="legend">Legend</label>
-						<input
-							name="legend"
-							type="text"
-							value={$selectedStore[$selectedStore.length - 1].legends}
-							on:input={(e) => updateProperty("legends", e)}
-						/>
-					</div>
-					<div class="input-group">
-						<div class="input-pair">
-							<div class="input-stack">
-								<label for="xPosition">X</label>
-								<input
-									name="xPosition"
-									type="number"
-									step=".25"
-									value={$selectedStore[$selectedStore.length - 1].x}
-									on:input={(e) => updateProperty("x", e)}
-								/>
-							</div>
-							<div class="input-stack">
-								<label for="yPosition">Y</label>
-								<input
-									name="yPosition"
-									type="number"
-									step=".25"
-									value={$selectedStore[$selectedStore.length - 1].y}
-									on:input={(e) => updateProperty("y", e)}
-								/>
-							</div>
-						</div>
-						<div class="input-pair">
-							<div class="input-stack">
-								<label for="secondaryXPosition">X Offset</label>
-								<input
-									name="offsetXPosition"
-									type="number"
-									step=".25"
-									value={$selectedStore[$selectedStore.length - 1].x2}
-									on:input={(e) => updateProperty("x2", e)}
-								/>
-							</div>
-							<div class="input-stack">
-								<label for="secondaryXPosition">Y Offset</label>
-								<input
-									name="offsetYPosition"
-									type="number"
-									step=".25"
-									value={$selectedStore[$selectedStore.length - 1].y2}
-									on:input={(e) => updateProperty("y2", e)}
-								/>
-							</div>
-						</div>
-					</div>
-					<div class="input-group">
-						<div class="input-pair">
-							<div class="input-stack">
-								<label for="width">Width</label>
-								<input
-									name="width"
-									type="number"
-									step=".25"
-									value={$selectedStore[$selectedStore.length - 1].w}
-									on:input={(e) => updateProperty("w", e)}
-								/>
-							</div>
-							<div class="input-stack">
-								<label for="height">Height</label>
-								<input
-									name="height"
-									type="number"
-									step=".25"
-									value={$selectedStore[$selectedStore.length - 1].h}
-									on:input={(e) => updateProperty("h", e)}
-								/>
-							</div>
-						</div>
-						<div class="input-pair">
-							<div class="input-stack">
-								<label for="secondaryWidth">2nd Width</label>
-								<input
-									name="secondaryWidth"
-									type="number"
-									step=".25"
-									value={$selectedStore[$selectedStore.length - 1].w2}
-									on:input={(e) => updateProperty("w2", e)}
-								/>
-							</div>
-							<div class="input-stack">
-								<label for="secondaryHeight">2nd Height</label>
-								<input
-									name="secondaryHeight"
-									type="number"
-									step=".25"
-									value={$selectedStore[$selectedStore.length - 1].h2}
-									on:input={(e) => updateProperty("h2", e)}
-								/>
-							</div>
-						</div>
-					</div>
-					<div class="input-group">
+	<div class="properties-panel-scroll"
+	bind:this={sheetEl}>
+		<div>
+			{#if $selectedStore.length != 0}
+				<div>
+					{#key $propertyPanelStore}
 						<div class="input-stack">
-							<label for="angle">Angle</label>
+							<label for="legend">Legend</label>
 							<input
-								name="angle"
-								type="number"
-								value={$selectedStore[$selectedStore.length - 1].r}
-								on:input={(e) => updateProperty("r", e)}
+								name="legend"
+								type="text"
+								value={$selectedStore[$selectedStore.length - 1].legends}
+								on:input={(e) => updateProperty("legends", e)}
 							/>
 						</div>
-						<div class="input-stack">
-							<label for="stepped">Stepped</label>
-							<input
-								name="stepped"
-								type="checkbox"
-								value={$selectedStore[$selectedStore.length - 1].stepped}
-								on:input={(e) => updateProperty("stepped", e)}
-							/>
+						<div class="input-group">
+							<div class="input-pair">
+								<div class="input-stack">
+									<label for="xPosition">X</label>
+									<input
+										name="xPosition"
+										type="number"
+										step=".25"
+										value={$selectedStore[$selectedStore.length - 1].x}
+										on:input={(e) => updateProperty("x", e)}
+									/>
+								</div>
+								<div class="input-stack">
+									<label for="yPosition">Y</label>
+									<input
+										name="yPosition"
+										type="number"
+										step=".25"
+										value={$selectedStore[$selectedStore.length - 1].y}
+										on:input={(e) => updateProperty("y", e)}
+									/>
+								</div>
+							</div>
+							<div class="input-pair">
+								<div class="input-stack">
+									<label for="secondaryXPosition">X Offset</label>
+									<input
+										name="offsetXPosition"
+										type="number"
+										step=".25"
+										value={$selectedStore[$selectedStore.length - 1].x2}
+										on:input={(e) => updateProperty("x2", e)}
+									/>
+								</div>
+								<div class="input-stack">
+									<label for="secondaryXPosition">Y Offset</label>
+									<input
+										name="offsetYPosition"
+										type="number"
+										step=".25"
+										value={$selectedStore[$selectedStore.length - 1].y2}
+										on:input={(e) => updateProperty("y2", e)}
+									/>
+								</div>
+							</div>
 						</div>
-					</div>
+						<div class="input-group">
+							<div class="input-pair">
+								<div class="input-stack">
+									<label for="width">Width</label>
+									<input
+										name="width"
+										type="number"
+										step=".25"
+										value={$selectedStore[$selectedStore.length - 1].w}
+										on:input={(e) => updateProperty("w", e)}
+									/>
+								</div>
+								<div class="input-stack">
+									<label for="height">Height</label>
+									<input
+										name="height"
+										type="number"
+										step=".25"
+										value={$selectedStore[$selectedStore.length - 1].h}
+										on:input={(e) => updateProperty("h", e)}
+									/>
+								</div>
+							</div>
+							<div class="input-pair">
+								<div class="input-stack">
+									<label for="secondaryWidth">2nd Width</label>
+									<input
+										name="secondaryWidth"
+										type="number"
+										step=".25"
+										value={$selectedStore[$selectedStore.length - 1].w2}
+										on:input={(e) => updateProperty("w2", e)}
+									/>
+								</div>
+								<div class="input-stack">
+									<label for="secondaryHeight">2nd Height</label>
+									<input
+										name="secondaryHeight"
+										type="number"
+										step=".25"
+										value={$selectedStore[$selectedStore.length - 1].h2}
+										on:input={(e) => updateProperty("h2", e)}
+									/>
+								</div>
+							</div>
+						</div>
+						<div class="input-group">
+							<div class="input-stack">
+								<label for="angle">Angle</label>
+								<input
+									name="angle"
+									type="number"
+									value={$selectedStore[$selectedStore.length - 1].r}
+									on:input={(e) => updateProperty("r", e)}
+								/>
+							</div>
+							<div class="input-stack">
+								<label for="stepped">Stepped</label>
+								<input
+									name="stepped"
+									type="checkbox"
+									value={$selectedStore[$selectedStore.length - 1].stepped}
+									on:input={(e) => updateProperty("stepped", e)}
+								/>
+							</div>
+						</div>
 
-					<div class="input-group">
-						<div class="input-stack">
-							<label for="capColor">Cap Color</label>
-							<div class="color-input">
-								<div class="color-side">
-									<input
-										name="capColor"
-										type="color"
-										value={parseCapColor(
-											$selectedStore[$selectedStore.length - 1].color
-										)}
-										on:input={(e) => {
-											updateProperty("color", e);
-										}}
-									/>
+						<div class="input-group">
+							<div class="input-stack">
+								<label for="capColor">Cap Color</label>
+								<div class="color-input">
+									<div class="color-side">
+										<input
+											name="capColor"
+											type="color"
+											value={parseCapColor(
+												$selectedStore[$selectedStore.length - 1].color
+											)}
+											on:input={(e) => {
+												updateProperty("color", e);
+											}}
+										/>
+										<div
+											class="preview"
+											style={`background: ${parseCapColor(capColor)}`}
+										></div>
+									</div>
+									<button
+										bind:this={capColorButton}
+										use:floatingCapRef
+										on:click={(e) =>
+											(showCapColorVarPicker = !showCapColorVarPicker)}
+										class={"color-variable-button " +
+											(capColor.startsWith("$") ? "variable-active" : "")}
+										><i class="hi-book-open"></i></button
+									>
+								</div>
+								{#if showCapColorVarPicker}
 									<div
-										class="preview"
-										style={`background: ${parseCapColor(capColor)}`}
-									></div>
-								</div>
-								<button
-									bind:this={capColorButton}
-									use:floatingCapRef
-									on:click={(e) =>
-										(showCapColorVarPicker = !showCapColorVarPicker)}
-									class={"color-variable-button " +
-										(capColor.startsWith("$") ? "variable-active" : "")}
-									><i class="hi-book-open"></i></button
-								>
+										class="color-input-variable-picker"
+										use:floatingCapContent
+									>
+										{#each $projectFile.variables as variable}
+											<button
+												class={"picker-button " +
+													(capColor == "$" + variable.id ? "active" : "")}
+												on:click={(e) =>
+													setColorToVariable("color", "$" + variable.id)}
+											>
+												<div
+													class="swatch"
+													style={`background: ${variable.color};`}
+												></div>
+												{variable.displayName}</button
+											>
+										{/each}
+									</div>
+								{/if}
 							</div>
-							{#if showCapColorVarPicker}
-								<div class="color-input-variable-picker" use:floatingCapContent>
-									{#each $projectFile.variables as variable}
-										<button
-											class={"picker-button " +
-												(capColor == "$" + variable.id ? "active" : "")}
-											on:click={(e) =>
-												setColorToVariable("color", "$" + variable.id)}
-										>
-											<div
-												class="swatch"
-												style={`background: ${variable.color};`}
-											></div>
-											{variable.displayName}</button
-										>
-									{/each}
+							<div class="input-stack">
+								<label for="textColor">Text Color</label>
+								<div class="color-input">
+									<div class="color-side">
+										<input
+											name="textColor"
+											type="color"
+											value={parseCapColor(
+												$selectedStore[$selectedStore.length - 1].textColor
+											)}
+											on:input={(e) => {
+												updateProperty("textColor", e);
+											}}
+										/>
+										<div
+											class="preview"
+											style={`background: ${parseCapColor(textColor)}`}
+										></div>
+									</div>
+									<button
+										bind:this={textColorButton}
+										use:floatingTextRef
+										on:click={(e) =>
+											(showTextColorVarPicker = !showTextColorVarPicker)}
+										class={"color-variable-button " +
+											(textColor.startsWith("$") ? "variable-active" : "")}
+										><i class="hi-book-open"></i></button
+									>
 								</div>
-							{/if}
-						</div>
-						<div class="input-stack">
-							<label for="textColor">Text Color</label>
-							<div class="color-input">
-								<div class="color-side">
-									<input
-										name="textColor"
-										type="color"
-										value={parseCapColor(
-											$selectedStore[$selectedStore.length - 1].textColor
-										)}
-										on:input={(e) => {
-											updateProperty("textColor", e);
-										}}
-									/>
+								{#if showTextColorVarPicker}
 									<div
-										class="preview"
-										style={`background: ${parseCapColor(textColor)}`}
-									></div>
-								</div>
-								<button
-									bind:this={textColorButton}
-									use:floatingTextRef
-									on:click={(e) =>
-										(showTextColorVarPicker = !showTextColorVarPicker)}
-									class={"color-variable-button " +
-										(textColor.startsWith("$") ? "variable-active" : "")}
-									><i class="hi-book-open"></i></button
-								>
+										class="color-input-variable-picker"
+										use:floatingTextContent
+									>
+										{#each $projectFile.variables as variable}
+											<button
+												class={"picker-button " +
+													(textColor == "$" + variable.id ? "active" : "")}
+												on:click={(e) =>
+													setColorToVariable("textColor", "$" + variable.id)}
+											>
+												<div
+													class="swatch"
+													style={`background: ${variable.color};`}
+												></div>
+												{variable.displayName}</button
+											>
+										{/each}
+									</div>
+								{/if}
 							</div>
-							{#if showTextColorVarPicker}
-								<div
-									class="color-input-variable-picker"
-									use:floatingTextContent
-								>
-									{#each $projectFile.variables as variable}
-										<button
-											class={"picker-button " +
-												(textColor == "$" + variable.id ? "active" : "")}
-											on:click={(e) =>
-												setColorToVariable("textColor", "$" + variable.id)}
-										>
-											<div
-												class="swatch"
-												style={`background: ${variable.color};`}
-											></div>
-											{variable.displayName}</button
-										>
-									{/each}
-								</div>
-							{/if}
 						</div>
-					</div>
-				{/key}
-			</div>
-			<!-- {#key $projectFile}
+					{/key}
+				</div>
+				<!-- {#key $projectFile}
 				<pre>{JSON.stringify($selectedStore, null, 2)}</pre>{/key} -->
-		{:else}
-			<p>No Cap Is Selected</p>
-		{/if}
-	</div>
-	<h2>Variables</h2>
-	<div class="button-grid">
-		{#key $variableDeletionStore}
-			{#each $projectFile.variables as variable}
-				<ColorVariable {variable}></ColorVariable>
-			{/each}
-		{/key}
-		<button class="shallow-button" on:click={createVariable}
-			><i class="hi-plus-large"></i></button
-		>
-	</div>
-	<h2>Actions</h2>
-	<div class="button-grid">
-		<button on:click={logData}>Log Data</button>
-		<button on:click={alignCapsToGrid}>Align to Grid</button>
+			{:else}
+				<p>No Cap Is Selected</p>
+			{/if}
+		</div>
+		<h2>Variables</h2>
+		<div class="button-grid">
+			{#key $variableDeletionStore}
+				{#each $projectFile.variables as variable}
+					<ColorVariable {variable}></ColorVariable>
+				{/each}
+			{/key}
+			<button class="shallow-button" on:click={createVariable}
+				><i class="hi-plus-large"></i></button
+			>
+		</div>
+		<h2>Actions</h2>
+		<div class="button-grid">
+			<button on:click={logData}>Log Data</button>
+			<button on:click={alignCapsToGrid}>Align to Grid</button>
+		</div>
 	</div>
 </div>
 
@@ -476,14 +531,12 @@
 		height: calc(100vh - 24px);
 		z-index: 200;
 		box-sizing: border-box;
-		padding: 8px 12px !important;
-		padding-top: 0 !important;
+		padding: 0px 12px;
 		transition:
 			0.3s opacity,
 			0.3s transform;
-	}
-	#properties-panel > :last-child {
-		margin-bottom: 60px !important;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.panel-off {
@@ -492,25 +545,49 @@
 		pointer-events: none;
 	}
 
+	.properties-panel-scroll {
+		height: 100%;
+		width: 100%;
+		overflow-y: auto;
+		overflow-x: hidden;
+		padding-bottom: 60px;
+	}
+
 	@media screen and (max-width: 750px) {
 		#properties-panel {
 			width: 100vw;
 			max-width: min(450px, calc(100vw - 24px));
 			top: unset;
-			max-height: 600px;
+			height: 700px;
+			padding-bottom: 100px;
+			top: 100%;
 			border-bottom-right-radius: 0;
 			border-bottom-left-radius: 0;
+			transition: unset;
 		}
 		#properties-panel h1 {
 			padding-top: 19px !important;
 		}
 	}
-
+	.sheet-topline-button {
+		position: absolute;
+		left: 50%;
+		transform: translate(-50%);
+		top: 5px;
+		z-index: 9999;
+		margin-bottom: -20px;
+		height: 20px;
+		padding: 0;
+		background: transparent;
+		border: none;
+		border-radius: 0;
+		overflow: visible;
+		width: 70px;
+	}
 	.sheet-topline {
-		position: sticky;
-		width: 50px; height: 5px; border-radius:  100px; background: var(--ui-gray);
-		left: 50%; transform: translate(-50%); top: 10px; z-index: 9999;
-		margin-bottom: -10px;
+		width: 50px;
+		height: 12px;
+		pointer-events: none;
 	}
 
 	#properties-panel h1 {
@@ -518,6 +595,7 @@
 		padding-top: 14px;
 		border-bottom: 1px solid var(--ui-light-gray);
 		margin-top: 0px;
+		margin-bottom: 0;
 		font-weight: bold;
 		font-size: 1.6em;
 		position: sticky;
