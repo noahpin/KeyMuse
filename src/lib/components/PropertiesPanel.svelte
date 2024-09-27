@@ -21,11 +21,7 @@
 		type ComputePositionConfig,
 	} from "svelte-floating-ui/dom";
 	import { createFloatingActions } from "svelte-floating-ui";
-	import {
-		TrFillLayoutSidebarRightCollapse,
-		TrFillLayoutSidebarRightExpand,
-	} from "svelte-icons-pack/tr";
-	import { Icon } from "svelte-icons-pack";
+	import {IconLayoutSidebarRightExpandFilled, IconLayoutSidebarRightCollapseFilled, IconColorSwatch, IconPlus} from "@tabler/icons-svelte";
 	import { spring } from "svelte/motion";
 	import { lerp } from "$lib/util";
 	let options: Partial<ComputePositionConfig> = {
@@ -184,7 +180,7 @@
 	<button
 		on:click={() => {
 			panelCollapsed = false;
-		}}><Icon src={TrFillLayoutSidebarRightExpand} size="24"></Icon></button
+		}}><IconLayoutSidebarRightExpandFilled></IconLayoutSidebarRightExpandFilled></button
 	>
 </div>
 <div
@@ -224,7 +220,7 @@
 				on:click={() => {
 					panelCollapsed = true;
 				}}
-				><Icon src={TrFillLayoutSidebarRightCollapse} size="24"></Icon></button
+				><IconLayoutSidebarRightCollapseFilled></IconLayoutSidebarRightCollapseFilled></button
 			>{/if}
 	</h1>
 	<div class="properties-panel-scroll"
@@ -382,7 +378,7 @@
 											(showCapColorVarPicker = !showCapColorVarPicker)}
 										class={"color-variable-button " +
 											(capColor.startsWith("$") ? "variable-active" : "")}
-										><i class="hi-book-open"></i></button
+										><IconColorSwatch></IconColorSwatch></button
 									>
 								</div>
 								{#if showCapColorVarPicker}
@@ -433,7 +429,7 @@
 											(showTextColorVarPicker = !showTextColorVarPicker)}
 										class={"color-variable-button " +
 											(textColor.startsWith("$") ? "variable-active" : "")}
-										><i class="hi-book-open"></i></button
+										><IconColorSwatch></IconColorSwatch></button
 									>
 								</div>
 								{#if showTextColorVarPicker}
@@ -475,7 +471,7 @@
 				{/each}
 			{/key}
 			<button class="shallow-button" on:click={createVariable}
-				><i class="hi-plus-large"></i></button
+				><IconPlus></IconPlus></button
 			>
 		</div>
 		<h2>Actions</h2>

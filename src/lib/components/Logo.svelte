@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { RiLogosGithubFill } from "svelte-icons-pack/ri";
-	import { Icon } from "svelte-icons-pack";
+	import {IconBrandGithubFilled} from "@tabler/icons-svelte";
+
 </script>
 
 <div class="logo-parent">
@@ -15,13 +15,12 @@
 		</span>
 	</div>
 	<a href="https://github.com/noahpin/KeyMuse" target="_blank">
-		<Icon src={RiLogosGithubFill} color="black" size="24" />
+		<IconBrandGithubFilled color="black"></IconBrandGithubFilled>
 	</a>
 </div>
 
 <style>
 	.logo-parent {
-		--hi-accent: red;
 		box-sizing: border-box;
 		display: flex;
 		gap: 8px;

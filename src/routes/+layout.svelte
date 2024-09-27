@@ -4,13 +4,16 @@
 	import { initializeStandardKeybinds } from "$lib/standardKeybinds";
 	import { onMount } from "svelte";
 
+	let href = "";
+	$: href = $page.url != undefined ? $page.url.href : "";
+
 	onMount(() => {
 		initializeStandardKeybinds();
 	});
 </script>
 
 <svelte:head>
-	<meta property="og:image" content={`${$page.url.href}og-image.png`} />
+	<meta property="og:image" content={`${href}og-image.png`} />
 </svelte:head>
 
 <svelte:window on:keydown={onKeyDown} />

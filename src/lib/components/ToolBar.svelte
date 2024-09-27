@@ -1,16 +1,17 @@
 <script>
 	import CapAddIcon from "./CapAddIcon.svelte";
     import { toolStore } from "$lib/stores";
+    import {IconMarquee2, IconSquarePlus, IconRotateDot, IconArrowsMove, IconArrowBack, IconArrowForward} from "@tabler/icons-svelte";
 
 </script>
 <div id="toolbar-panel" class="ui-floating-element" >
-    <button class={$toolStore == "select" ? "active" : ""} on:click={()=>toolStore.set("select")}><i class="hi-marquee"></i></button>
-    <button class={$toolStore == "placement" ? "active" : ""} on:click={()=>toolStore.set("placement")}><CapAddIcon></CapAddIcon></button>
-    <button class={$toolStore == "rotate" ? "active" : ""} on:click={()=>toolStore.set("rotate")}><i class="hi-rotate-right"></i></button>
-    <button class={$toolStore == "translate" ? "active" : ""} on:click={()=>toolStore.set("translate")}><i class="hi-move"></i></button>
+    <button class={$toolStore == "select" ? "active" : ""} on:click={()=>toolStore.set("select")}><IconMarquee2 size={24}></IconMarquee2></button>
+    <button class={$toolStore == "placement" ? "active" : ""} on:click={()=>toolStore.set("placement")}><IconSquarePlus size={24}></IconSquarePlus></button>
+    <button class={$toolStore == "rotate" ? "active" : ""} on:click={()=>toolStore.set("rotate")}><IconRotateDot size={24}></IconRotateDot></button>
+    <button class={$toolStore == "translate" ? "active" : ""} on:click={()=>toolStore.set("translate")}><IconArrowsMove size={24}></IconArrowsMove></button>
     <div class="divider"></div>
-    <button disabled on:click={()=>toolStore.set("rotate")}><i class="hi-undo"></i></button>
-    <button disabled on:click={()=>toolStore.set("rotate")}><i class="hi-redo"></i></button>
+    <button disabled on:click={()=>toolStore.set("rotate")}><IconArrowBack></IconArrowBack></button>
+    <button disabled on:click={()=>toolStore.set("rotate")}><IconArrowForward></IconArrowForward></button>
 </div>
 
 <style>
