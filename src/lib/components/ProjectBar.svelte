@@ -1,26 +1,25 @@
 <script>
 	import CapAddIcon from "./CapAddIcon.svelte";
 	import { toolStore, projectAction, projectFile } from "$lib/stores";
-	import { Icon } from "svelte-icons-pack";
-	import { TrOutlineHome } from "svelte-icons-pack/tr";
+	import {IconHomeFilled, IconSettingsFilled, IconFileExport, IconFileImport, IconLayoutGridFilled} from "@tabler/icons-svelte";
 </script>
 
 <div id="toolbar-panel" class="ui-floating-element">
 	<button disabled on:click={() => toolStore.set("rotate")}
-		><i class="hi-carat-left"></i></button
+		><IconLayoutGridFilled></IconLayoutGridFilled></button
 	>
 	<div class="divider"></div>
 	<button on:click={() => projectAction.set("home")}
-		><Icon src={TrOutlineHome} size="24"></Icon></button
+		><IconHomeFilled size={24}></IconHomeFilled></button
 	>
 	<button disabled on:click={() => toolStore.set("rotate")}
-		><i class="hi-gear"></i></button
+		><IconSettingsFilled size={24}></IconSettingsFilled></button
 	>
 	<button disabled on:click={() => toolStore.set("rotate")}
-		><i class="hi-import"></i></button
+		><IconFileImport></IconFileImport></button
 	>
 	<button disabled on:click={() => toolStore.set("rotate")}
-		><i class="hi-export"></i></button
+		><IconFileExport></IconFileExport></button
 	>
 	<div class="divider"></div>
 	<div class="project-details">
