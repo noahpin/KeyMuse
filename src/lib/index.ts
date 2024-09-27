@@ -2,9 +2,14 @@
 import { writable, get, type Writable } from "svelte/store";
 import templateFile from "$lib/template.json";
 import chroma from "chroma-js";
-import { makeid, getBlankCapData } from "./util";
+import { makeid, getBlankCapData, downloadJSON, openFilePicker } from "./util";
 
-import { projectFile, propertyPanelStore, selectedStore, variableDeletionStore } from "./stores"
+import {
+	projectFile,
+	propertyPanelStore,
+	selectedStore,
+	variableDeletionStore,
+} from "./stores";
 
 // @ts-ignore
 projectFile.set(templateFile);
@@ -50,8 +55,24 @@ export function alignCapsToGrid() {
 	});
 }
 
-export function logData() {
-	console.log(get(projectFile));
+export function exportProject() {
+	downloadJSON(get(projectFile), "keymuse.json");
+}
+
+export async function openProjectFile() {
+	let files = await openFilePicker(".json");
+	let reader = new FileReader();
+	if (files != null && files.length > 0) {
+		reader.readAsText(files[0]);
+		reader.onload = function (e) {
+			let fileData = e.target?.result;
+			let obj = JSON.parse(fileData as string);
+			console.log(obj)
+			if (obj != null) {
+				projectFile.set(obj);
+			}
+		};
+	}
 }
 
 export function enforceFileSchema(file: Writable<FileData>) {

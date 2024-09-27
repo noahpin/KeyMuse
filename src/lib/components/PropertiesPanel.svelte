@@ -2,7 +2,6 @@
 	import {
 		updateCapData,
 		alignCapsToGrid,
-		logData,
 		parseCapColor,
 		getWhiteOrBlackFromColor,
 		createVariable,
@@ -476,7 +475,6 @@
 		</div>
 		<h2>Actions</h2>
 		<div class="button-grid">
-			<button on:click={logData}>Log Data</button>
 			<button on:click={alignCapsToGrid}>Align to Grid</button>
 		</div>
 	</div>

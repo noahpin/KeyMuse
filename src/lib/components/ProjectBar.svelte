@@ -2,6 +2,7 @@
 	import CapAddIcon from "./CapAddIcon.svelte";
 	import { toolStore, projectAction, projectFile } from "$lib/stores";
 	import {IconHomeFilled, IconSettingsFilled, IconFileExport, IconFileImport, IconLayoutGridFilled} from "@tabler/icons-svelte";
+	import { exportProject, openProjectFile } from "$lib";
 </script>
 
 <div id="toolbar-panel" class="ui-floating-element">
@@ -15,10 +16,10 @@
 	<button disabled on:click={() => toolStore.set("rotate")}
 		><IconSettingsFilled size={24}></IconSettingsFilled></button
 	>
-	<button disabled on:click={() => toolStore.set("rotate")}
+	<button on:click={openProjectFile}
 		><IconFileImport></IconFileImport></button
 	>
-	<button disabled on:click={() => toolStore.set("rotate")}
+	<button on:click={exportProject}
 		><IconFileExport></IconFileExport></button
 	>
 	<div class="divider"></div>
@@ -66,6 +67,7 @@
 		align-items: center;
 		justify-content: center;
 		color: var(--main-text);
+		cursor: pointer;
 	}
 	button:hover {
 		background: var(--ui-light-gray);

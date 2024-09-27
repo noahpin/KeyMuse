@@ -16,8 +16,8 @@ export function setPixelated(ctx: CanvasRenderingContext2D) {
 	ctx.imageSmoothingEnabled = false;
 }
 
-export function clamp (t: number, a: number, b: number) {
-	return Math.min(Math.max(t, a), b)
+export function clamp(t: number, a: number, b: number) {
+	return Math.min(Math.max(t, a), b);
 }
 
 export function getBlankCapData(): CapDataElement {
@@ -38,4 +38,36 @@ export function getBlankCapData(): CapDataElement {
 	};
 }
 
-export const lerp = (x: number, y: number, a: number): number => x * (1 - a) + y * a;
+export const lerp = (x: number, y: number, a: number): number =>
+	x * (1 - a) + y * a;
+
+export function downloadJSON(json: any, filename: string) {
+	const blob = new Blob([JSON.stringify(json, null, 2)], {
+		type: "application/json",
+	});
+
+	downloadBlob(blob, filename);
+}
+
+export function downloadBlob(blob: any, filename: string) {
+	var a = document.createElement("a");
+
+	var url = window.URL.createObjectURL(blob);
+	a.href = url;
+	a.download = filename;
+	a.click();
+	window.URL.revokeObjectURL(url);
+}
+
+export function openFilePicker(mimeType: string): Promise<File[] | null> {
+	let picker = document.createElement("input");
+	picker.type = "file";
+	picker.accept = mimeType;
+	picker.click();
+	return new Promise<File[] | null>((resolve) => {
+		picker.onchange = () => {
+			const files = picker.files ? Array.from(picker.files) : null;
+			resolve(files);
+		};
+	});
+}
