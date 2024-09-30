@@ -22,8 +22,10 @@ export function clamp(t: number, a: number, b: number) {
 }
 
 export function getBlankCapData(): CapDataElement {
+	let legends = new Array(12);
+	legends.fill(null);
 	return {
-		legends: [""],
+		legends: legends,
 		x: 0,
 		y: 0,
 		w: 1,
@@ -83,8 +85,12 @@ export function convertKLEJsonToNative(kle: Keyboard): FileData {
 	newJson.name = kle.meta.name;
 	let formattedKeydata: CapDataElement[] = [];
 	kle.keys.forEach((key: Key) => {
-		//@ts-ignore
+		let legends = new Array(12);
+		legends.fill(null);
+		legends.splice(0, key.labels.length, ...key.labels);
+		legends = legends.map( l => l === undefined ? null : l);
 		let newKey:CapDataElement = {
+			legends:legends,
 			x: key.x,
 			y: key.y,
 			w: key.width,
@@ -98,6 +104,7 @@ export function convertKLEJsonToNative(kle: Keyboard): FileData {
 			textColor: key.default.textColor,
 			stepped: key.stepped
 		};
+		console.log(newKey)
 
 		formattedKeydata.push(newKey);
 	});

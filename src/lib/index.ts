@@ -12,18 +12,23 @@ import {
 	variableDeletionStore,
 } from "./stores";
 
-// @ts-ignore
-projectFile.set(templateFile);
+setProjectFile(templateFile as FileData);
+
+export function setProjectFile(file: FileData) {
+	projectFile.set(enforceFileSchema(file));
+}
 
 export function updateCapData(
 	targetCapData: CapDataElement[],
 	property: string,
 	value: any,
 	delta: boolean = false,
-	propagateUpdates: boolean = true,
-	snapNumeralData: number | null = null
+	propagateUpdates: string | null = null,
+	legendIndex: number | null = null
 ) {
 	let temp = get(projectFile).keyData;
+	let updateW2 = false;
+	let updateH2 = false;
 	targetCapData.forEach((cap: CapDataElement) => {
 		let c: CapDataElement = temp[temp.indexOf(cap)];
 		let newValue = value;
@@ -33,16 +38,32 @@ export function updateCapData(
 		}
 		if (property == "w" && c.w == c.w2) {
 			c.w2 = newValue;
+			updateW2 = true;
 		}
-		if (property == "h" && c.h == c.h2) c.h2 = newValue;
+		if (property == "h" && c.h == c.h2) {
+			c.h2 = newValue;
+			updateH2 = true;
+		}
+		if(property == "legends" && legendIndex != null) {
+			if(c.legends.length < 12) {
+				let tmp = new Array(12);
+				tmp.splice(0, c.legends.length, ...c.legends);
+				c.legends = tmp;
+			}
+			c.legends[legendIndex] = newValue;
+			return;
+		}
+		
 		c[property] = newValue;
 	});
 	let tObj = get(projectFile);
 	tObj.keyData = temp;
 	projectFile.set(tObj);
-	if (propagateUpdates) {
+	if (propagateUpdates != null || updateW2 || updateH2) {
 		let tmp = { ...get(propertyPanelStore) };
-		tmp[property] = value;
+		if(propagateUpdates != null) tmp[propagateUpdates] = Date.now();
+		if(updateW2) tmp["w2"] = Date.now();
+		if(updateH2) tmp["h2"] = Date.now();
 		propertyPanelStore.set(tmp);
 	}
 }
@@ -70,7 +91,7 @@ export async function openProjectFile() {
 			let obj = JSON.parse(fileData as string);
 			console.log(obj)
 			if (obj != null) {
-				projectFile.set(obj);
+				setProjectFile(obj);
 			}
 		};
 	}
@@ -88,18 +109,25 @@ export async function openKLEJson() {
 			console.log(kle.Serial.parse(fileData as string));
 			console.log(convertKLEJsonToNative(kleObj));
 			if (obj != null) {
-				projectFile.set(obj);
+				setProjectFile(obj);
 			}
 		};
 	}
 }
 
-export function enforceFileSchema(file: Writable<FileData>) {
-	let keyData: [CapDataElement] | CapDataElement[] = get(file).keyData;
+export function enforceFileSchema(file: FileData): FileData {
+	let keyData: [CapDataElement] | CapDataElement[] = file.keyData;
 	for (let i = 0; i < keyData.length; i++) {
 		let d = keyData[i];
 		let tmp: CapDataElement = getBlankCapData();
-		tmp.legends = d.legends || "";
+		let legends = new Array(12);
+		legends.fill(null);
+		if(!Array.isArray(d.legends)) {
+			legends[0] = d.legends;
+		}else {
+			legends.splice(0, d.legends.length, ...d.legends);
+		}
+		tmp.legends = legends;
 		tmp.x = d.x || 0;
 		tmp.y = d.y || 0;
 		tmp.w = d.w || 1;
@@ -115,6 +143,12 @@ export function enforceFileSchema(file: Writable<FileData>) {
 
 		keyData[i] = tmp;
 	}
+	let enforcedFile: FileData = {
+		name: file.name,
+		variables: file.variables ?? null,
+		keyData: keyData
+	}
+	return enforcedFile;
 }
 
 export function createCap(e: any) {
@@ -199,12 +233,12 @@ export function nudgeSelectedCaps(e: KeyboardEvent) {
 		dY *= 4;
 	}
 	if (e.altKey) {
-		updateCapData(get(selectedStore), "w", dX, true);
-		updateCapData(get(selectedStore), "h", dY, true);
+		updateCapData(get(selectedStore), "w", dX, true, "w");
+		updateCapData(get(selectedStore), "h", dY, true, "h");
 		return;
 	}
-	updateCapData(get(selectedStore), "x", dX, true);
-	updateCapData(get(selectedStore), "y", dY, true);
+	updateCapData(get(selectedStore), "x", dX, true, "x");
+	updateCapData(get(selectedStore), "y", dY, true, "y");
 }
 
 
@@ -217,7 +251,15 @@ export function updateProjectProperty(property: string, event: Event | null) {
 		(event.target as HTMLInputElement).type == "checkbox"
 			? (event.target as HTMLInputElement).checked
 			: (event.target as HTMLInputElement).value,
-		false,
 		false
+	);
+}
+
+export function updateLegend(index: number, event: Event | null) {
+	if (!event?.target) return;
+	updateCapData(
+		get(selectedStore),
+		"legends", (event.target as HTMLInputElement).value,
+		false, null, index
 	);
 }

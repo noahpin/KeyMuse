@@ -25,15 +25,16 @@
 	let selected = false;
 	let capPadding = 3;
 	let capRadius = 2;
-	let capHighlightPadding = 11;
+	let capHighlightPadding = 10.5;
 	let capHighlightCentered: Boolean = true;
 	let fontLoaded = false;
 	let capColor = chroma(parseCapColor(capData.color) || "#969696");
 	let capDarken = capColor.darken(0.35);
 	let capEdge = capDarken.darken(0.5);
 
-	let capYLegendPadding = 0.01;
-	let capXLegendPadding = 0.02;
+	let capYLegendTopPadding = 0.025;
+	let capYLegendBottomPadding = 0.01;
+	let capXLegendPadding = 0.04;
 
 	let font;
 
@@ -134,12 +135,12 @@
 		context.fillStyle = textColor;
 		context.textAlign = "center";
 		context.textBaseline = "middle";
-		context.font = "12px CapFont";
+		context.font = "12px";
 		// loop thru all legend
 
 		// offsets to put the legends at the right position.
 		let xOffsets = [capHighlightPadding / unitSize + capXLegendPadding, (w / 2), w - capXLegendPadding - (capHighlightPadding / unitSize)];
-		let yOffsets = [capHighlightPadding / unitSize + capYLegendPadding, (h / 2), h - (capHighlightPadding / unitSize) - capYLegendPadding, h];
+		let yOffsets = [capHighlightPadding / unitSize + capYLegendTopPadding, (h / 2), h - (capHighlightPadding / unitSize) - capYLegendBottomPadding, h];
 		let xAlign = ["left", "center", "right"];
 		let yBaseline = ["top", "middle", "ideographic", "bottom"]
 
@@ -149,12 +150,13 @@
 				context.textAlign = xAlign[i % 3] as CanvasTextAlign;
 				let yOffset = yOffsets[Math.floor(i / 3)];
 				context.textBaseline = yBaseline[Math.floor(i / 3)] as CanvasTextBaseline;
+				let center = Math.floor(i / 3) == 3  && !capHighlightCentered ? 0.6 : Number(capHighlightCentered)
 				context.fillText(
 					legend[i],
 					(xOffset) * unitSize,
 
-					(yOffset) * unitSize +
-						((cHPad / 2.5) * (1 - Number(capHighlightCentered))) / $canvasZoom
+					(yOffset) * unitSize -
+						((cHPad / 2.5) * (1 - center)) / $canvasZoom
 				);
 			}
 		}

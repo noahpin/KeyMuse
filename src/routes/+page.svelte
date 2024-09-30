@@ -10,8 +10,6 @@
 	import Logo from "$lib/components/Logo.svelte";
 	import { onMount } from "svelte";
 
-	$: enforceFileSchema(projectFile);
-
 	onMount(()=> {
 		uiAccent.set(getComputedStyle(document.body).getPropertyValue("--accent"))
 	})

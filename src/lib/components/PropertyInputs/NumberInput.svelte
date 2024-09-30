@@ -7,7 +7,7 @@
 	export let name;
 </script>
 
-{#key $propertyPanelStore}
+{#key $propertyPanelStore[property]}
 	<label for={name}>{name}</label>
 	<input
 		{name}
