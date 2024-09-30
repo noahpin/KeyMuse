@@ -434,7 +434,7 @@
 				cStartY = tmp;
 			}
 			let cap = {
-				legends: "",
+				legends: [""],
 				x: cStartX,
 				y: cStartY,
 				w: Math.max(1, cEndX - cStartX + 1),

@@ -1,3 +1,4 @@
+import type { Key, Keyboard } from "@ijprest/kle-serial";
 export function makeid(length: number): string {
 	let result = "";
 	const characters =
@@ -22,7 +23,7 @@ export function clamp(t: number, a: number, b: number) {
 
 export function getBlankCapData(): CapDataElement {
 	return {
-		legends: "",
+		legends: [""],
 		x: 0,
 		y: 0,
 		w: 1,
@@ -70,4 +71,38 @@ export function openFilePicker(mimeType: string): Promise<File[] | null> {
 			resolve(files);
 		};
 	});
+}
+
+export function convertKLEJsonToNative(kle: Keyboard): FileData {
+	let newJson: FileData = {
+		name: "",
+		variables: [],
+		keyData: []
+	};
+
+	newJson.name = kle.meta.name;
+	let formattedKeydata: CapDataElement[] = [];
+	kle.keys.forEach((key: Key) => {
+		//@ts-ignore
+		let newKey:CapDataElement = {
+			x: key.x,
+			y: key.y,
+			w: key.width,
+			h: key.height,
+			x2: key.x2,
+			y2: key.y2,
+			w2: key.width2,
+			h2: key.height2,
+			r: key.rotation_angle,
+			color: key.color,
+			textColor: key.default.textColor,
+			stepped: key.stepped
+		};
+
+		formattedKeydata.push(newKey);
+	});
+
+	newJson.keyData = formattedKeydata;
+	
+	return newJson;
 }

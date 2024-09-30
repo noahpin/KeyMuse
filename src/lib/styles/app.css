@@ -126,3 +126,14 @@ input[type="color"] {
 .color-side input {
     height: 30px;
 }
+
+input {
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background: var(--ui-element-background);
+    border: 1px solid var(--ui-transparent-outline);
+}

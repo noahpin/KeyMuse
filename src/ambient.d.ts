@@ -1,7 +1,7 @@
 declare global {
         type CapDataElement = {
             [key: string];
-            legends: string,
+            legends: string[],
             x: number,
             y: number,
             w: number,

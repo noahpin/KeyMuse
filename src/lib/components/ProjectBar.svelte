@@ -1,8 +1,7 @@
 <script>
-	import CapAddIcon from "./CapAddIcon.svelte";
 	import { toolStore, projectAction, projectFile } from "$lib/stores";
-	import {IconHomeFilled, IconSettingsFilled, IconFileExport, IconFileImport, IconLayoutGridFilled} from "@tabler/icons-svelte";
-	import { exportProject, openProjectFile } from "$lib";
+	import {IconHomeFilled, IconSettingsFilled, IconFileExport, IconFileImport, IconLayoutGridFilled, IconPokeball} from "@tabler/icons-svelte";
+	import { exportProject, openKLEJson, openProjectFile } from "$lib";
 </script>
 
 <div id="toolbar-panel" class="ui-floating-element">
@@ -21,6 +20,9 @@
 	>
 	<button on:click={exportProject}
 		><IconFileExport></IconFileExport></button
+	>
+	<button on:click={openKLEJson}
+		><IconPokeball></IconPokeball></button
 	>
 	<div class="divider"></div>
 	<div class="project-details">

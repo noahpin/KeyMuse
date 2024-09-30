@@ -1,9 +1,10 @@
 <script lang="ts">
+	import NumberInput from "./PropertyInputs/NumberInput.svelte";
+	import LegendInput from "./PropertyInputs/LegendInput.svelte";
 	import {
 		updateCapData,
 		alignCapsToGrid,
 		parseCapColor,
-		getWhiteOrBlackFromColor,
 		createVariable,
 	} from "$lib";
 	import {
@@ -20,7 +21,12 @@
 		type ComputePositionConfig,
 	} from "svelte-floating-ui/dom";
 	import { createFloatingActions } from "svelte-floating-ui";
-	import {IconLayoutSidebarRightExpandFilled, IconLayoutSidebarRightCollapseFilled, IconColorSwatch, IconPlus} from "@tabler/icons-svelte";
+	import {
+		IconLayoutSidebarRightExpandFilled,
+		IconLayoutSidebarRightCollapseFilled,
+		IconColorSwatch,
+		IconPlus,
+	} from "@tabler/icons-svelte";
 	import { spring } from "svelte/motion";
 	import { lerp } from "$lib/util";
 	let options: Partial<ComputePositionConfig> = {
@@ -141,8 +147,8 @@
 		}
 		let nPos = $sheetPositionStore - dY;
 		rawNPos = nPos;
-		if(nPos < snapPointOpen) {
-			if(yWhenOverTop == null) yWhenOverTop = e.touches[0].clientY
+		if (nPos < snapPointOpen) {
+			if (yWhenOverTop == null) yWhenOverTop = e.touches[0].clientY;
 			let diff = yWhenOverTop - e.touches[0].clientY;
 			nPos = snapPointOpen - lerp(diff, 0, 0.65);
 		}
@@ -157,7 +163,7 @@
 		let cur = sheetOpen ? snapPointOpen : snapPointClosed;
 		let next = sheetOpen ? snapPointClosed : snapPointOpen;
 		let thresh = Math.abs(next - cur) * 0.15;
-		yWhenOverTop= null;
+		yWhenOverTop = null;
 		if (Math.abs($sheetPositionStore - cur) > thresh) {
 			sheetOpen = !sheetOpen;
 			sheetPositionStore.set(next);
@@ -179,7 +185,9 @@
 	<button
 		on:click={() => {
 			panelCollapsed = false;
-		}}><IconLayoutSidebarRightExpandFilled></IconLayoutSidebarRightExpandFilled></button
+		}}
+		><IconLayoutSidebarRightExpandFilled
+		></IconLayoutSidebarRightExpandFilled></button
 	>
 </div>
 <div
@@ -187,7 +195,6 @@
 	on:touchmove={touchMoveHandler}
 	on:touchend={touchEndHandler}
 	id="properties-panel"
-	
 	style={breakpoint ? `transform: translateY(${$sheetPositionStore}px);` : ""}
 	class={"ui-floating-element " + (panelCollapsed ? "panel-off" : "")}
 >
@@ -219,125 +226,57 @@
 				on:click={() => {
 					panelCollapsed = true;
 				}}
-				><IconLayoutSidebarRightCollapseFilled></IconLayoutSidebarRightCollapseFilled></button
+				><IconLayoutSidebarRightCollapseFilled
+				></IconLayoutSidebarRightCollapseFilled></button
 			>{/if}
 	</h1>
-	<div class="properties-panel-scroll"
-	bind:this={sheetEl}>
+	<div class="properties-panel-scroll" bind:this={sheetEl}>
 		<div>
 			{#if $selectedStore.length != 0}
 				<div>
 					{#key $propertyPanelStore}
 						<div class="input-stack">
-							<label for="legend">Legend</label>
-							<input
-								name="legend"
-								type="text"
-								value={$selectedStore[$selectedStore.length - 1].legends}
-								on:input={(e) => updateProperty("legends", e)}
-							/>
+							<LegendInput></LegendInput>
 						</div>
 						<div class="input-group">
 							<div class="input-pair">
 								<div class="input-stack">
-									<label for="xPosition">X</label>
-									<input
-										name="xPosition"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].x}
-										on:input={(e) => updateProperty("x", e)}
-									/>
+									<NumberInput property="x" step="0.25" name="X"></NumberInput>
 								</div>
 								<div class="input-stack">
-									<label for="yPosition">Y</label>
-									<input
-										name="yPosition"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].y}
-										on:input={(e) => updateProperty("y", e)}
-									/>
+									<NumberInput property="y" step="0.25" name="Y"></NumberInput>
 								</div>
 							</div>
 							<div class="input-pair">
 								<div class="input-stack">
-									<label for="secondaryXPosition">X Offset</label>
-									<input
-										name="offsetXPosition"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].x2}
-										on:input={(e) => updateProperty("x2", e)}
-									/>
+									<NumberInput property="x2" step="0.25" name="X Offset"></NumberInput>
 								</div>
 								<div class="input-stack">
-									<label for="secondaryXPosition">Y Offset</label>
-									<input
-										name="offsetYPosition"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].y2}
-										on:input={(e) => updateProperty("y2", e)}
-									/>
+									<NumberInput property="y2" step="0.25" name="Y Offset"></NumberInput>
 								</div>
 							</div>
 						</div>
 						<div class="input-group">
 							<div class="input-pair">
 								<div class="input-stack">
-									<label for="width">Width</label>
-									<input
-										name="width"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].w}
-										on:input={(e) => updateProperty("w", e)}
-									/>
+									<NumberInput property="w" step="0.25" name="Width"></NumberInput>
 								</div>
 								<div class="input-stack">
-									<label for="height">Height</label>
-									<input
-										name="height"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].h}
-										on:input={(e) => updateProperty("h", e)}
-									/>
+									<NumberInput property="h" step="0.25" name="Height"></NumberInput>
 								</div>
 							</div>
 							<div class="input-pair">
 								<div class="input-stack">
-									<label for="secondaryWidth">2nd Width</label>
-									<input
-										name="secondaryWidth"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].w2}
-										on:input={(e) => updateProperty("w2", e)}
-									/>
+									<NumberInput property="w2" step="0.25" name="2nd Width"></NumberInput>
 								</div>
 								<div class="input-stack">
-									<label for="secondaryHeight">2nd Height</label>
-									<input
-										name="secondaryHeight"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].h2}
-										on:input={(e) => updateProperty("h2", e)}
-									/>
+									<NumberInput property="h2" step="0.25" name="2nd Height"></NumberInput>
 								</div>
 							</div>
 						</div>
 						<div class="input-group">
 							<div class="input-stack">
-								<label for="angle">Angle</label>
-								<input
-									name="angle"
-									type="number"
-									value={$selectedStore[$selectedStore.length - 1].r}
-									on:input={(e) => updateProperty("r", e)}
-								/>
+								<NumberInput property="r" step="" name="Angle"></NumberInput>
 							</div>
 							<div class="input-stack">
 								<label for="stepped">Stepped</label>
@@ -377,7 +316,9 @@
 											(showCapColorVarPicker = !showCapColorVarPicker)}
 										class={"color-variable-button " +
 											(capColor.startsWith("$") ? "variable-active" : "")}
-										><IconColorSwatch></IconColorSwatch></button
+										><span style="pointer-events: none;"
+											><IconColorSwatch></IconColorSwatch></span
+										></button
 									>
 								</div>
 								{#if showCapColorVarPicker}
@@ -428,7 +369,9 @@
 											(showTextColorVarPicker = !showTextColorVarPicker)}
 										class={"color-variable-button " +
 											(textColor.startsWith("$") ? "variable-active" : "")}
-										><IconColorSwatch></IconColorSwatch></button
+										><span style="pointer-events: none;"
+											><IconColorSwatch></IconColorSwatch></span
+										></button
 									>
 								</div>
 								{#if showTextColorVarPicker}
@@ -456,8 +399,6 @@
 						</div>
 					{/key}
 				</div>
-				<!-- {#key $projectFile}
-				<pre>{JSON.stringify($selectedStore, null, 2)}</pre>{/key} -->
 			{:else}
 				<p>No Cap Is Selected</p>
 			{/if}
@@ -603,16 +544,6 @@
 		margin-top: 18px;
 		font-weight: 500;
 		font-size: 1.3em;
-	}
-	input {
-		width: 100%;
-		box-sizing: border-box;
-		outline: none;
-		border: none;
-		padding: 5px 8px;
-		border-radius: 4px;
-		background: var(--ui-element-background);
-		border: 1px solid var(--ui-transparent-outline);
 	}
 	.input-group {
 		width: 100%;

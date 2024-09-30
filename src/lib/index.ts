@@ -2,7 +2,8 @@
 import { writable, get, type Writable } from "svelte/store";
 import templateFile from "$lib/template.json";
 import chroma from "chroma-js";
-import { makeid, getBlankCapData, downloadJSON, openFilePicker } from "./util";
+import { makeid, getBlankCapData, downloadJSON, openFilePicker, convertKLEJsonToNative } from "./util";
+import * as kle from "@ijprest/kle-serial";
 
 import {
 	projectFile,
@@ -68,6 +69,24 @@ export async function openProjectFile() {
 			let fileData = e.target?.result;
 			let obj = JSON.parse(fileData as string);
 			console.log(obj)
+			if (obj != null) {
+				projectFile.set(obj);
+			}
+		};
+	}
+}
+
+export async function openKLEJson() {
+	let files = await openFilePicker(".json");
+	let reader = new FileReader();
+	if (files != null && files.length > 0) {
+		reader.readAsText(files[0]);
+		reader.onload = function (e) {
+			let fileData = e.target?.result;
+			let kleObj = kle.Serial.parse(fileData as string);
+			let obj = convertKLEJsonToNative(kleObj);
+			console.log(kle.Serial.parse(fileData as string));
+			console.log(convertKLEJsonToNative(kleObj));
 			if (obj != null) {
 				projectFile.set(obj);
 			}
@@ -186,4 +205,19 @@ export function nudgeSelectedCaps(e: KeyboardEvent) {
 	}
 	updateCapData(get(selectedStore), "x", dX, true);
 	updateCapData(get(selectedStore), "y", dY, true);
+}
+
+
+
+export function updateProjectProperty(property: string, event: Event | null) {
+	if (!event?.target) return;
+	updateCapData(
+		get(selectedStore),
+		property,
+		(event.target as HTMLInputElement).type == "checkbox"
+			? (event.target as HTMLInputElement).checked
+			: (event.target as HTMLInputElement).value,
+		false,
+		false
+	);
 }

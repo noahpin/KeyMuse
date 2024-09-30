@@ -26,6 +26,7 @@
 	"dependencies": {
 		"@doodle3d/clipper-js": "^1.0.11",
 		"@floating-ui/core": "^1.6.4",
+		"@ijprest/kle-serial": "^0.15.1",
 		"@tabler/icons-svelte": "^3.19.0",
 		"chroma-js": "^2.4.2",
 		"paper": "^0.12.17",
