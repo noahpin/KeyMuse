@@ -1,8 +1,49 @@
-<script>
-	import CapAddIcon from "./CapAddIcon.svelte";
+<script lang="ts">
 	import { toolStore, projectAction, projectFile } from "$lib/stores";
-	import {IconHomeFilled, IconSettingsFilled, IconFileExport, IconFileImport, IconLayoutGridFilled} from "@tabler/icons-svelte";
+	import {
+		IconHomeFilled,
+		IconSettingsFilled,
+		IconFileExport,
+		IconFileImport,
+		IconLayoutGridFilled,
+		IconPokeball,
+		IconCodeDots,
+		IconCode,
+	} from "@tabler/icons-svelte";
+	import { exportProject, openKLEJson, openProjectFile } from "$lib";
+	import {
+		offset,
+		flip,
+		shift,
+		type ComputePositionConfig,
+	} from "svelte-floating-ui/dom";
+	import { createFloatingActions } from "svelte-floating-ui";
+
+	let popoverOptions: Partial<ComputePositionConfig> = {
+		strategy: "absolute",
+		placement: "bottom",
+		middleware: [offset(12), flip(), shift()],
+	};
+	let showImportMenu = false;
+	let importMenuParent: HTMLElement;
+	let importMenuButton: HTMLElement;
+
+	function windowClick(e: MouseEvent) {
+		console.log(e.target);
+		if (
+			importMenuParent != e.target &&
+			!importMenuParent.contains(e.target as HTMLElement) &&
+			importMenuButton != e.target &&
+			!importMenuButton.contains(e.target as HTMLElement)
+		)
+			showImportMenu = false;
+	}
+
+	const [importMenuRef, importMenuContent] =
+		createFloatingActions(popoverOptions);
 </script>
+
+<svelte:window on:click={windowClick} />
 
 <div id="toolbar-panel" class="ui-floating-element">
 	<button disabled on:click={() => toolStore.set("rotate")}
@@ -15,12 +56,31 @@
 	<button disabled on:click={() => toolStore.set("rotate")}
 		><IconSettingsFilled size={24}></IconSettingsFilled></button
 	>
-	<button disabled on:click={() => toolStore.set("rotate")}
-		><IconFileImport></IconFileImport></button
+	<button
+		on:click={() => (showImportMenu = !showImportMenu)}
+		use:importMenuRef
+		bind:this={importMenuButton}><IconFileImport></IconFileImport></button
 	>
-	<button disabled on:click={() => toolStore.set("rotate")}
-		><IconFileExport></IconFileExport></button
-	>
+	<button on:click={exportProject}><IconFileExport></IconFileExport></button>
+	{#if showImportMenu}
+		<div
+			class="popover-menu"
+			use:importMenuContent
+			bind:this={importMenuParent}
+		>
+			<p class="popover-title">Import</p>
+			<div class="popover-divider"></div>
+			<button class={"popover-menu-button"} on:click={openProjectFile}
+				><i class="hi-keyboard"></i>KeyMuse JSON</button
+			>
+			<button class={"popover-menu-button"} on:click={openKLEJson}
+				><IconCodeDots></IconCodeDots>KLE JSON</button
+			>
+			<!-- <button class={"popover-menu-button"}
+				><IconCode></IconCode>KLE Raw Data</button
+			> -->
+		</div>
+	{/if}
 	<div class="divider"></div>
 	<div class="project-details">
 		<i class="hi-keyboard"></i>{$projectFile.name}
@@ -53,6 +113,11 @@
 		--hi-accent: var(--main-text);
 		--hi-base: var(--ui-bg);
 	}
+
+	.hi-keyboard {
+		color: var(--main-text);
+		--hi-base: var(--ui-bg);
+	}
 	button {
 		background: none;
 		outline: none;
@@ -66,6 +131,7 @@
 		align-items: center;
 		justify-content: center;
 		color: var(--main-text);
+		cursor: pointer;
 	}
 	button:hover {
 		background: var(--ui-light-gray);

@@ -145,7 +145,7 @@
 	function wheelHandler(e: WheelEvent) {
 		let isTrackpad = Math.abs(e.deltaY) < 75; //arbitrary threshold, the deltaY of trackpads is much smaller than a wheel
 		e.preventDefault();
-		if (e.ctrlKey) {
+		if (e.ctrlKey || e.metaKey) {
 			let zoomDelta = e.deltaY;
 			if (isTrackpad) {
 				zoomDelta *= 3;
@@ -293,8 +293,7 @@
 					"r",
 					Math.round(capAngle * 100) / 100,
 					false,
-					true,
-					100
+					"r"
 				);
 			});
 		}
@@ -433,21 +432,12 @@
 				cEndY = cStartY;
 				cStartY = tmp;
 			}
-			let cap = {
-				legends: "",
-				x: cStartX,
-				y: cStartY,
-				w: Math.max(1, cEndX - cStartX + 1),
-				h: Math.max(1, cEndY - cStartY + 1),
-				x2: 0,
-				y2: 0,
-				w2: Math.max(1, cEndX - cStartX + 1),
-				h2: Math.max(1, cEndY - cStartY + 1),
-				color: "#e6e6e6",
-				textColor: "#000",
-				stepped: false,
-				r: 0,
-			};
+			let cap = getBlankCapData();
+			cap.x = cStartX;
+			cap.y = cStartY;
+			cap.w2 = cap.w = Math.max(1, cEndX - cStartX + 1);
+			cap.h2 = cap.h = Math.max(1, cEndY - cStartY + 1);
+			cap.color = "#e6e6e6";
 			//broadcast an event to create a new cap
 			dispatch("createCap", cap);
 			previousCapPlacementData = cap;

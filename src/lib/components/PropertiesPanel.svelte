@@ -1,10 +1,10 @@
 <script lang="ts">
+	import NumberInput from "./PropertyInputs/NumberInput.svelte";
+	import LegendInput from "./PropertyInputs/LegendInput.svelte";
 	import {
 		updateCapData,
 		alignCapsToGrid,
-		logData,
 		parseCapColor,
-		getWhiteOrBlackFromColor,
 		createVariable,
 	} from "$lib";
 	import {
@@ -21,7 +21,12 @@
 		type ComputePositionConfig,
 	} from "svelte-floating-ui/dom";
 	import { createFloatingActions } from "svelte-floating-ui";
-	import {IconLayoutSidebarRightExpandFilled, IconLayoutSidebarRightCollapseFilled, IconColorSwatch, IconPlus} from "@tabler/icons-svelte";
+	import {
+		IconLayoutSidebarRightExpandFilled,
+		IconLayoutSidebarRightCollapseFilled,
+		IconColorSwatch,
+		IconPlus,
+	} from "@tabler/icons-svelte";
 	import { spring } from "svelte/motion";
 	import { lerp } from "$lib/util";
 	let options: Partial<ComputePositionConfig> = {
@@ -40,7 +45,6 @@
 			(event.target as HTMLInputElement).type == "checkbox"
 				? (event.target as HTMLInputElement).checked
 				: (event.target as HTMLInputElement).value,
-			false,
 			false
 		);
 		if (property == "textColor")
@@ -50,7 +54,7 @@
 	}
 
 	function setColorToVariable(prop: string, val: string) {
-		updateCapData($selectedStore, prop, val, false, false);
+		updateCapData($selectedStore, prop, val, false);
 		if (prop == "textColor") textColor = val;
 		if (prop == "color") capColor = val;
 	}
@@ -72,14 +76,8 @@
 	let showTextColorVarPicker = false;
 	let showCapColorVarPicker = false;
 	function onwindowclick(e: MouseEvent) {
-		let cl = (e.target as HTMLElement).classList;
-		if (
-			cl.contains("color-input-variable-picker") ||
-			cl.contains("picker-button")
-		)
-			return;
-		if (e.target != textColorButton) showTextColorVarPicker = false;
-		if (e.target != capColorButton) showCapColorVarPicker = false;
+		if (e.target != textColorButton || !(e.target as HTMLElement).contains(textColorButton)) showTextColorVarPicker = false;
+		if (e.target != capColorButton || !(e.target as HTMLElement).contains(capColorButton)) showCapColorVarPicker = false;
 	}
 
 	let panelCollapsed = false;
@@ -142,8 +140,8 @@
 		}
 		let nPos = $sheetPositionStore - dY;
 		rawNPos = nPos;
-		if(nPos < snapPointOpen) {
-			if(yWhenOverTop == null) yWhenOverTop = e.touches[0].clientY
+		if (nPos < snapPointOpen) {
+			if (yWhenOverTop == null) yWhenOverTop = e.touches[0].clientY;
 			let diff = yWhenOverTop - e.touches[0].clientY;
 			nPos = snapPointOpen - lerp(diff, 0, 0.65);
 		}
@@ -158,7 +156,7 @@
 		let cur = sheetOpen ? snapPointOpen : snapPointClosed;
 		let next = sheetOpen ? snapPointClosed : snapPointOpen;
 		let thresh = Math.abs(next - cur) * 0.15;
-		yWhenOverTop= null;
+		yWhenOverTop = null;
 		if (Math.abs($sheetPositionStore - cur) > thresh) {
 			sheetOpen = !sheetOpen;
 			sheetPositionStore.set(next);
@@ -180,7 +178,9 @@
 	<button
 		on:click={() => {
 			panelCollapsed = false;
-		}}><IconLayoutSidebarRightExpandFilled></IconLayoutSidebarRightExpandFilled></button
+		}}
+		><IconLayoutSidebarRightExpandFilled
+		></IconLayoutSidebarRightExpandFilled></button
 	>
 </div>
 <div
@@ -188,7 +188,6 @@
 	on:touchmove={touchMoveHandler}
 	on:touchend={touchEndHandler}
 	id="properties-panel"
-	
 	style={breakpoint ? `transform: translateY(${$sheetPositionStore}px);` : ""}
 	class={"ui-floating-element " + (panelCollapsed ? "panel-off" : "")}
 >
@@ -220,245 +219,180 @@
 				on:click={() => {
 					panelCollapsed = true;
 				}}
-				><IconLayoutSidebarRightCollapseFilled></IconLayoutSidebarRightCollapseFilled></button
+				><IconLayoutSidebarRightCollapseFilled
+				></IconLayoutSidebarRightCollapseFilled></button
 			>{/if}
 	</h1>
-	<div class="properties-panel-scroll"
-	bind:this={sheetEl}>
+	<div class="properties-panel-scroll" bind:this={sheetEl}>
 		<div>
 			{#if $selectedStore.length != 0}
 				<div>
-					{#key $propertyPanelStore}
+					<div class="input-stack">
+						<LegendInput></LegendInput>
+					</div>
+					<div class="input-group">
+						<div class="input-pair">
+							<div class="input-stack">
+								<NumberInput property="x" step="0.25" name="X"></NumberInput>
+							</div>
+							<div class="input-stack">
+								<NumberInput property="y" step="0.25" name="Y"></NumberInput>
+							</div>
+						</div>
+						<div class="input-pair">
+							<div class="input-stack">
+								<NumberInput property="x2" step="0.25" name="X Offset"
+								></NumberInput>
+							</div>
+							<div class="input-stack">
+								<NumberInput property="y2" step="0.25" name="Y Offset"
+								></NumberInput>
+							</div>
+						</div>
+					</div>
+					<div class="input-group">
+						<div class="input-pair">
+							<div class="input-stack">
+								<NumberInput property="w" step="0.25" name="Width"
+								></NumberInput>
+							</div>
+							<div class="input-stack">
+								<NumberInput property="h" step="0.25" name="Height"
+								></NumberInput>
+							</div>
+						</div>
+						<div class="input-pair">
+							<div class="input-stack">
+								<NumberInput property="w2" step="0.25" name="2nd Width"
+								></NumberInput>
+							</div>
+							<div class="input-stack">
+								<NumberInput property="h2" step="0.25" name="2nd Height"
+								></NumberInput>
+							</div>
+						</div>
+					</div>
+					<div class="input-group">
 						<div class="input-stack">
-							<label for="legend">Legend</label>
+							<NumberInput property="r" step="" name="Angle"></NumberInput>
+						</div>
+						<div class="input-stack">
+							<label for="stepped">Stepped</label>
 							<input
-								name="legend"
-								type="text"
-								value={$selectedStore[$selectedStore.length - 1].legends}
-								on:input={(e) => updateProperty("legends", e)}
+								name="stepped"
+								type="checkbox"
+								value={$selectedStore[$selectedStore.length - 1].stepped}
+								on:input={(e) => updateProperty("stepped", e)}
 							/>
 						</div>
-						<div class="input-group">
-							<div class="input-pair">
-								<div class="input-stack">
-									<label for="xPosition">X</label>
-									<input
-										name="xPosition"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].x}
-										on:input={(e) => updateProperty("x", e)}
-									/>
-								</div>
-								<div class="input-stack">
-									<label for="yPosition">Y</label>
-									<input
-										name="yPosition"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].y}
-										on:input={(e) => updateProperty("y", e)}
-									/>
-								</div>
-							</div>
-							<div class="input-pair">
-								<div class="input-stack">
-									<label for="secondaryXPosition">X Offset</label>
-									<input
-										name="offsetXPosition"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].x2}
-										on:input={(e) => updateProperty("x2", e)}
-									/>
-								</div>
-								<div class="input-stack">
-									<label for="secondaryXPosition">Y Offset</label>
-									<input
-										name="offsetYPosition"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].y2}
-										on:input={(e) => updateProperty("y2", e)}
-									/>
-								</div>
-							</div>
-						</div>
-						<div class="input-group">
-							<div class="input-pair">
-								<div class="input-stack">
-									<label for="width">Width</label>
-									<input
-										name="width"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].w}
-										on:input={(e) => updateProperty("w", e)}
-									/>
-								</div>
-								<div class="input-stack">
-									<label for="height">Height</label>
-									<input
-										name="height"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].h}
-										on:input={(e) => updateProperty("h", e)}
-									/>
-								</div>
-							</div>
-							<div class="input-pair">
-								<div class="input-stack">
-									<label for="secondaryWidth">2nd Width</label>
-									<input
-										name="secondaryWidth"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].w2}
-										on:input={(e) => updateProperty("w2", e)}
-									/>
-								</div>
-								<div class="input-stack">
-									<label for="secondaryHeight">2nd Height</label>
-									<input
-										name="secondaryHeight"
-										type="number"
-										step=".25"
-										value={$selectedStore[$selectedStore.length - 1].h2}
-										on:input={(e) => updateProperty("h2", e)}
-									/>
-								</div>
-							</div>
-						</div>
-						<div class="input-group">
-							<div class="input-stack">
-								<label for="angle">Angle</label>
-								<input
-									name="angle"
-									type="number"
-									value={$selectedStore[$selectedStore.length - 1].r}
-									on:input={(e) => updateProperty("r", e)}
-								/>
-							</div>
-							<div class="input-stack">
-								<label for="stepped">Stepped</label>
-								<input
-									name="stepped"
-									type="checkbox"
-									value={$selectedStore[$selectedStore.length - 1].stepped}
-									on:input={(e) => updateProperty("stepped", e)}
-								/>
-							</div>
-						</div>
+					</div>
 
-						<div class="input-group">
-							<div class="input-stack">
-								<label for="capColor">Cap Color</label>
-								<div class="color-input">
-									<div class="color-side">
-										<input
-											name="capColor"
-											type="color"
-											value={parseCapColor(
-												$selectedStore[$selectedStore.length - 1].color
-											)}
-											on:input={(e) => {
-												updateProperty("color", e);
-											}}
-										/>
-										<div
-											class="preview"
-											style={`background: ${parseCapColor(capColor)}`}
-										></div>
-									</div>
-									<button
-										bind:this={capColorButton}
-										use:floatingCapRef
-										on:click={(e) =>
-											(showCapColorVarPicker = !showCapColorVarPicker)}
-										class={"color-variable-button " +
-											(capColor.startsWith("$") ? "variable-active" : "")}
-										><IconColorSwatch></IconColorSwatch></button
-									>
-								</div>
-								{#if showCapColorVarPicker}
+					<div class="input-group">
+						<div class="input-stack">
+							<label for="capColor">Cap Color</label>
+							<div class="color-input">
+								<div class="color-side">
+									<input
+										name="capColor"
+										type="color"
+										value={parseCapColor(
+											$selectedStore[$selectedStore.length - 1].color
+										)}
+										on:input={(e) => {
+											updateProperty("color", e);
+										}}
+									/>
 									<div
-										class="color-input-variable-picker"
-										use:floatingCapContent
-									>
-										{#each $projectFile.variables as variable}
-											<button
-												class={"picker-button " +
-													(capColor == "$" + variable.id ? "active" : "")}
-												on:click={(e) =>
-													setColorToVariable("color", "$" + variable.id)}
-											>
-												<div
-													class="swatch"
-													style={`background: ${variable.color};`}
-												></div>
-												{variable.displayName}</button
-											>
-										{/each}
-									</div>
-								{/if}
-							</div>
-							<div class="input-stack">
-								<label for="textColor">Text Color</label>
-								<div class="color-input">
-									<div class="color-side">
-										<input
-											name="textColor"
-											type="color"
-											value={parseCapColor(
-												$selectedStore[$selectedStore.length - 1].textColor
-											)}
-											on:input={(e) => {
-												updateProperty("textColor", e);
-											}}
-										/>
-										<div
-											class="preview"
-											style={`background: ${parseCapColor(textColor)}`}
-										></div>
-									</div>
-									<button
-										bind:this={textColorButton}
-										use:floatingTextRef
-										on:click={(e) =>
-											(showTextColorVarPicker = !showTextColorVarPicker)}
-										class={"color-variable-button " +
-											(textColor.startsWith("$") ? "variable-active" : "")}
-										><IconColorSwatch></IconColorSwatch></button
-									>
+										class="preview"
+										style={`background: ${parseCapColor(capColor)}`}
+									></div>
 								</div>
-								{#if showTextColorVarPicker}
-									<div
-										class="color-input-variable-picker"
-										use:floatingTextContent
-									>
-										{#each $projectFile.variables as variable}
-											<button
-												class={"picker-button " +
-													(textColor == "$" + variable.id ? "active" : "")}
-												on:click={(e) =>
-													setColorToVariable("textColor", "$" + variable.id)}
-											>
-												<div
-													class="swatch"
-													style={`background: ${variable.color};`}
-												></div>
-												{variable.displayName}</button
-											>
-										{/each}
-									</div>
-								{/if}
+								<button
+									bind:this={capColorButton}
+									use:floatingCapRef
+									on:click={(e) =>
+										(showCapColorVarPicker = !showCapColorVarPicker)}
+									class={"color-variable-button " +
+										(capColor.startsWith("$") ? "variable-active" : "")}
+									><span style="pointer-events: none;"
+										><IconColorSwatch></IconColorSwatch></span
+									></button
+								>
 							</div>
+							{#if showCapColorVarPicker}
+								<div class="popover-menu" use:floatingCapContent>
+									{#each $projectFile.variables as variable}
+										<button
+											class={"popover-menu-button " +
+												(capColor == "$" + variable.id ? "active" : "")}
+											on:click={(e) =>
+												setColorToVariable("color", "$" + variable.id)}
+										>
+											<div
+												class="swatch"
+												style={`background: ${variable.color};`}
+											></div>
+											{variable.displayName}</button
+										>
+									{/each}
+								</div>
+							{/if}
 						</div>
-					{/key}
+						<div class="input-stack">
+							<label for="textColor">Text Color</label>
+							<div class="color-input">
+								<div class="color-side">
+									<input
+										name="textColor"
+										type="color"
+										value={parseCapColor(
+											$selectedStore[$selectedStore.length - 1].textColor
+										)}
+										on:input={(e) => {
+											updateProperty("textColor", e);
+										}}
+									/>
+									<div
+										class="preview"
+										style={`background: ${parseCapColor(textColor)}`}
+									></div>
+								</div>
+								<button
+									bind:this={textColorButton}
+									use:floatingTextRef
+									on:click={(e) =>
+										(showTextColorVarPicker = !showTextColorVarPicker)}
+									class={"color-variable-button " +
+										(textColor.startsWith("$") ? "variable-active" : "")}
+									><span style="pointer-events: none;"
+										><IconColorSwatch></IconColorSwatch></span
+									></button
+								>
+							</div>
+							{#if showTextColorVarPicker}
+								<div
+									class="popover-menu"
+									use:floatingTextContent
+								>
+									{#each $projectFile.variables as variable}
+										<button
+											class={"popover-menu-button " +
+												(textColor == "$" + variable.id ? "active" : "")}
+											on:click={(e) =>
+												setColorToVariable("textColor", "$" + variable.id)}
+										>
+											<div
+												class="swatch"
+												style={`background: ${variable.color};`}
+											></div>
+											{variable.displayName}</button
+										>
+									{/each}
+								</div>
+							{/if}
+						</div>
+					</div>
 				</div>
-				<!-- {#key $projectFile}
-				<pre>{JSON.stringify($selectedStore, null, 2)}</pre>{/key} -->
 			{:else}
 				<p>No Cap Is Selected</p>
 			{/if}
@@ -476,7 +410,6 @@
 		</div>
 		<h2>Actions</h2>
 		<div class="button-grid">
-			<button on:click={logData}>Log Data</button>
 			<button on:click={alignCapsToGrid}>Align to Grid</button>
 		</div>
 	</div>
@@ -606,16 +539,6 @@
 		font-weight: 500;
 		font-size: 1.3em;
 	}
-	input {
-		width: 100%;
-		box-sizing: border-box;
-		outline: none;
-		border: none;
-		padding: 5px 8px;
-		border-radius: 4px;
-		background: var(--ui-element-background);
-		border: 1px solid var(--ui-transparent-outline);
-	}
 	.input-group {
 		width: 100%;
 		display: flex;
@@ -696,36 +619,6 @@
 		justify-content: space-between;
 		gap: 8px;
 		flex-wrap: wrap;
-	}
-
-	.color-input-variable-picker {
-		position: absolute;
-		top: 56px;
-		right: 0;
-		z-index: 100000;
-		background: white;
-		border-radius: 10px;
-		border: 1px solid var(--ui-transparent-outline);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.233);
-		padding: 6px;
-		display: flex;
-		gap: 4px;
-		flex-direction: column;
-		width: 150px;
-	}
-	.color-input-variable-picker button {
-		width: 100%;
-		text-wrap: nowrap;
-		overflow: hidden;
-	}
-	.picker-button {
-		justify-content: left;
-		gap: 8px;
-		min-height: 36px;
-	}
-	.picker-button.active {
-		border: 1px solid var(--accent);
-		background: var(--accent-light);
 	}
 	.swatch {
 		box-sizing: border-box;
