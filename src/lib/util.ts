@@ -1,4 +1,6 @@
 import type { Key, Keyboard } from "@ijprest/kle-serial";
+import sanitizeHtml from 'sanitize-html';
+import {decode} from "html-entities"
 export function makeid(length: number): string {
 	let result = "";
 	const characters =
@@ -38,6 +40,8 @@ export function getBlankCapData(): CapDataElement {
 		textColor: "#000",
 		stepped: false,
 		r: 0,
+		decal: false,
+		homing: false
 	};
 }
 
@@ -79,7 +83,7 @@ export function convertKLEJsonToNative(kle: Keyboard): FileData {
 	let newJson: FileData = {
 		name: "",
 		variables: [],
-		keyData: []
+		keyData: [],
 	};
 
 	newJson.name = kle.meta.name;
@@ -88,9 +92,9 @@ export function convertKLEJsonToNative(kle: Keyboard): FileData {
 		let legends = new Array(12);
 		legends.fill(null);
 		legends.splice(0, key.labels.length, ...key.labels);
-		legends = legends.map( l => l === undefined ? null : l);
-		let newKey:CapDataElement = {
-			legends:legends,
+		legends = legends.map((l) => (l === undefined ? null : l));
+		let newKey: CapDataElement = {
+			legends: legends,
 			x: key.x,
 			y: key.y,
 			w: key.width,
@@ -102,14 +106,25 @@ export function convertKLEJsonToNative(kle: Keyboard): FileData {
 			r: key.rotation_angle,
 			color: key.color,
 			textColor: key.default.textColor,
-			stepped: key.stepped
+			stepped: key.stepped,
+			decal: key.decal,
+			homing: key.nub
 		};
-		console.log(newKey)
+		console.log(newKey);
 
 		formattedKeydata.push(newKey);
 	});
 
 	newJson.keyData = formattedKeydata;
-	
+
 	return newJson;
+}
+
+export function HTMLStringToBasicString(string: string) {
+	let cleanHtml = sanitizeHtml(string, {
+		allowedTags: [],
+		allowedAttributes: {},
+	});
+	cleanHtml = decode(cleanHtml)
+	return cleanHtml;
 }

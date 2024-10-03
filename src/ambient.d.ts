@@ -43,6 +43,8 @@ declare global {
             color: string,
             textColor: string,
             stepped: boolean,
+            decal: boolean,
+            homing: boolean,
         }
         type FileData = {
             name: string,

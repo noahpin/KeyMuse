@@ -76,14 +76,8 @@
 	let showTextColorVarPicker = false;
 	let showCapColorVarPicker = false;
 	function onwindowclick(e: MouseEvent) {
-		let cl = (e.target as HTMLElement).classList;
-		if (
-			cl.contains("color-input-variable-picker") ||
-			cl.contains("picker-button")
-		)
-			return;
-		if (e.target != textColorButton) showTextColorVarPicker = false;
-		if (e.target != capColorButton) showCapColorVarPicker = false;
+		if (e.target != textColorButton || !(e.target as HTMLElement).contains(textColorButton)) showTextColorVarPicker = false;
+		if (e.target != capColorButton || !(e.target as HTMLElement).contains(capColorButton)) showCapColorVarPicker = false;
 	}
 
 	let panelCollapsed = false;
@@ -326,10 +320,10 @@
 								>
 							</div>
 							{#if showCapColorVarPicker}
-								<div class="color-input-variable-picker" use:floatingCapContent>
+								<div class="popover-menu" use:floatingCapContent>
 									{#each $projectFile.variables as variable}
 										<button
-											class={"picker-button " +
+											class={"popover-menu-button " +
 												(capColor == "$" + variable.id ? "active" : "")}
 											on:click={(e) =>
 												setColorToVariable("color", "$" + variable.id)}
@@ -377,12 +371,12 @@
 							</div>
 							{#if showTextColorVarPicker}
 								<div
-									class="color-input-variable-picker"
+									class="popover-menu"
 									use:floatingTextContent
 								>
 									{#each $projectFile.variables as variable}
 										<button
-											class={"picker-button " +
+											class={"popover-menu-button " +
 												(textColor == "$" + variable.id ? "active" : "")}
 											on:click={(e) =>
 												setColorToVariable("textColor", "$" + variable.id)}
@@ -625,36 +619,6 @@
 		justify-content: space-between;
 		gap: 8px;
 		flex-wrap: wrap;
-	}
-
-	.color-input-variable-picker {
-		position: absolute;
-		top: 56px;
-		right: 0;
-		z-index: 100000;
-		background: white;
-		border-radius: 10px;
-		border: 1px solid var(--ui-transparent-outline);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.233);
-		padding: 6px;
-		display: flex;
-		gap: 4px;
-		flex-direction: column;
-		width: 150px;
-	}
-	.color-input-variable-picker button {
-		width: 100%;
-		text-wrap: nowrap;
-		overflow: hidden;
-	}
-	.picker-button {
-		justify-content: left;
-		gap: 8px;
-		min-height: 36px;
-	}
-	.picker-button.active {
-		border: 1px solid var(--accent);
-		background: var(--accent-light);
 	}
 	.swatch {
 		box-sizing: border-box;

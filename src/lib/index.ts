@@ -2,7 +2,7 @@
 import { writable, get, type Writable } from "svelte/store";
 import templateFile from "$lib/template.json";
 import chroma from "chroma-js";
-import { makeid, getBlankCapData, downloadJSON, openFilePicker, convertKLEJsonToNative } from "./util";
+import { makeid, getBlankCapData, downloadJSON, openFilePicker, convertKLEJsonToNative, HTMLStringToBasicString } from "./util";
 import * as kle from "@ijprest/kle-serial";
 
 import {
@@ -127,6 +127,12 @@ export function enforceFileSchema(file: FileData): FileData {
 		}else {
 			legends.splice(0, d.legends.length, ...d.legends);
 		}
+		//ensure that there is no HTML content in the legends
+		for (let i = 0; i < legends.length; i++) {
+			var element = legends[i];
+			element = HTMLStringToBasicString(element);
+			legends[i] = element;
+		}
 		tmp.legends = legends;
 		tmp.x = d.x || 0;
 		tmp.y = d.y || 0;
@@ -140,6 +146,8 @@ export function enforceFileSchema(file: FileData): FileData {
 		tmp.color = d.color || "#fff";
 		tmp.textColor = d.textColor || "#000";
 		tmp.stepped = d.stepped != null ? d.stepped : false;
+		tmp.decal = d.decal ?? false;
+		tmp.homing = d.homing ?? false;
 
 		keyData[i] = tmp;
 	}

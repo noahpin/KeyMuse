@@ -22,6 +22,8 @@
 	let stepped = capData.stepped || false;
 	let textColor = parseCapColor(capData.textColor) || "black";
 	let legend = capData.legends || [""];
+	let decal = capData.decal;
+	let homing = capData.homing;
 	let selected = false;
 	let capPadding = 3;
 	let capRadius = 2;
@@ -63,6 +65,8 @@
 		capColor = chroma(parseCapColor(capData.color) || "#969696");
 		capDarken = capColor.darken(0.35);
 		capEdge = capDarken.darken(0.5);
+		decal = capData.decal;
+		homing = capData.homing;
 	}
 	$: updateData(capData);
 
@@ -79,6 +83,8 @@
 		context.fillStyle = capDarken.hex();
 		context.strokeStyle = capEdge.hex();
 		context.lineWidth = 3;
+
+		//main cap background
 		context.beginPath();
 		context.roundRect(
 			cPad / $canvasZoom,
@@ -95,17 +101,21 @@
 			capRadius
 		);
 
-		if (selected) {
+		if (selected && !decal) {
 			context.lineWidth = 5 + capPadding;
 			context.strokeStyle = $uiAccent;
 			context.stroke();
 			context.lineWidth = 1 + capPadding;
 			context.strokeStyle = "white";
 			context.stroke();
+		} else if (selected && decal) {
+			context.lineWidth = 4;
+			context.strokeStyle = $uiAccent;
+			context.stroke();
 		}
 
 		context.lineWidth = 3;
-		context.stroke();
+		if (!decal) context.stroke();
 		context.strokeStyle = capEdge.hex();
 		context.fill();
 
@@ -130,8 +140,8 @@
 				capRadius
 			);
 		}
-		context.stroke();
-		context.fill();
+		if (!decal) context.stroke();
+		if (!decal) context.fill();
 		context.fillStyle = textColor;
 		context.textAlign = "center";
 		context.textBaseline = "middle";
@@ -139,24 +149,37 @@
 		// loop thru all legend
 
 		// offsets to put the legends at the right position.
-		let xOffsets = [capHighlightPadding / unitSize + capXLegendPadding, (w / 2), w - capXLegendPadding - (capHighlightPadding / unitSize)];
-		let yOffsets = [capHighlightPadding / unitSize + capYLegendTopPadding, (h / 2), h - (capHighlightPadding / unitSize) - capYLegendBottomPadding, h];
+		let xOffsets = [
+			capHighlightPadding / unitSize + capXLegendPadding,
+			w / 2,
+			w - capXLegendPadding - capHighlightPadding / unitSize,
+		];
+		let yOffsets = [
+			capHighlightPadding / unitSize + capYLegendTopPadding,
+			h / 2,
+			h - capHighlightPadding / unitSize - capYLegendBottomPadding,
+			h,
+		];
 		let xAlign = ["left", "center", "right"];
-		let yBaseline = ["top", "middle", "ideographic", "bottom"]
+		let yBaseline = ["top", "middle", "ideographic", "bottom"];
 
 		for (let i = 0; i < 12; i++) {
 			if (legend[i] != undefined && legend[i] != null) {
 				let xOffset = xOffsets[i % 3];
 				context.textAlign = xAlign[i % 3] as CanvasTextAlign;
 				let yOffset = yOffsets[Math.floor(i / 3)];
-				context.textBaseline = yBaseline[Math.floor(i / 3)] as CanvasTextBaseline;
-				let center = Math.floor(i / 3) == 3  && !capHighlightCentered ? 0.6 : Number(capHighlightCentered)
+				context.textBaseline = yBaseline[
+					Math.floor(i / 3)
+				] as CanvasTextBaseline;
+				let center =
+					Math.floor(i / 3) == 3 && !capHighlightCentered
+						? 0.6
+						: Number(capHighlightCentered);
 				context.fillText(
 					legend[i],
-					(xOffset) * unitSize,
+					xOffset * unitSize,
 
-					(yOffset) * unitSize -
-						((cHPad / 2.5) * (1 - center)) / $canvasZoom
+					yOffset * unitSize - ((cHPad / 2.5) * (1 - center)) / $canvasZoom
 				);
 			}
 		}
