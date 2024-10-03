@@ -145,7 +145,7 @@
 	function wheelHandler(e: WheelEvent) {
 		let isTrackpad = Math.abs(e.deltaY) < 75; //arbitrary threshold, the deltaY of trackpads is much smaller than a wheel
 		e.preventDefault();
-		if (e.ctrlKey) {
+		if (e.ctrlKey || e.metaKey) {
 			let zoomDelta = e.deltaY;
 			if (isTrackpad) {
 				zoomDelta *= 3;
