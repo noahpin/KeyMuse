@@ -1,7 +1,7 @@
 {
 	"name": "kle-silly-project",
 	"license": "GPL-3.0",
-	"version": "0.0.1-Alpha",
+	"version": "0.0.4-Alpha",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
@@ -16,6 +16,7 @@
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/chroma-js": "^2.4.4",
 		"@types/node": "^20.14.10",
+		"@types/sanitize-html": "^2.13.0",
 		"svelte": "^4.2.7",
 		"svelte-check": "^3.6.0",
 		"tslib": "^2.4.1",

@@ -6,6 +6,7 @@
 		alignCapsToGrid,
 		parseCapColor,
 		createVariable,
+		addToastMessage,
 	} from "$lib";
 	import {
 		selectedStore,
@@ -28,7 +29,7 @@
 		IconPlus,
 	} from "@tabler/icons-svelte";
 	import { spring } from "svelte/motion";
-	import { lerp } from "$lib/util";
+	import { lerp, serializeKeyMuseJSONToKLEJson } from "$lib/util";
 	let options: Partial<ComputePositionConfig> = {
 		strategy: "absolute",
 		placement: "bottom",
@@ -415,6 +416,7 @@
 	</div>
 </div>
 
+
 <style>
 	#properties-panel-toggle {
 		top: 12px;
@@ -576,9 +578,6 @@
 		justify-content: center;
 		align-items: center;
 		color: var(--secondary-text);
-	}
-	button.color-variable-button i {
-		pointer-events: none;
 	}
 	button.variable-active {
 		color: white;
