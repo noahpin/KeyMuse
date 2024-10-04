@@ -56,6 +56,11 @@ declare global {
             displayName: string,
             color: string
         }
+        type ToastMessage = {
+            message: string,
+            duration: number,
+            style?: (null | "error" | "warning" | "success")
+        }
     type CanvasRendererInput = {context: CanvasRenderingContext2D, width: number, height: number}
 }
 export {};

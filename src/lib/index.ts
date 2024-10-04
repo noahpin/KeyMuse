@@ -1,18 +1,26 @@
 // place files you want to import through the `$lib` alias in this folder.
 import { writable, get, type Writable } from "svelte/store";
-import templateFile from "$lib/template.json";
 import chroma from "chroma-js";
-import { makeid, getBlankCapData, downloadJSON, openFilePicker, convertKLEJsonToNative, HTMLStringToBasicString } from "./util";
+import {
+	makeid,
+	getBlankCapData,
+	downloadJSON,
+	openFilePicker,
+	convertKLEJsonToNative,
+	HTMLStringToBasicString,
+	ensureNumber,
+	serializeKeyMuseJSONToKLEJson,
+} from "./util";
 import * as kle from "@ijprest/kle-serial";
 
 import {
 	projectFile,
 	propertyPanelStore,
 	selectedStore,
+	toastMessages,
 	variableDeletionStore,
 } from "./stores";
 
-setProjectFile(templateFile as FileData);
 
 export function setProjectFile(file: FileData) {
 	projectFile.set(enforceFileSchema(file));
@@ -44,8 +52,8 @@ export function updateCapData(
 			c.h2 = newValue;
 			updateH2 = true;
 		}
-		if(property == "legends" && legendIndex != null) {
-			if(c.legends.length < 12) {
+		if (property == "legends" && legendIndex != null) {
+			if (c.legends.length < 12) {
 				let tmp = new Array(12);
 				tmp.splice(0, c.legends.length, ...c.legends);
 				c.legends = tmp;
@@ -53,7 +61,7 @@ export function updateCapData(
 			c.legends[legendIndex] = newValue;
 			return;
 		}
-		
+
 		c[property] = newValue;
 	});
 	let tObj = get(projectFile);
@@ -61,9 +69,9 @@ export function updateCapData(
 	projectFile.set(tObj);
 	if (propagateUpdates != null || updateW2 || updateH2) {
 		let tmp = { ...get(propertyPanelStore) };
-		if(propagateUpdates != null) tmp[propagateUpdates] = Date.now();
-		if(updateW2) tmp["w2"] = Date.now();
-		if(updateH2) tmp["h2"] = Date.now();
+		if (propagateUpdates != null) tmp[propagateUpdates] = Date.now();
+		if (updateW2) tmp["w2"] = Date.now();
+		if (updateH2) tmp["h2"] = Date.now();
 		propertyPanelStore.set(tmp);
 	}
 }
@@ -81,6 +89,13 @@ export function exportProject() {
 	downloadJSON(get(projectFile), "keymuse.json");
 }
 
+export function exportKLEJson() {
+	downloadJSON(
+		serializeKeyMuseJSONToKLEJson(get(projectFile)),
+		"keymuse-kle.json"
+	);
+}
+
 export async function openProjectFile() {
 	let files = await openFilePicker(".json");
 	let reader = new FileReader();
@@ -89,7 +104,6 @@ export async function openProjectFile() {
 		reader.onload = function (e) {
 			let fileData = e.target?.result;
 			let obj = JSON.parse(fileData as string);
-			console.log(obj)
 			if (obj != null) {
 				setProjectFile(obj);
 			}
@@ -106,12 +120,18 @@ export async function openKLEJson() {
 			let fileData = e.target?.result;
 			let kleObj = kle.Serial.parse(fileData as string);
 			let obj = convertKLEJsonToNative(kleObj);
-			console.log(kle.Serial.parse(fileData as string));
-			console.log(convertKLEJsonToNative(kleObj));
 			if (obj != null) {
 				setProjectFile(obj);
 			}
 		};
+	}
+}
+
+export function openKLERawData(rawData: string) {
+	let kleObj = kle.Serial.parse(`[${rawData as string}]`);
+	let obj = convertKLEJsonToNative(kleObj);
+	if (obj != null) {
+		setProjectFile(obj);
 	}
 }
 
@@ -122,9 +142,9 @@ export function enforceFileSchema(file: FileData): FileData {
 		let tmp: CapDataElement = getBlankCapData();
 		let legends = new Array(12);
 		legends.fill(null);
-		if(!Array.isArray(d.legends)) {
+		if (!Array.isArray(d.legends)) {
 			legends[0] = d.legends;
-		}else {
+		} else {
 			legends.splice(0, d.legends.length, ...d.legends);
 		}
 		//ensure that there is no HTML content in the legends
@@ -134,15 +154,15 @@ export function enforceFileSchema(file: FileData): FileData {
 			legends[i] = element;
 		}
 		tmp.legends = legends;
-		tmp.x = d.x || 0;
+		tmp.x = ensureNumber(d.x || 0);
 		tmp.y = d.y || 0;
-		tmp.w = d.w || 1;
-		tmp.h = d.h || 1;
-		tmp.x2 = d.x2 || 0;
-		tmp.y2 = d.y2 || 0;
-		tmp.w2 = d.w2 || tmp.w;
-		tmp.h2 = d.h2 || tmp.h;
-		tmp.r = d.r || 0;
+		tmp.w = ensureNumber(d.w || 1);
+		tmp.h = ensureNumber(d.h || 1);
+		tmp.x2 = ensureNumber(d.x2 || 0);
+		tmp.y2 = ensureNumber(d.y2 || 0);
+		tmp.w2 = ensureNumber(d.w2 || tmp.w);
+		tmp.h2 = ensureNumber(d.h2 || tmp.h);
+		tmp.r = ensureNumber(d.r || 0);
 		tmp.color = d.color || "#fff";
 		tmp.textColor = d.textColor || "#000";
 		tmp.stepped = d.stepped != null ? d.stepped : false;
@@ -154,8 +174,8 @@ export function enforceFileSchema(file: FileData): FileData {
 	let enforcedFile: FileData = {
 		name: file.name,
 		variables: file.variables ?? null,
-		keyData: keyData
-	}
+		keyData: keyData,
+	};
 	return enforcedFile;
 }
 
@@ -217,8 +237,6 @@ export function deleteVariable(id: string) {
 }
 
 export function selectAll(e: KeyboardEvent) {
-	console.log("selectall");
-	e.preventDefault();
 	selectedStore.set(get(projectFile).keyData);
 }
 
@@ -249,8 +267,6 @@ export function nudgeSelectedCaps(e: KeyboardEvent) {
 	updateCapData(get(selectedStore), "y", dY, true, "y");
 }
 
-
-
 export function updateProjectProperty(property: string, event: Event | null) {
 	if (!event?.target) return;
 	updateCapData(
@@ -267,7 +283,24 @@ export function updateLegend(index: number, event: Event | null) {
 	if (!event?.target) return;
 	updateCapData(
 		get(selectedStore),
-		"legends", (event.target as HTMLInputElement).value,
-		false, null, index
+		"legends",
+		(event.target as HTMLInputElement).value,
+		false,
+		null,
+		index
 	);
+}
+
+export function addToastMessage(toast: ToastMessage) {
+	let msgs = get(toastMessages);
+	msgs.push({ id: makeid(10), toast: toast });
+	toastMessages.set(msgs);
+}
+
+export function removeToastMessage(toastId: string) {
+	let msgs = [...get(toastMessages)];
+	let i = msgs.findIndex((t) => t.id == toastId);
+	msgs.splice(i, 1)
+	toastMessages.set(msgs)
+
 }

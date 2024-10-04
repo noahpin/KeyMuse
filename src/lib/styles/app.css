@@ -52,7 +52,7 @@ label {
 }
 
 button,
-input {
+input, textarea {
     color: var(--main-text)
 }
 
@@ -92,7 +92,7 @@ canvas {
 }
 
 input:hover,
-button:hover {
+button:hover, textarea:hover {
     background: var(--ui-light-gray);
 }
 
@@ -139,7 +139,7 @@ input[type="color"] {
     height: 30px;
 }
 
-input {
+input, textarea {
     width: 100%;
     box-sizing: border-box;
     outline: none;
@@ -163,7 +163,13 @@ input {
     display: flex;
     gap: 4px;
     flex-direction: column;
-    width: 150px;
+    min-width: 150px;
+    width: fit-content;
+}
+.popover-modal {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .popover-menu button {
@@ -192,6 +198,11 @@ input {
     padding: 0 6px !important;
     color: var(--secondary-text)
 }
+h1.popover-title {
+    color: var(--main-text);
+    font-size: 22px;
+    font-weight: bold;
+}
 
 .popover-divider {
     width: 90%;
@@ -204,4 +215,9 @@ input {
     color: var(--secondary-text);
     --hi-accent: var(--secondary-text);
     --hi-base: var(--ui-bg);
+}
+
+.button-primary {
+    background: var(--accent) !important;
+    color: white !important;
 }

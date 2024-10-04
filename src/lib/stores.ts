@@ -37,8 +37,10 @@ export const propertyPanelStore = writable<PropertyPanelUpdateHandler>({
 	decal: 0,
 	homing: 0,
 });
-export const projectFile = writable<FileData>();
+export const projectFile = writable<FileData>({name: "", variables: [], keyData: []});
 export const variableDeletionStore = writable();
+
+export const toastMessages = writable<{id: string, toast: ToastMessage}[]>([]);
 
 export const canvasPan = spring({ x: 90, y: 90 });
 export const canvasZoom = spring(1, { precision: 0.001 });

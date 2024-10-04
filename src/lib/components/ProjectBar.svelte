@@ -9,8 +9,15 @@
 		IconPokeball,
 		IconCodeDots,
 		IconCode,
+		IconX
 	} from "@tabler/icons-svelte";
-	import { exportProject, openKLEJson, openProjectFile } from "$lib";
+	import {
+		exportKLEJson,
+		exportProject,
+		openKLEJson,
+		openKLERawData,
+		openProjectFile,
+	} from "$lib";
 	import {
 		offset,
 		flip,
@@ -18,6 +25,7 @@
 		type ComputePositionConfig,
 	} from "svelte-floating-ui/dom";
 	import { createFloatingActions } from "svelte-floating-ui";
+	import { convertKLEArrayToRawDataString, serializeKeyMuseJSONToKLERawData } from "$lib/util";
 
 	let popoverOptions: Partial<ComputePositionConfig> = {
 		strategy: "absolute",
@@ -27,20 +35,36 @@
 	let showImportMenu = false;
 	let importMenuParent: HTMLElement;
 	let importMenuButton: HTMLElement;
+	let showExportMenu = false;
+	let exportMenuParent: HTMLElement;
+	let exportMenuButton: HTMLElement;
 
 	function windowClick(e: MouseEvent) {
-		console.log(e.target);
 		if (
 			importMenuParent != e.target &&
-			!importMenuParent.contains(e.target as HTMLElement) &&
+			!importMenuParent?.contains(e.target as HTMLElement) &&
 			importMenuButton != e.target &&
-			!importMenuButton.contains(e.target as HTMLElement)
+			!importMenuButton?.contains(e.target as HTMLElement)
 		)
 			showImportMenu = false;
+		if (
+			exportMenuParent != e.target &&
+			!exportMenuParent?.contains(e.target as HTMLElement) &&
+			exportMenuButton != e.target &&
+			!exportMenuButton?.contains(e.target as HTMLElement)
+		)
+			showExportMenu = false;
 	}
 
 	const [importMenuRef, importMenuContent] =
 		createFloatingActions(popoverOptions);
+	const [exportMenuRef, exportMenuContent] =
+		createFloatingActions(popoverOptions);
+
+	let showImportKLERaw = false;
+	let showExportKLERaw = false;
+	let importTextArea: HTMLTextAreaElement;
+	let exportTextArea: HTMLTextAreaElement;
 </script>
 
 <svelte:window on:click={windowClick} />
@@ -61,7 +85,11 @@
 		use:importMenuRef
 		bind:this={importMenuButton}><IconFileImport></IconFileImport></button
 	>
-	<button on:click={exportProject}><IconFileExport></IconFileExport></button>
+	<button
+		on:click={() => (showExportMenu = !showExportMenu)}
+		use:exportMenuRef
+		bind:this={exportMenuButton}><IconFileExport></IconFileExport></button
+	>
 	{#if showImportMenu}
 		<div
 			class="popover-menu"
@@ -76,9 +104,34 @@
 			<button class={"popover-menu-button"} on:click={openKLEJson}
 				><IconCodeDots></IconCodeDots>KLE JSON</button
 			>
-			<!-- <button class={"popover-menu-button"}
+			<button
+				class={"popover-menu-button"}
+				on:click={() => (showImportKLERaw = true)}
 				><IconCode></IconCode>KLE Raw Data</button
-			> -->
+			>
+		</div>
+	{/if}
+	{#if showExportMenu}
+		<div
+			class="popover-menu"
+			use:exportMenuContent
+			bind:this={exportMenuParent}
+		>
+			<p class="popover-title">Export</p>
+			<div class="popover-divider"></div>
+			<button class={"popover-menu-button"} on:click={exportProject}
+				><i class="hi-keyboard"></i>KeyMuse JSON</button
+			>
+			<button class={"popover-menu-button"} on:click={exportKLEJson}
+				><IconCodeDots></IconCodeDots>KLE JSON</button
+			>
+			<button class={"popover-menu-button"}
+			on:click={()=> {
+				showExportKLERaw = true;
+				exportTextArea.value = convertKLEArrayToRawDataString(serializeKeyMuseJSONToKLERawData($projectFile));
+			}}
+				><IconCode></IconCode>KLE Raw Data</button
+			>
 		</div>
 	{/if}
 	<div class="divider"></div>
@@ -86,7 +139,54 @@
 		<i class="hi-keyboard"></i>{$projectFile.name}
 	</div>
 </div>
-
+{#if showImportKLERaw}
+	<div class="popover-menu popover-modal">
+		<h1 class="popover-title">Import KLE Raw Data</h1>
+		<button class="popover-close" on:click={()=>showImportKLERaw = false}><IconX></IconX></button>
+		<div class="popover-divider"></div>
+		<textarea
+			bind:this={importTextArea}
+			name="rawdata"
+			id=""
+			placeholder="Place KLE Raw data here..."
+		></textarea>
+		<div class="horizontal">
+			<button
+				class="popover-menu-button"
+				on:click={() => (showImportKLERaw = false)}>Cancel</button
+			><button
+				class="button-primary popover-menu-button"
+				on:click={() => {
+					showImportKLERaw = false;
+					openKLERawData(importTextArea.value);
+				}}>Import</button
+			>
+		</div>
+	</div>
+{/if}
+<div class="popover-menu popover-modal" class:hidden={!showExportKLERaw}>
+	<h1 class="popover-title">Export KLE Raw Data</h1>
+	<button class="popover-close" on:click={()=>showExportKLERaw = false}><IconX></IconX></button>
+	<div class="popover-divider"></div>
+	<p>Copy and paste the text below into KLE.</p>
+	<textarea
+		bind:this={exportTextArea}
+		name="rawdata"
+		id=""
+		placeholder="KLE Raw data."
+		readonly
+	></textarea>
+	<div class="horizontal">
+		<button
+			class="button-primary popover-menu-button"
+			on:click={() => {
+				exportTextArea.focus();
+				exportTextArea.select();
+				document.execCommand("copy");
+			}}>Copy</button
+		>
+	</div>
+</div>
 <style>
 	#toolbar-panel {
 		top: 12px;
@@ -139,5 +239,44 @@
 	button:active {
 		background: var(--accent);
 		color: white;
+	}
+	textarea {
+		font-family: "Jetbrains Mono", monospace;
+		width: 100vw;
+		max-width: min(400px, calc(100vw - 24px));
+		height: 250px;
+	}
+	.horizontal {
+		display: flex;
+		gap: 8px;
+		flex-grow: 0;
+		justify-content: right;
+	}
+	.popover-modal .popover-menu-button {
+		font-size: 16px;
+		padding: 0 12px !important;
+		flex-grow: 0;
+		width: 100px !important;
+		text-align: center;
+		display: flex;
+		align-items: center;
+		justify-content: center !important;
+	}
+	.hidden {
+		display: none;
+		pointer-events: none;
+		visibility: hidden;
+	}
+	.popover-close {
+		position: absolute;
+		top: 0;
+		right: 0;
+		opacity: 0.5;
+	}
+	.popover-close:hover {
+		opacity: 1;
+	}
+	.popover-close {
+		background: transparent !important;
 	}
 </style>
