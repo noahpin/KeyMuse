@@ -4,6 +4,7 @@
 	import { text } from "@sveltejs/kit";
 	import gorton from "$lib/styles/fonts/OpenGorton-Bold.otf";
 	import Astha from "$lib/styles/fonts/ASTHA-LATIN.otf";
+	import Inter from "$lib/styles/fonts/Inter_18pt-Regular.ttf";
 	import { onMount, onDestroy } from "svelte";
 	import { parseCapColor } from "$lib";
 	import { canvasPan, canvasZoom, selectedStore, uiAccent } from "$lib/stores";
@@ -34,14 +35,14 @@
 	let capDarken = capColor.darken(0.35);
 	let capEdge = capDarken.darken(0.5);
 
-	let capYLegendTopPadding = 0.025;
-	let capYLegendBottomPadding = 0.01;
-	let capXLegendPadding = 0.04;
+	let capYLegendTopPadding = 0.05;
+	let capYLegendBottomPadding = 0.025;
+	let capXLegendPadding = 0.06;
 
 	let font;
 
 	onMount(() => {
-		font = new FontFace("CapFont", `url(${Astha})`);
+		font = new FontFace("CapFont", `url(${Inter})`);
 		font.load().then(function (nFont) {
 			document.fonts.add(nFont);
 			fontLoaded = true;
@@ -145,7 +146,7 @@
 		context.fillStyle = textColor;
 		context.textAlign = "center";
 		context.textBaseline = "middle";
-		context.font = "12px";
+		context.font = "10px CapFont";
 		// loop thru all legend
 
 		// offsets to put the legends at the right position.
