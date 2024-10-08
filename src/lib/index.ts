@@ -86,7 +86,9 @@ export function alignCapsToGrid() {
 }
 
 export function exportProject() {
-	downloadJSON(get(projectFile), "keymuse.json");
+	let filename = get(projectFile).name;
+	filename = filename.replaceAll(" ", "-");
+	downloadJSON(get(projectFile), `${filename}.json`);
 }
 
 export function exportKLEJson() {
@@ -277,6 +279,12 @@ export function updateProjectProperty(property: string, event: Event | null) {
 			: (event.target as HTMLInputElement).value,
 		false
 	);
+}
+
+export function updateProjectName(name: string) {
+	let tmp = get(projectFile);
+	tmp.name = name;
+	projectFile.set(tmp);
 }
 
 export function updateLegend(index: number, event: Event | null) {
